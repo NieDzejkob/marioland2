@@ -1,6 +1,7 @@
-include "macros.asm"
-include "ram.asm"
-include "home.asm"
+INCLUDE "constants.asm"
+INCLUDE "macros.asm"
+INCLUDE "ram.asm"
+INCLUDE "home.asm"
 
 SECTION "bank01", ROMX, BANK[$01]
 
@@ -2840,7 +2841,7 @@ UnknownCall_0x92DF:
 	cp $FF
 	ret z
 	ld a, [$FF00+$D5]
-	rst $28
+	rst Jumptable
 
 UnknownData_0x92E8:
 INCBIN "baserom.gb", $92E8, $9323 - $92E8
@@ -2869,7 +2870,7 @@ INCBIN "baserom.gb", $92E8, $9323 - $92E8
 
 UnknownRJump_0x934C:
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0x934E:
 INCBIN "baserom.gb", $934E, $9354 - $934E
@@ -2959,7 +2960,7 @@ UnknownRJump_0x93D5:
 
 UnknownRJump_0x93EE:
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0x93F0:
 INCBIN "baserom.gb", $93F0, $93FE - $93F0
@@ -3248,7 +3249,7 @@ UnknownRJump_0x965E:
 	ret nz
 	ld a, [$FF00+$DF]
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0x966A:
 INCBIN "baserom.gb", $966A, $9670 - $966A
@@ -3297,7 +3298,7 @@ UnknownRJump_0x96B2:
 	ret nz
 	ld a, [$FF00+$DF]
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0x96BE:
 INCBIN "baserom.gb", $96BE, $96C4 - $96BE
@@ -3382,7 +3383,7 @@ UnknownRJump_0x972D:
 
 UnknownRJump_0x9752:
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0x9754:
 INCBIN "baserom.gb", $9754, $9762 - $9754
@@ -3542,7 +3543,7 @@ UnknownRJump_0x9851:
 
 UnknownRJump_0x9862:
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0x9864:
 INCBIN "baserom.gb", $9864, $986C - $9864
@@ -3642,7 +3643,7 @@ UnknownJump_0x98F8:
 
 UnknownRJump_0x9908:
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0x990A:
 INCBIN "baserom.gb", $990A, $9912 - $990A
@@ -3682,7 +3683,7 @@ UnknownRJump_0x9946:
 
 UnknownRJump_0x994A:
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0x994C:
 INCBIN "baserom.gb", $994C, $9954 - $994C
@@ -3874,7 +3875,7 @@ UnknownJump_0x9C8B:
 
 UnknownRJump_0x9CA0:
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0x9CA2:
 INCBIN "baserom.gb", $9CA2, $9CAC - $9CA2
@@ -3997,7 +3998,7 @@ UnknownRJump_0x9D5B:
 
 UnknownRJump_0x9D77:
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0x9D79:
 INCBIN "baserom.gb", $9D79, $9D83 - $9D79
@@ -4126,7 +4127,7 @@ UnknownRJump_0x9E32:
 
 UnknownRJump_0x9E5B:
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0x9E5D:
 INCBIN "baserom.gb", $9E5D, $9E67 - $9E5D
@@ -4248,7 +4249,7 @@ UnknownRJump_0x9F1E:
 
 UnknownRJump_0x9F36:
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0x9F38:
 INCBIN "baserom.gb", $9F38, $9F46 - $9F38
@@ -4396,7 +4397,7 @@ UnknownRJump_0xA041:
 
 UnknownRJump_0xA05C:
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0xA05E:
 INCBIN "baserom.gb", $A05E, $A064 - $A05E
@@ -4489,7 +4490,7 @@ UnknownRJump_0xA0E8:
 
 UnknownRJump_0xA103:
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0xA105:
 INCBIN "baserom.gb", $A105, $A117 - $A105
@@ -4706,7 +4707,7 @@ UnknownRJump_0xA1C6:
 
 UnknownRJump_0xA295:
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0xA297:
 INCBIN "baserom.gb", $A297, $A29B - $A297
@@ -4756,7 +4757,7 @@ UnknownRJump_0xA2D0:
 
 UnknownRJump_0xA2E3:
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0xA2E5:
 INCBIN "baserom.gb", $A2E5, $A2F1 - $A2E5
@@ -4876,7 +4877,7 @@ UnknownRJump_0xA3B6:
 	call nc, UnknownCall_0xA3FF
 	ld a, [$FF00+$DF]
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0xA3C1:
 INCBIN "baserom.gb", $A3C1, $A3FF - $A3C1
@@ -5535,7 +5536,7 @@ UnknownCall_0xA8FF:
 UnknownRJump_0xA90A:
 	ld a, [$FF00+$DF]
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0xA90E:
 INCBIN "baserom.gb", $A90E, $A920 - $A90E
@@ -5761,7 +5762,7 @@ UnknownRJump_0xAA8C:
 	ld [$FF00+$DF], a
 	ret
 	ld a, [$FF00+$DF]
-	rst $28
+	rst Jumptable
 
 UnknownData_0xAAA8:
 INCBIN "baserom.gb", $AAA8, $AAB0 - $AAA8
@@ -5845,7 +5846,7 @@ UnknownRJump_0xAB29:
 	ld [$FF00+$E9], a
 	ret
 	ld a, [$FF00+$DF]
-	rst $28
+	rst Jumptable
 
 UnknownData_0xAB33:
 INCBIN "baserom.gb", $AB33, $AB37 - $AB33
@@ -5879,7 +5880,7 @@ INCBIN "baserom.gb", $AB33, $AB37 - $AB33
 	call UnknownCall_0xB157
 	ret
 	ld a, [$FF00+$DF]
-	rst $28
+	rst Jumptable
 
 UnknownData_0xAB71:
 INCBIN "baserom.gb", $AB71, $AB75 - $AB71
@@ -5956,7 +5957,7 @@ UnknownCall_0xABF5:
 UnknownRJump_0xAC00:
 	ld a, [$FF00+$DF]
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0xAC04:
 INCBIN "baserom.gb", $AC04, $AC1A - $AC04
@@ -6225,7 +6226,7 @@ UnknownRJump_0xADBE:
 UnknownRJump_0xADF9:
 	ld a, [$FF00+$DF]
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0xADFD:
 INCBIN "baserom.gb", $ADFD, $AE17 - $ADFD
@@ -6489,7 +6490,7 @@ UnknownRJump_0xAFBA:
 	ret
 	call UnknownCall_0xB3B9
 	ld a, [$FF00+$DF]
-	rst $28
+	rst Jumptable
 
 UnknownData_0xAFE6:
 INCBIN "baserom.gb", $AFE6, $AFEC - $AFE6
@@ -6539,7 +6540,7 @@ UnknownData_0xB039:
 INCBIN "baserom.gb", $B039, $B0C2 - $B039
 
 	ld a, [$FF00+$DF]
-	rst $28
+	rst Jumptable
 
 UnknownData_0xB0C5:
 INCBIN "baserom.gb", $B0C5, $B0CF - $B0C5
@@ -7530,7 +7531,7 @@ UnknownRJump_0x1011D:
 	call UnknownCall_0x111A6
 	ld de, $A500
 	ld bc, $A504
-	jp [hl]
+	jp hl
 	ld hl, $4134
 	jp UnknownJump_0x1068A
 	call UnknownCall_0x111B3
@@ -8079,7 +8080,7 @@ UnknownRJump_0x106F0:
 	call UnknownCall_0x111A6
 	ld de, $A502
 	ld bc, $A506
-	jp [hl]
+	jp hl
 
 UnknownData_0x106FA:
 INCBIN "baserom.gb", $106FA, $1075A - $106FA
@@ -8684,7 +8685,7 @@ UnknownRJump_0x10EA9:
 	call UnknownCall_0x111A6
 	ld de, $A503
 	ld bc, $A508
-	jp [hl]
+	jp hl
 	ld hl, $4EDC
 	jp UnknownJump_0x11163
 	call UnknownCall_0x111B3
@@ -10894,7 +10895,7 @@ INCBIN "baserom.gb", $3012A, $3012E - $3012A
 
 UnknownCall_0x3012E:
 	ld a, [$A277]
-	rst $28
+	rst Jumptable
 
 UnknownData_0x30132:
 INCBIN "baserom.gb", $30132, $30140 - $30132
@@ -11355,7 +11356,7 @@ UnknownJump_0x3045B:
 
 UnknownCall_0x3046B:
 	ld a, [$A277]
-	rst $28
+	rst Jumptable
 
 UnknownData_0x3046F:
 INCBIN "baserom.gb", $3046F, $30477 - $3046F
@@ -11631,7 +11632,7 @@ UnknownJump_0x3067A:
 
 UnknownCall_0x30693:
 	ld a, [$A277]
-	rst $28
+	rst Jumptable
 
 UnknownData_0x30697:
 INCBIN "baserom.gb", $30697, $3069F - $30697
@@ -18887,7 +18888,7 @@ UnknownRJump_0x5802B:
 	and a
 	jp nz, UnknownJump_0x59C04
 	ld a, [$FF00+$D5]
-	rst $28
+	rst Jumptable
 
 UnknownData_0x58040:
 INCBIN "baserom.gb", $58040, $58101 - $58040
@@ -18905,7 +18906,7 @@ UnknownJump_0x58101:
 
 UnknownRJump_0x58110:
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0x58112:
 INCBIN "baserom.gb", $58112, $5811A - $58112
@@ -19052,7 +19053,7 @@ UnknownRJump_0x58215:
 	ret nz
 	ld a, [$FF00+$DF]
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0x5821E:
 INCBIN "baserom.gb", $5821E, $58226 - $5821E
@@ -19182,7 +19183,7 @@ UnknownRJump_0x582EE:
 UnknownJump_0x582F5:
 UnknownRJump_0x582F5:
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0x582F7:
 INCBIN "baserom.gb", $582F7, $582FB - $582F7
@@ -19297,7 +19298,7 @@ UnknownRJump_0x58380:
 
 UnknownRJump_0x583B2:
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0x583B4:
 INCBIN "baserom.gb", $583B4, $583BC - $583B4
@@ -19394,7 +19395,7 @@ UnknownRJump_0x58452:
 
 UnknownRJump_0x5845F:
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0x58461:
 INCBIN "baserom.gb", $58461, $58463 - $58461
@@ -19541,7 +19542,7 @@ UnknownRJump_0x58556:
 UnknownRJump_0x5855A:
 	ld a, [$FF00+$DF]
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0x5855E:
 INCBIN "baserom.gb", $5855E, $58566 - $5855E
@@ -19680,7 +19681,7 @@ UnknownJump_0x58642:
 UnknownRJump_0x58642:
 	ld a, [$FF00+$DF]
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0x58646:
 INCBIN "baserom.gb", $58646, $5864E - $58646
@@ -19949,7 +19950,7 @@ UnknownRJump_0x587FB:
 	call UnknownCall_0x5B2D7
 	ret
 	ld a, [$FF00+$DF]
-	rst $28
+	rst Jumptable
 
 UnknownData_0x58807:
 INCBIN "baserom.gb", $58807, $5880F - $58807
@@ -20000,7 +20001,7 @@ UnknownRJump_0x58844:
 UnknownRJump_0x58859:
 	ld a, [$FF00+$DF]
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0x5885D:
 INCBIN "baserom.gb", $5885D, $58865 - $5885D
@@ -20224,7 +20225,7 @@ UnknownRJump_0x58994:
 UnknownRJump_0x589BA:
 	ld a, [$FF00+$DF]
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0x589BE:
 INCBIN "baserom.gb", $589BE, $589CA - $589BE
@@ -20303,7 +20304,7 @@ INCBIN "baserom.gb", $58A0E, $58A3D - $58A0E
 UnknownRJump_0x58A76:
 	ld a, [$FF00+$DF]
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0x58A7A:
 INCBIN "baserom.gb", $58A7A, $58A82 - $58A7A
@@ -20418,7 +20419,7 @@ INCBIN "baserom.gb", $58B31, $58B43 - $58B31
 UnknownRJump_0x58B50:
 	ld a, [$FF00+$DF]
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0x58B54:
 INCBIN "baserom.gb", $58B54, $58B58 - $58B54
@@ -20506,7 +20507,7 @@ UnknownRJump_0x58BAA:
 
 UnknownRJump_0x58BDC:
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0x58BDE:
 INCBIN "baserom.gb", $58BDE, $58BE6 - $58BDE
@@ -20597,7 +20598,7 @@ UnknownRJump_0x58C22:
 
 UnknownRJump_0x58C7B:
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0x58C7D:
 INCBIN "baserom.gb", $58C7D, $58C85 - $58C7D
@@ -20673,7 +20674,7 @@ UnknownRJump_0x58CF4:
 	ret nz
 	ld a, [$FF00+$DF]
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0x58CFD:
 INCBIN "baserom.gb", $58CFD, $58D01 - $58CFD
@@ -20719,7 +20720,7 @@ UnknownRJump_0x58D45:
 	ret nz
 	ld a, [$FF00+$DF]
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0x58D4E:
 INCBIN "baserom.gb", $58D4E, $58D78 - $58D4E
@@ -20782,7 +20783,7 @@ UnknownRJump_0x58DAA:
 
 UnknownRJump_0x58DDF:
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0x58DE1:
 INCBIN "baserom.gb", $58DE1, $58DE5 - $58DE1
@@ -20832,7 +20833,7 @@ UnknownRJump_0x58DEE:
 
 UnknownRJump_0x58E30:
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0x58E32:
 INCBIN "baserom.gb", $58E32, $58E38 - $58E32
@@ -20905,7 +20906,7 @@ UnknownRJump_0x58E76:
 
 UnknownRJump_0x58E99:
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0x58E9B:
 INCBIN "baserom.gb", $58E9B, $58EA7 - $58E9B
@@ -21009,7 +21010,7 @@ INCBIN "baserom.gb", $58F39, $58F4C - $58F39
 
 UnknownRJump_0x58F5D:
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0x58F5F:
 INCBIN "baserom.gb", $58F5F, $58F69 - $58F5F
@@ -21111,7 +21112,7 @@ UnknownRJump_0x5906F:
 
 UnknownRJump_0x59078:
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0x5907A:
 INCBIN "baserom.gb", $5907A, $59092 - $5907A
@@ -21268,7 +21269,7 @@ UnknownRJump_0x5916E:
 UnknownJump_0x59189:
 UnknownRJump_0x59189:
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0x5918B:
 INCBIN "baserom.gb", $5918B, $5918F - $5918B
@@ -21307,7 +21308,7 @@ INCBIN "baserom.gb", $5918B, $5918F - $5918B
 
 UnknownRJump_0x591CC:
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0x591CE:
 INCBIN "baserom.gb", $591CE, $591D2 - $591CE
@@ -21328,7 +21329,7 @@ INCBIN "baserom.gb", $591CE, $591D2 - $591CE
 
 UnknownRJump_0x591EF:
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0x591F1:
 INCBIN "baserom.gb", $591F1, $591F3 - $591F1
@@ -21353,7 +21354,7 @@ UnknownRJump_0x5920D:
 	ret nz
 	ld a, [$FF00+$DF]
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0x59216:
 INCBIN "baserom.gb", $59216, $5921E - $59216
@@ -21431,7 +21432,7 @@ UnknownRJump_0x59285:
 	call UnknownCall_0x5B5B6
 	ld a, [$FF00+$DF]
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0x5928C:
 INCBIN "baserom.gb", $5928C, $59298 - $5928C
@@ -21540,7 +21541,7 @@ INCBIN "baserom.gb", $59342, $5934A - $59342
 
 UnknownRJump_0x59352:
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0x59354:
 INCBIN "baserom.gb", $59354, $5935C - $59354
@@ -21576,7 +21577,7 @@ UnknownJump_0x59369:
 
 UnknownRJump_0x5938C:
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0x5938E:
 INCBIN "baserom.gb", $5938E, $59394 - $5938E
@@ -21633,7 +21634,7 @@ UnknownRJump_0x593A5:
 
 UnknownRJump_0x593F2:
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0x593F4:
 INCBIN "baserom.gb", $593F4, $593F8 - $593F4
@@ -21732,7 +21733,7 @@ UnknownRJump_0x5947C:
 
 UnknownRJump_0x5949E:
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0x594A0:
 INCBIN "baserom.gb", $594A0, $594A4 - $594A0
@@ -21768,7 +21769,7 @@ INCBIN "baserom.gb", $594AD, $594EB - $594AD
 
 UnknownRJump_0x5950C:
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0x5950E:
 INCBIN "baserom.gb", $5950E, $59512 - $5950E
@@ -21884,7 +21885,7 @@ UnknownRJump_0x5959D:
 UnknownRJump_0x595CF:
 	ld a, [$FF00+$DF]
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0x595D3:
 INCBIN "baserom.gb", $595D3, $595D7 - $595D3
@@ -21931,7 +21932,7 @@ UnknownRJump_0x595F0:
 UnknownRJump_0x59619:
 	ld a, [$FF00+$DF]
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0x5961D:
 INCBIN "baserom.gb", $5961D, $59621 - $5961D
@@ -21997,7 +21998,7 @@ INCBIN "baserom.gb", $5966C, $596D9 - $5966C
 
 UnknownRJump_0x596E6:
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0x596E8:
 INCBIN "baserom.gb", $596E8, $596EE - $596E8
@@ -22134,7 +22135,7 @@ UnknownRJump_0x597D2:
 	ret nz
 	ld a, [$FF00+$DF]
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0x597DE:
 INCBIN "baserom.gb", $597DE, $597EE - $597DE
@@ -22260,7 +22261,7 @@ INCBIN "baserom.gb", $59927, $599A6 - $59927
 
 UnknownRJump_0x599B4:
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0x599B6:
 INCBIN "baserom.gb", $599B6, $599C4 - $599B6
@@ -22394,7 +22395,7 @@ UnknownRJump_0x59ABA:
 	ret nz
 	ld a, [$FF00+$DF]
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0x59AC6:
 INCBIN "baserom.gb", $59AC6, $59ACA - $59AC6
@@ -22461,7 +22462,7 @@ UnknownRJump_0x59AFF:
 
 UnknownRJump_0x59B2F:
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0x59B31:
 INCBIN "baserom.gb", $59B31, $59B35 - $59B31
@@ -22539,14 +22540,14 @@ UnknownRJump_0x59B94:
 
 UnknownRJump_0x59BBF:
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0x59BC1:
 INCBIN "baserom.gb", $59BC1, $59BC5 - $59BC1
 
 	call UnknownCall_0x5B585
 	ld a, [$FF00+$DF]
-	rst $28
+	rst Jumptable
 
 UnknownData_0x59BCB:
 INCBIN "baserom.gb", $59BCB, $59BD1 - $59BCB
@@ -22560,7 +22561,7 @@ INCBIN "baserom.gb", $59BCB, $59BD1 - $59BCB
 	ld [$FF00+$EC], a
 	ret
 	ld a, [$FF00+$DF]
-	rst $28
+	rst Jumptable
 
 UnknownData_0x59BE4:
 INCBIN "baserom.gb", $59BE4, $59BE8 - $59BE4
@@ -22583,7 +22584,7 @@ INCBIN "baserom.gb", $59BE4, $59BE8 - $59BE4
 
 UnknownJump_0x59C04:
 	ld a, [$FF00+$D5]
-	rst $28
+	rst Jumptable
 
 UnknownData_0x59C07:
 INCBIN "baserom.gb", $59C07, $59CE7 - $59C07
@@ -22603,7 +22604,7 @@ INCBIN "baserom.gb", $59C07, $59CE7 - $59C07
 
 UnknownRJump_0x59CFF:
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0x59D01:
 INCBIN "baserom.gb", $59D01, $59D05 - $59D01
@@ -22678,7 +22679,7 @@ UnknownJump_0x59D3A:
 UnknownRJump_0x59D6E:
 	ld a, [$FF00+$DF]
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0x59D72:
 INCBIN "baserom.gb", $59D72, $59D7A - $59D72
@@ -22778,7 +22779,7 @@ UnknownRJump_0x59E1F:
 	ret nz
 	ld a, [$FF00+$DF]
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0x59E28:
 INCBIN "baserom.gb", $59E28, $59E2C - $59E28
@@ -22829,7 +22830,7 @@ UnknownRJump_0x59E54:
 
 UnknownRJump_0x59E70:
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0x59E72:
 INCBIN "baserom.gb", $59E72, $59E7A - $59E72
@@ -22929,7 +22930,7 @@ UnknownRJump_0x59F17:
 	ret nz
 	ld a, [$FF00+$DF]
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0x59F20:
 INCBIN "baserom.gb", $59F20, $59F24 - $59F20
@@ -22989,7 +22990,7 @@ UnknownRJump_0x59F76:
 	ret nz
 	ld a, [$FF00+$DF]
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0x59F7F:
 INCBIN "baserom.gb", $59F7F, $59F83 - $59F7F
@@ -23060,7 +23061,7 @@ UnknownRJump_0x59FB5:
 
 UnknownRJump_0x59FF0:
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0x59FF2:
 INCBIN "baserom.gb", $59FF2, $59FF8 - $59FF2
@@ -23117,7 +23118,7 @@ INCBIN "baserom.gb", $5A04B, $5A04F - $5A04B
 
 UnknownRJump_0x5A04F:
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0x5A051:
 INCBIN "baserom.gb", $5A051, $5A055 - $5A051
@@ -23187,7 +23188,7 @@ UnknownRJump_0x5A0BB:
 	call c, UnknownCall_0x5B585
 	ld a, [$FF00+$DF]
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0x5A0CD:
 INCBIN "baserom.gb", $5A0CD, $5A0D5 - $5A0CD
@@ -23255,7 +23256,7 @@ UnknownRJump_0x5A13A:
 
 UnknownRJump_0x5A13E:
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0x5A140:
 INCBIN "baserom.gb", $5A140, $5A148 - $5A140
@@ -23301,7 +23302,7 @@ UnknownRJump_0x5A15E:
 
 UnknownRJump_0x5A18D:
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0x5A18F:
 INCBIN "baserom.gb", $5A18F, $5A197 - $5A18F
@@ -23377,7 +23378,7 @@ UnknownRJump_0x5A1DD:
 
 UnknownRJump_0x5A204:
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0x5A206:
 INCBIN "baserom.gb", $5A206, $5A20C - $5A206
@@ -23415,7 +23416,7 @@ UnknownRJump_0x5A22D:
 UnknownRJump_0x5A244:
 	ld a, [$FF00+$DF]
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0x5A248:
 INCBIN "baserom.gb", $5A248, $5A24A - $5A248
@@ -23445,7 +23446,7 @@ INCBIN "baserom.gb", $5A248, $5A24A - $5A248
 UnknownRJump_0x5A271:
 	ld a, [$FF00+$DF]
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0x5A275:
 INCBIN "baserom.gb", $5A275, $5A27B - $5A275
@@ -23524,7 +23525,7 @@ UnknownRJump_0x5A2E6:
 	call UnknownCall_0x5B5AD
 	ld a, [$FF00+$DF]
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0x5A2ED:
 INCBIN "baserom.gb", $5A2ED, $5A2F7 - $5A2ED
@@ -23562,7 +23563,7 @@ UnknownRJump_0x5A325:
 	ret nz
 	ld a, [$FF00+$DF]
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0x5A32E:
 INCBIN "baserom.gb", $5A32E, $5A332 - $5A32E
@@ -23872,7 +23873,7 @@ UnknownRJump_0x5A568:
 	ret nz
 	ld a, [$FF00+$DF]
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0x5A574:
 INCBIN "baserom.gb", $5A574, $5A578 - $5A574
@@ -23932,7 +23933,7 @@ UnknownRJump_0x5A5DA:
 	call UnknownCall_0x5B57E
 	ld a, [$FF00+$DF]
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0x5A5E1:
 INCBIN "baserom.gb", $5A5E1, $5A5E3 - $5A5E1
@@ -23958,7 +23959,7 @@ INCBIN "baserom.gb", $5A5E1, $5A5E3 - $5A5E1
 UnknownRJump_0x5A603:
 	ld a, [$FF00+$DF]
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0x5A607:
 INCBIN "baserom.gb", $5A607, $5A60F - $5A607
@@ -24021,7 +24022,7 @@ UnknownRJump_0x5A674:
 	call UnknownCall_0x5B57E
 	ld a, [$FF00+$DF]
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0x5A67B:
 INCBIN "baserom.gb", $5A67B, $5A683 - $5A67B
@@ -24037,7 +24038,7 @@ INCBIN "baserom.gb", $5A67B, $5A683 - $5A67B
 
 UnknownRJump_0x5A691:
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0x5A693:
 INCBIN "baserom.gb", $5A693, $5A69B - $5A693
@@ -24101,7 +24102,7 @@ UnknownRJump_0x5A6DB:
 UnknownRJump_0x5A6F7:
 	ld a, [$FF00+$DF]
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0x5A6FB:
 INCBIN "baserom.gb", $5A6FB, $5A6FF - $5A6FB
@@ -24144,7 +24145,7 @@ INCBIN "baserom.gb", $5A6FB, $5A6FF - $5A6FB
 UnknownRJump_0x5A749:
 	ld a, [$FF00+$DF]
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0x5A74D:
 INCBIN "baserom.gb", $5A74D, $5A751 - $5A74D
@@ -24178,7 +24179,7 @@ INCBIN "baserom.gb", $5A74D, $5A751 - $5A74D
 UnknownRJump_0x5A787:
 	ld a, [$FF00+$DF]
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0x5A78B:
 INCBIN "baserom.gb", $5A78B, $5A793 - $5A78B
@@ -24276,7 +24277,7 @@ UnknownRJump_0x5A82F:
 
 UnknownRJump_0x5A834:
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0x5A836:
 INCBIN "baserom.gb", $5A836, $5A83E - $5A836
@@ -24335,7 +24336,7 @@ INCBIN "baserom.gb", $5A85C, $5A8D2 - $5A85C
 
 UnknownRJump_0x5A913:
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0x5A915:
 INCBIN "baserom.gb", $5A915, $5A91D - $5A915
@@ -24392,7 +24393,7 @@ UnknownRJump_0x5A953:
 UnknownRJump_0x5A973:
 	ld a, [$FF00+$DF]
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0x5A977:
 INCBIN "baserom.gb", $5A977, $5A979 - $5A977
@@ -24427,7 +24428,7 @@ UnknownRJump_0x5A9A9:
 	ret nz
 	ld a, [$FF00+$DF]
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0x5A9B2:
 INCBIN "baserom.gb", $5A9B2, $5A9B6 - $5A9B2
@@ -24486,7 +24487,7 @@ INCBIN "baserom.gb", $5A9C8, $5A9D3 - $5A9C8
 
 UnknownRJump_0x5AA14:
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0x5AA16:
 INCBIN "baserom.gb", $5AA16, $5AA20 - $5AA16
@@ -24557,7 +24558,7 @@ UnknownRJump_0x5AA5F:
 UnknownRJump_0x5AA85:
 	ld a, [$FF00+$DF]
 	dec a
-	rst $28
+	rst Jumptable
 
 UnknownData_0x5AA89:
 INCBIN "baserom.gb", $5AA89, $5AA8F - $5AA89
@@ -24586,7 +24587,7 @@ UnknownRJump_0x5AAAC:
 	ld [$FF00+$E8], a
 	jp UnknownJump_0x59D33
 	ld a, [$FF00+$DF]
-	rst $28
+	rst Jumptable
 
 UnknownData_0x5AABC:
 INCBIN "baserom.gb", $5AABC, $5AAC6 - $5AABC
@@ -24670,7 +24671,7 @@ UnknownCall_0x5AB45:
 	ld [$A470], a
 	ret
 	ld a, [$FF00+$DF]
-	rst $28
+	rst Jumptable
 
 UnknownData_0x5AB4E:
 INCBIN "baserom.gb", $5AB4E, $5AB58 - $5AB4E
@@ -24694,7 +24695,7 @@ INCBIN "baserom.gb", $5AB4E, $5AB58 - $5AB4E
 	ret
 	call UnknownCall_0x5B585
 	ld a, [$FF00+$DF]
-	rst $28
+	rst Jumptable
 
 UnknownData_0x5AB7F:
 INCBIN "baserom.gb", $5AB7F, $5AB89 - $5AB7F
@@ -24776,7 +24777,7 @@ UnknownRJump_0x5ABFC:
 	ld [$FF00+$EF], a
 	ret
 	ld a, [$FF00+$DF]
-	rst $28
+	rst Jumptable
 
 UnknownData_0x5AC04:
 INCBIN "baserom.gb", $5AC04, $5AC08 - $5AC04
@@ -24811,7 +24812,7 @@ UnknownRJump_0x5AC2A:
 	ld [$A2E0], a
 	ret
 	ld a, [$FF00+$DF]
-	rst $28
+	rst Jumptable
 
 UnknownData_0x5AC3F:
 INCBIN "baserom.gb", $5AC3F, $5AC47 - $5AC3F
@@ -24845,7 +24846,7 @@ UnknownData_0x5AC78:
 INCBIN "baserom.gb", $5AC78, $5AC7D - $5AC78
 
 	ld a, [$FF00+$DF]
-	rst $28
+	rst Jumptable
 
 UnknownData_0x5AC80:
 INCBIN "baserom.gb", $5AC80, $5AC88 - $5AC80
@@ -24905,7 +24906,7 @@ UnknownRJump_0x5ACC9:
 	call UnknownCall_0x5B2D7
 	ret
 	ld a, [$FF00+$DF]
-	rst $28
+	rst Jumptable
 
 UnknownData_0x5ACE7:
 INCBIN "baserom.gb", $5ACE7, $5ACED - $5ACE7
@@ -24948,7 +24949,7 @@ UnknownCall_0x5AD11:
 	call UnknownCall_0x5B2BF
 	ret
 	ld a, [$FF00+$DF]
-	rst $28
+	rst Jumptable
 
 UnknownData_0x5AD30:
 INCBIN "baserom.gb", $5AD30, $5AD36 - $5AD30
@@ -24965,7 +24966,7 @@ INCBIN "baserom.gb", $5AD30, $5AD36 - $5AD30
 	call UnknownCall_0x5B2BF
 	ret
 	ld a, [$FF00+$DF]
-	rst $28
+	rst Jumptable
 
 UnknownData_0x5AD50:
 INCBIN "baserom.gb", $5AD50, $5AD5A - $5AD50
@@ -25047,7 +25048,7 @@ UnknownRJump_0x5ADC0:
 	ret
 	call UnknownCall_0x5B57E
 	ld a, [$FF00+$DF]
-	rst $28
+	rst Jumptable
 
 UnknownData_0x5ADE3:
 INCBIN "baserom.gb", $5ADE3, $5ADED - $5ADE3
@@ -25135,7 +25136,7 @@ INCBIN "baserom.gb", $5AE62, $5AEF4 - $5AE62
 
 	call UnknownCall_0x5B57E
 	ld a, [$FF00+$DF]
-	rst $28
+	rst Jumptable
 
 UnknownData_0x5AEFA:
 INCBIN "baserom.gb", $5AEFA, $5AF04 - $5AEFA
@@ -25178,7 +25179,7 @@ UnknownData_0x5AF55:
 INCBIN "baserom.gb", $5AF55, $5AFD7 - $5AF55
 
 	ld a, [$FF00+$DF]
-	rst $28
+	rst Jumptable
 
 UnknownData_0x5AFDA:
 INCBIN "baserom.gb", $5AFDA, $5AFE4 - $5AFDA
@@ -25261,7 +25262,7 @@ UnknownRJump_0x5B018:
 	ld [$FF00+$E9], a
 	ret
 	ld a, [$FF00+$DF]
-	rst $28
+	rst Jumptable
 
 UnknownData_0x5B070:
 INCBIN "baserom.gb", $5B070, $5B078 - $5B070
@@ -25322,7 +25323,7 @@ UnknownRJump_0x5B0B9:
 	ret
 	call UnknownCall_0x5B521
 	ld a, [$FF00+$DF]
-	rst $28
+	rst Jumptable
 
 UnknownData_0x5B0DB:
 INCBIN "baserom.gb", $5B0DB, $5B0E5 - $5B0DB
@@ -25417,7 +25418,7 @@ UnknownRJump_0x5B154:
 	jr UnknownRJump_0x5B154
 	call UnknownCall_0x5B51A
 	ld a, [$FF00+$DF]
-	rst $28
+	rst Jumptable
 
 UnknownData_0x5B17D:
 INCBIN "baserom.gb", $5B17D, $5B183 - $5B17D
@@ -25465,7 +25466,7 @@ UnknownRJump_0x5B1BA:
 	ld [$FF00+$E8], a
 	ret
 	ld a, [$FF00+$DF]
-	rst $28
+	rst Jumptable
 
 UnknownData_0x5B1CB:
 INCBIN "baserom.gb", $5B1CB, $5B1D3 - $5B1CB
@@ -25544,7 +25545,7 @@ UnknownRJump_0x5B232:
 	ret nz
 	jr UnknownRJump_0x5B1D3
 	ld a, [$FF00+$DF]
-	rst $28
+	rst Jumptable
 
 UnknownData_0x5B244:
 INCBIN "baserom.gb", $5B244, $5B24A - $5B244
@@ -25588,7 +25589,7 @@ UnknownRJump_0x5B284:
 	call UnknownCall_0x3D3D
 	jr UnknownRJump_0x5B266
 	ld a, [$FF00+$DF]
-	rst $28
+	rst Jumptable
 
 UnknownData_0x5B28F:
 INCBIN "baserom.gb", $5B28F, $5B295 - $5B28F
@@ -26432,7 +26433,7 @@ INCBIN "baserom.gb", $60000, $60028 - $60000
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
-	jp [hl]
+	jp hl
 
 UnknownData_0x60037:
 INCBIN "baserom.gb", $60037, $6004F - $60037
@@ -27120,7 +27121,7 @@ UnknownJump_0x604F3:
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
-	jp [hl]
+	jp hl
 
 UnknownData_0x60521:
 INCBIN "baserom.gb", $60521, $60539 - $60521
@@ -28757,7 +28758,7 @@ UnknownRJump_0x611AC:
 
 UnknownData_0x611B1:
 INCBIN "baserom.gb", $611B1, $61602 - $611B1
-include "owmovementpointers.asm"
+INCLUDE "owmovementpointers.asm"
 INCBIN "baserom.gb", $61A40, $64000 - $61A40
 
 
@@ -28909,7 +28910,7 @@ UnknownJump_0x6800F:
 
 UnknownCall_0x68016:
 	ld a, [$A2DD]
-	rst $28
+	rst Jumptable
 
 UnknownData_0x6801A:
 INCBIN "baserom.gb", $6801A, $68042 - $6801A

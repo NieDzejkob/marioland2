@@ -26,6 +26,7 @@ sScrollY = $A2B0
 sScrollX = $A2B1
 sAutoScroll = $A2C8
 sSoundDisabled = $A2CE
+sRomBank = $A24E
 
 sEasyMode = $A2E4
 
