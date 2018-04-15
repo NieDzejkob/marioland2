@@ -1,1 +1,5 @@
 INCLUDE "gbhw.asm"
+
+; sDemoMode
+DEMO_PLAYBACK  EQU $0F
+DEMO_RECORDING EQU $F0

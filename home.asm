@@ -3168,7 +3168,7 @@ MarioSpeedTableVGoo: ;$18FB
 	db $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF
 	db $FF, $00, $00, $FF, $00, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF
 	db $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF
-		
+
 MarioSpeedTableVWater: ;$1947 Also used for outer space and hippo bubble
 	db $01, $01, $01, $01, $01, $01, $01, $01, $01, $01, $01, $01, $01, $01, $01, $01
 	db $01, $00, $01, $00, $00, $00, $00, $01, $00, $00, $00, $00, $00, $00, $FF, $00
@@ -3797,7 +3797,7 @@ LevelPropertiesScroll: ;$1F71 1 byte per level (Auto-Scroll)
 	db $00, $00, $00, $00, $00, $00, $00, $00
 	db $00, $00, $00, $01, $00, $00, $00, $00
 	db $00, $01, $00, $00, $00, $00, $01, $00
-	
+
 LevelPropertiesSpace: ;$1F91 1 byte per level (Space Physics)
 	db $00, $00, $00, $00, $00, $00, $00, $00
 	db $00, $00, $00, $00, $00, $00, $00, $00
@@ -6618,67 +6618,12 @@ UnknownRJump_0x38B2:
 	jr nz, UnknownRJump_0x38B2
 	ret
 
-GetDemoInputs:
-	ld a, [sDemoMode]
-	and $F0
-	jr nz, UnknownRJump_0x3911
-	ld a, [sDemoMode]
-	and $0F
-	jr nz, .demo_enabled
-	ret
+INCLUDE "home/demo.asm"
 
-.demo_enabled:
-	ld a, [hKeysPressed]
-	and START
-	jr z, .continue_demo
-
-.stop_demo:
-	ld a, BANK(PartialAudioReset)
-	ld [sRomBank], a
-	ld [MBC1RomBank], a
-	call PartialAudioReset
-	ld a, [sDemoNumber]
-	inc a
-	and $03
-	ld [sDemoNumber], a
-	jp Init
-
-.continue_demo:
-	ld a, 5
-	ld [MBC1RomBank], a
-	ld a, [sPreviousKeysHeld]
-	ld [hKeysHeld], a
-	ld h, HIGH(sDemoData)
-	ld a, [sDemoIndex]
-	ld l, a
-
-.get_input:
-	ld a, [hli]
-	cp $FF
-	jp z, .stop_demo
-	ld b, a
-	ld a, [hli]
-	sub 1
-	jr c, .get_input
-	dec hl
-	ld [hld], a
-	ld a, [hKeysHeld]
-	xor b
-	and b
-	ld [hKeysPressed], a
-	ld a, b
-	ld [hKeysHeld], a
-	ld a, l
-	ld [sDemoIndex], a
-	ret
-
-UnknownRJump_0x3911:
-UnknownData_0x3911:
-INCBIN "baserom.gb", $3911, $3A00 - $3911
-
+INCBIN "baserom.gb", $3947, $3A00 - $3947
 
 UnknownCall_0x3A00:
-	ld a, 3
+	ld a, BANK(UnknownCall_0xEC31)
 	ld [sRomBank], a
 	ld [MBC1RomBank], a
 	call UnknownCall_0xEC31
@@ -6688,7 +6633,7 @@ UnknownCall_0x3A00:
 	ret
 
 UnknownCall_0x3A14:
-	ld a, 25
+	ld a, BANK(UnknownCall_0x66000)
 	ld [sRomBank], a
 	ld [MBC1RomBank], a
 	call UnknownCall_0x66000

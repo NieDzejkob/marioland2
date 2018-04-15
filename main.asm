@@ -7483,7 +7483,7 @@ UnknownRJump_0x140E5:
 	ld a, l
 	and a
 	jr nz, UnknownRJump_0x140E5
-	ld a, 15
+	ld a, DEMO_PLAYBACK
 	ld [sDemoMode], a
 	xor a
 	ld [sDemoIndex], a
