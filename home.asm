@@ -2584,7 +2584,7 @@ UnknownRJump_0x1464:
 	ld a, 15
 	ld [$A460], a
 	xor a
-	ld [$A53F], a
+	ld [sVolume], a
 
 UnknownRJump_0x147F:
 	ld a, [$A20D]
@@ -3380,7 +3380,7 @@ UnknownRJump_0x1CBA:
 	cp $4A
 	jr nz, UnknownRJump_0x1CFB
 	xor a
-	ld [$A53F], a
+	ld [sVolume], a
 	xor a
 	ld [$A2B4], a
 	ld a, [$A20D]
@@ -6397,7 +6397,7 @@ UnknownRJump_0x34EC:
 	ld [$A460], a
 	ld [$A24F], a
 	xor a
-	ld [$A53F], a
+	ld [sVolume], a
 	ld a, [sVVelocityIndex]
 	cp $18
 	jr nc, UnknownRJump_0x3539

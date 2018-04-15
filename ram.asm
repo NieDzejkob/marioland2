@@ -1,16 +1,31 @@
 SECTION "OAM Buffer", SRAM[$A100], BANK[0]
-sOAMBuffer:
+sOAMBuffer::
 	ds $A0
-sOAMBufferEnd:
+sOAMBufferEnd::
 
 SECTION "Audio SRAM", SRAM[$A400], BANK[0]
-sAudio1:
-	ds $100
-sAudio1End:
+sAudio1::
+	ds $69
 
-sAudio2:
-	ds $100
-sAudio2End:
+sCurSong::
+	db
+
+	ds $96
+sAudio1End::
+
+sAudio2::
+	ds $D
+
+sFastMusic::
+	db
+
+	ds $31
+
+sVolume::
+	db
+
+	ds $C0
+sAudio2End::
 
 SECTION "Stack", SRAM[$A800], BANK[0]
 sStack:
@@ -48,9 +63,6 @@ sSoundDisabled = $A2CE
 sRomBank = $A24E
 
 sEasyMode = $A2E4
-
-sCurSong = $A469
-sFastMusic = $A50D
 
 hKeysHeld = $FF80
 hKeysPressed = $FF81

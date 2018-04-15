@@ -1149,7 +1149,7 @@ UnknownRJump_0x5D6A:
 	ld a, 15
 	ld [$A460], a
 	xor a
-	ld [$A53F], a
+	ld [sVolume], a
 	jr UnknownRJump_0x5E12
 
 UnknownRJump_0x5DB4:
@@ -1162,7 +1162,7 @@ UnknownRJump_0x5DB4:
 	ld a, 14
 	ld [$A470], a
 	ld a, 1
-	ld [$A53F], a
+	ld [sVolume], a
 
 UnknownRJump_0x5DCB:
 	ld a, [$A24F]
@@ -7397,8 +7397,6 @@ UnknownCall_0xEC4B:
 UnknownData_0xEC61:
 INCBIN "baserom.gb", $EC61, $FFA0 - $EC61
 
-
-UnknownCall_0xFFA0:
 UnknownData_0xFFA0:
 INCBIN "baserom.gb", $FFA0, $10000 - $FFA0
 

@@ -45,18 +45,18 @@ UnknownJump_0x10044:
 	ld a, [hli]
 	and a
 	jr nz, UnknownRJump_0x10078
-	ld a, [$A53F]
+	ld a, [sVolume]
 	and a
-	jr z, UnknownRJump_0x10057
+	jr z, .full_volume
 	ld a, NR50_HALF_VOLUME
 	ld [rNR50], a
-	jr UnknownRJump_0x1005B
+	jr .volume_done
 
-UnknownRJump_0x10057:
+.full_volume:
 	ld a, NR50_FULL_VOLUME
 	ld [rNR50], a
 
-UnknownRJump_0x1005B:
+.volume_done:
 	call UnknownCall_0x100DE
 	call UnknownCall_0x106D3
 	call UnknownCall_0x10E90
@@ -2943,7 +2943,7 @@ UnknownCall_0x13F6B:
 	ld [$A521], a
 	ld [$A522], a
 	ld [$A523], a
-	ld [$A53F], a
+	ld [sVolume], a
 
 UnknownCall_0x13FE7:
 	ld a, 8
