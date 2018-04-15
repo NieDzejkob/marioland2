@@ -555,7 +555,7 @@ UnknownRJump_0x55C0:
 
 UnknownRJump_0x55C6:
 	ld a, 2
-	ld [$FF00+$9B], a
+	ld [hGameMode], a
 	ret
 
 UnknownData_0x55CB:
@@ -563,13 +563,13 @@ INCLUDE "levels/levelheaders.asm"
 INCBIN "baserom.gb", $588B, $591F - $588B
 
 UnknownJump_0x591F:
-	ld a, [sCoinLow]
+	ld a, [sCoinCount]
 	inc a
 	daa
-	ld [sCoinLow], a
-	ld a, [sCoinHigh]
+	ld [sCoinCount], a
+	ld a, [sCoinCount+1]
 	adc 0
-	ld [sCoinHigh], a
+	ld [sCoinCount+1], a
 	cp $0A
 	jr c, UnknownRJump_0x593D
 
@@ -1132,20 +1132,20 @@ UnknownRJump_0x5D6A:
 	jp nz, UnknownJump_0x5E12
 	ld a, 48
 	ld [$A24B], a
-	ld a, [sTimerLow]
+	ld a, [sTimer]
 	sub 1
 	daa
-	ld [sTimerLow], a
-	ld a, [sTimerHigh]
+	ld [sTimer], a
+	ld a, [sTimer+1]
 	sbc 0
 	daa
-	ld [sTimerHigh], a
+	ld [sTimer+1], a
 	jr nc, UnknownRJump_0x5DB4
 	ld a, 128
 	ld [$A224], a
 	xor a
-	ld [sTimerLow], a
-	ld [sTimerHigh], a
+	ld [sTimer], a
+	ld [sTimer+1], a
 	ld a, 15
 	ld [$A460], a
 	xor a
@@ -1153,10 +1153,10 @@ UnknownRJump_0x5D6A:
 	jr UnknownRJump_0x5E12
 
 UnknownRJump_0x5DB4:
-	ld a, [sTimerHigh]
+	ld a, [sTimer+1]
 	and a
 	jr nz, UnknownRJump_0x5DCB
-	ld a, [sTimerLow]
+	ld a, [sTimer]
 	cp $11
 	jr nc, UnknownRJump_0x5DCB
 	ld a, 14
@@ -1168,7 +1168,7 @@ UnknownRJump_0x5DCB:
 	ld a, [$A24F]
 	and a
 	jr nz, UnknownRJump_0x5E12
-	ld a, [sTimerHigh]
+	ld a, [sTimer+1]
 	and a
 	jr nz, UnknownRJump_0x5E03
 	ld a, [sCurSong]
@@ -1196,7 +1196,7 @@ INCBIN "baserom.gb", $5DF9, $5E03 - $5DF9
 UnknownRJump_0x5E03:
 	cp $01
 	jr nz, UnknownRJump_0x5E12
-	ld a, [sTimerLow]
+	ld a, [sTimer]
 	and a
 	jr nz, UnknownRJump_0x5E12
 	ld a, 9
@@ -1231,7 +1231,7 @@ UnknownRJump_0x5E31:
 	cp $E0
 	ret c
 	ld a, 35
-	ld [$FF00+$9B], a
+	ld [hGameMode], a
 	ret
 
 UnknownData_0x5E42:
@@ -5665,7 +5665,7 @@ UnknownRJump_0xA9FC:
 	ld a, 79
 	ld [$FF00+$DB], a
 	ret
-	ld a, [sTimerLow]
+	ld a, [sTimer]
 	and $07
 	jr z, UnknownRJump_0xA9FC
 	call UnknownCall_0xB339
@@ -6091,7 +6091,7 @@ UnknownRJump_0xACFE:
 	call UnknownCall_0xB2DB
 	cp $20
 	jr nc, UnknownRJump_0xAD1E
-	ld a, [sTimerLow]
+	ld a, [sTimer]
 	and $03
 	jr nz, UnknownRJump_0xAD1E
 	ld a, 10
@@ -6403,7 +6403,7 @@ UnknownRJump_0xAF4E:
 	call UnknownCall_0xB2DB
 	cp $30
 	jr c, UnknownRJump_0xAF66
-	ld a, [sTimerLow]
+	ld a, [sTimer]
 	and $03
 	ret nz
 	ld a, [$AD2B]
@@ -8051,15 +8051,15 @@ UnknownRJump_0x3020A:
 	ld l, e
 	ld h, d
 	ld a, [hli]
-	ld [sCoinLow], a
+	ld [sCoinCount], a
 	ld a, [hli]
-	ld [sCoinHigh], a
+	ld [sCoinCount+1], a
 	ld a, [hli]
 	ld [$A2C5], a
 	ld a, [hli]
-	ld [$A22C], a
+	ld [sLifeCount], a
 	ld a, [hli]
-	ld [$A28D], a
+	ld [sKillCount], a
 	ret
 
 UnknownRJump_0x30227:
@@ -8353,7 +8353,7 @@ UnknownJump_0x3041D:
 
 UnknownRJump_0x3042D:
 	xor a
-	ld [$A299], a
+	ld [sAnimatedTilesCtl], a
 	ld a, 192
 	ld [$FF00+$C0], a
 	ld hl, $4985
@@ -13664,9 +13664,9 @@ UnknownRJump_0x3E4D2:
 	ret
 
 UnknownCall_0x3E4EB:
-	ld a, [sCoinLow]
+	ld a, [sCoinCount]
 	ld l, a
-	ld a, [sCoinHigh]
+	ld a, [sCoinCount+1]
 	ld h, a
 	ld a, h
 	and $0F
@@ -14232,29 +14232,29 @@ UnknownRJump_0x3EB1A:
 	call z, UnknownCall_0x3ED35
 	ld a, [$A68B]
 	or a
-	jp nz, UnknownJump_0x01C5
+	jp nz, FinishVBlank
 	ldh_a_n $97
 	and $03
 	cp $01
 	jr nz, UnknownRJump_0x3EB48
 	call UnknownCall_0x3EBAE
-	jp UnknownJump_0x01C5
+	jp FinishVBlank
 
 UnknownRJump_0x3EB48:
 	cp $02
 	jr nz, UnknownRJump_0x3EB52
 	call UnknownCall_0x3EB94
-	jp UnknownJump_0x01C5
+	jp FinishVBlank
 
 UnknownRJump_0x3EB52:
 	cp $03
 	jr nz, UnknownRJump_0x3EB5C
 	call UnknownCall_0x3EB7B
-	jp UnknownJump_0x01C5
+	jp FinishVBlank
 
 UnknownRJump_0x3EB5C:
 	call UnknownCall_0x3EB62
-	jp UnknownJump_0x01C5
+	jp FinishVBlank
 
 UnknownCall_0x3EB62:
 	ld hl, $A600
@@ -14402,7 +14402,7 @@ UnknownRJump_0x3EC0E:
 	dec d
 	jr nz, UnknownRJump_0x3EC0E
 	ld bc, $9825
-	ld a, [sCoinLow]
+	ld a, [sCoinCount]
 	ld d, a
 	and $0F
 	add 128
@@ -14414,12 +14414,12 @@ UnknownRJump_0x3EC0E:
 	add 128
 	ld [bc], a
 	dec bc
-	ld a, [sCoinHigh]
+	ld a, [sCoinCount+1]
 	and $0F
 	add 128
 	ld [bc], a
 	ld bc, $9864
-	ld a, [$A22C]
+	ld a, [sLifeCount]
 	ld d, a
 	and $0F
 	add 128
@@ -15214,7 +15214,7 @@ UnknownRJump_0x3F20B:
 	ld [hli], a
 	dec c
 	jr nz, UnknownRJump_0x3F20B
-	ld a, [$A22C]
+	ld a, [sLifeCount]
 	ld b, a
 	and $F0
 	swap a
@@ -15224,11 +15224,11 @@ UnknownRJump_0x3F20B:
 	and $0F
 	or $70
 	ld [$A11E], a
-	ld a, [sCoinHigh]
+	ld a, [sCoinCount+1]
 	and $0F
 	or $70
 	ld [$A12A], a
-	ld a, [sCoinLow]
+	ld a, [sCoinCount]
 	ld b, a
 	and $F0
 	swap a
@@ -15413,21 +15413,21 @@ INCBIN "baserom.gb", $3F38B, $3F38F - $3F38B
 
 
 UnknownCall_0x3F38F:
-	ld a, [sCoinLow]
+	ld a, [sCoinCount]
 	sub l
 	daa
-	ld a, [sCoinHigh]
+	ld a, [sCoinCount+1]
 	sbc h
 	daa
 	jr c, UnknownRJump_0x3F3B1
-	ld a, [sCoinLow]
+	ld a, [sCoinCount]
 	sub l
 	daa
-	ld [sCoinLow], a
-	ld a, [sCoinHigh]
+	ld [sCoinCount], a
+	ld a, [sCoinCount+1]
 	sbc h
 	daa
-	ld [sCoinHigh], a
+	ld [sCoinCount+1], a
 	call UnknownCall_0x2934
 	ld a, 0
 	ret
@@ -15573,7 +15573,7 @@ UnknownCall_0x3F4B1:
 	ld [$A79C], a
 	ld [$A7A6], a
 	ld [$A7A7], a
-	ld a, [sTimerHigh]
+	ld a, [sTimer+1]
 	and $0F
 	jr nz, UnknownRJump_0x3F507
 
@@ -22717,10 +22717,10 @@ UnknownRJump_0x5B30F:
 	ret
 
 UnknownCall_0x5B31D:
-	ld a, [$A28D]
+	ld a, [sKillCount]
 	add 1
 	daa
-	ld [$A28D], a
+	ld [sKillCount], a
 	ret nz
 	ld a, 28
 	ld [$AF37], a
@@ -24737,10 +24737,10 @@ UnknownJump_0x60939:
 	ld a, [$A7A8]
 	cp $03
 	jr nz, UnknownRJump_0x60955
-	ld a, [$A22C]
+	ld a, [sLifeCount]
 	add 1
 	daa
-	ld [$A22C], a
+	ld [sLifeCount], a
 	ret nc
 
 UnknownData_0x6094F:
@@ -24748,10 +24748,10 @@ INCBIN "baserom.gb", $6094F, $60955 - $6094F
 
 
 UnknownRJump_0x60955:
-	ld a, [$A22C]
+	ld a, [sLifeCount]
 	add 3
 	daa
-	ld [$A22C], a
+	ld [sLifeCount], a
 	ret nc
 
 UnknownData_0x6095F:
@@ -25354,20 +25354,20 @@ UnknownRJump_0x60DED:
 UnknownRJump_0x60DF9:
 	cp $04
 	jr nz, UnknownRJump_0x60E0B
-	ld a, [$A22C]
+	ld a, [sLifeCount]
 	add 1
 	daa
-	ld [$A22C], a
+	ld [sLifeCount], a
 	call c, UnknownCall_0x60EAF
 	jr UnknownRJump_0x60E7D
 
 UnknownRJump_0x60E0B:
 	cp $05
 	jr nz, UnknownRJump_0x60E1D
-	ld a, [$A22C]
+	ld a, [sLifeCount]
 	add 3
 	daa
-	ld [$A22C], a
+	ld [sLifeCount], a
 	call c, UnknownCall_0x60EAF
 	jr UnknownRJump_0x60E7D
 
@@ -25406,10 +25406,10 @@ INCBIN "baserom.gb", $60E50, $60E5B - $60E50
 UnknownRJump_0x60E5B:
 	cp $0A
 	jr nz, UnknownRJump_0x60E6A
-	ld a, [sCoinHigh]
+	ld a, [sCoinCount+1]
 	add 5
 	daa
-	ld [sCoinHigh], a
+	ld [sCoinCount+1], a
 	jr UnknownRJump_0x60E7D
 
 UnknownRJump_0x60E6A:
@@ -25436,7 +25436,7 @@ UnknownRJump_0x60E97:
 	ld [$A460], a
 
 UnknownRJump_0x60E9A:
-	ld a, [sCoinHigh]
+	ld a, [sCoinCount+1]
 	and $F0
 	jr z, UnknownRJump_0x60EAB
 
@@ -25950,7 +25950,7 @@ INCBIN "baserom.gb", $6801A, $68042 - $6801A
 
 	call UnknownCall_0x684C5
 	call UnknownCall_0x2A96
-	ld a, [$A248]
+	ld a, [sVBlankCopyEnabled]
 	and a
 	ret nz
 	ld a, [$A2DD]
@@ -25965,7 +25965,7 @@ INCBIN "baserom.gb", $6801A, $68042 - $6801A
 	ret
 	call UnknownCall_0x684C5
 	call UnknownCall_0x2A96
-	ld a, [$A248]
+	ld a, [sVBlankCopyEnabled]
 	and a
 	ret nz
 	ld a, 26
@@ -25983,7 +25983,7 @@ INCBIN "baserom.gb", $6801A, $68042 - $6801A
 	ld a, 8
 	ldh_n_a $B6
 	ld a, 255
-	ld [$A248], a
+	ld [sVBlankCopyEnabled], a
 	ld a, [$A2DD]
 	inc a
 	ld [$A2DD], a
@@ -26067,7 +26067,7 @@ UnknownData_0x68125:
 INCBIN "baserom.gb", $68125, $68139 - $68125
 
 	call UnknownCall_0x68400
-	ld a, [$A248]
+	ld a, [sVBlankCopyEnabled]
 	and a
 	ret nz
 	ld a, [$A2DD]
@@ -26075,7 +26075,7 @@ INCBIN "baserom.gb", $68125, $68139 - $68125
 	ld [$A2DD], a
 	ret
 	call UnknownCall_0x68400
-	ld a, [$A248]
+	ld a, [sVBlankCopyEnabled]
 	and a
 	ret nz
 	ld a, 16
@@ -26093,7 +26093,7 @@ INCBIN "baserom.gb", $68125, $68139 - $68125
 	ld a, 16
 	ldh_n_a $B6
 	ld a, 255
-	ld [$A248], a
+	ld [sVBlankCopyEnabled], a
 	ld a, 2
 	ld [$A267], a
 	ld a, 0
@@ -26314,7 +26314,7 @@ INCBIN "baserom.gb", $6830F, $68398 - $6830F
 	ld a, 4
 	ldh_n_a $B6
 	ld a, 255
-	ld [$A248], a
+	ld [sVBlankCopyEnabled], a
 	ld a, [$A2DD]
 	inc a
 	ld [$A2DD], a
@@ -26688,7 +26688,10 @@ INCBIN "gfx/enemies/turtlezone3.2bpp"
 GFX_EnemiesTurtleZoneBoss: ;$76280
 INCBIN "gfx/enemies/turtlezoneboss.2bpp"
 
-INCBIN "baserom.gb", $76600, $78000 - $76600
+INCBIN "baserom.gb", $76600, $76680 - $76600
+
+GFX_AnimatedTiles:
+INCBIN "baserom.gb", $76680, $78000 - $76680
 
 
 SECTION "bank1E", ROMX, BANK[$1E]

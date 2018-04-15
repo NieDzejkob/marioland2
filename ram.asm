@@ -1,10 +1,8 @@
 SECTION "Save Data", SRAM[$A000], BANK[0]
 ; only this section is not cleared during boot
-
 	ds $F0
 
-sDemoNumber:
-	db
+sDemoNumber: db
 
 	ds $0F
 SECTION "OAM Buffer", SRAM[$A100], BANK[0]
@@ -13,13 +11,58 @@ sOAMBuffer::
 sOAMBufferEnd::
 
 SECTION "Variables", SRAM[$A200], BANK[0]
-	ds $CE
+	ds $2C
 
-sDemoMode::
-	db
+sLifeCount:: db ; BCD
 
-sDemoIndex::
-	db
+	ds $1B
+
+sVBlankCopyEnabled:: db
+
+	ds 5
+
+sRomBank:: db
+
+	ds 5
+
+sTimer:: dw ; BCD
+
+	ds 2
+
+sLevelBank:: db
+
+	ds 9
+
+sCoinCount:: dw ; BCD
+
+	ds $1A
+
+sBGP::  db
+sOBP0:: db
+sOBP1:: db
+
+	ds $0C
+
+sKillCount:: db ; BCD
+
+	ds $0A
+
+sAnimatedTilesCounter:: db
+
+; high nibble - update period (in 2 frame units)
+; low nibble - tile group
+sAnimatedTilesCtl:: db
+
+	ds $16
+
+sSCY:: db
+sSCX:: db
+
+	ds $1B
+
+sAnimatedTilesState:: db
+sDemoMode:: db
+sDemoIndex:: db
 
 	ds $30
 SECTION "Demo Data", SRAM[$A300], BANK[0]
@@ -32,8 +75,7 @@ SECTION "Audio SRAM", SRAM[$A400], BANK[0]
 sAudio1::
 	ds $69
 
-sCurSong::
-	db
+sCurSong:: db
 
 	ds $96
 sAudio1End::
@@ -41,14 +83,12 @@ sAudio1End::
 sAudio2::
 	ds $D
 
-sFastMusic::
-	db
+sFastMusic:: db
 
 	ds $31
 
 ; if set, music plays at half volume
-sVolume::
-	db
+sVolume:: db
 
 	ds $C0
 sAudio2End::
@@ -71,24 +111,19 @@ sMarioYU = $A22A
 sMarioDirection = $A22B
 sMarioScreenY = $A23B
 sMarioScreenX = $A23C
-sRomBank = $A24E
-sTimerLow = $A254
-sTimerHigh = $A255
 sLevelBank = $A258
-sCoinLow = $A262
-sCoinHigh = $A263
 sSpinJump = $A268
 sCurLevel = $A269
-sBGP = $A27E
-sOBP0 = $A27F
-sOBP1 = $A280
 sMoonPhysics = $A287
-sSCY = $A2B0
-sSCX = $A2B1
 sAutoScroll = $A2C8
 sPreviousKeysHeld = $A2D0
 sEasyMode = $A2E4
 
 hKeysHeld = $FF80
 hKeysPressed = $FF81
+hVBlankOccured = $FF82
+hGameMode = $FF9B
 hOAMDMA = $FFA0
+hVBlankCopySrc = $FFB1
+hVBlankCopyDst = $FFB3
+hVBlankCopyLen = $FFB5

@@ -91,16 +91,16 @@ VBlank:
 	and a
 	jp nz, UnknownJump_0x2A4D
 
-	ld a, [$FF00+$9B]
-	cp $0C
+	ld a, [hGameMode]
+	cp MODE_WORLD
 	jp z, UnknownJump_0x2C18
 
-	ld a, [$A248]
+	ld a, [sVBlankCopyEnabled]
 	and a
-	jp nz, UnknownJump_0x26D7
+	jp nz, VBlankCopy
 
-	ld a, [$FF00+$9B]
-	cp $13
+	ld a, [hGameMode]
+	cp MODE_CREDITS
 	jp z, UnknownJump_0x2CA3
 
 	ld a, [$A28E]
@@ -109,124 +109,36 @@ VBlank:
 
 	ld a, [$AA01]
 	and a
-	jr z, UnknownRJump_0x01BF
+	jr z, .skip_map_scroll
 
 	ld a, [sLevelBank]
 	ld [MBC1RomBank], a
 	call ScrollLevelMap
-	jr UnknownRJump_0x01C5
+	jr FinishVBlank
 
-UnknownRJump_0x01BF:
-	call UnknownCall_0x3873
-	call UnknownCall_0x076B
+.skip_map_scroll:
+	call UpdateAnimatedTiles
+	call UpdateWindow
 
-UnknownJump_0x01C5:
-UnknownRJump_0x01C5:
+FinishVBlank:
 	call hOAMDMA
-	ld a, [$FF00+$9B]
-	cp $04
+	ld a, [hGameMode]
+	cp MODE_LEVEL
 	call z, UpdateSound
-	ld a, [$FF00+$9B]
+	ld a, [hGameMode]
 	cp $18
 	call z, UpdateSound
 	ld a, [sRomBank]
 	ld [MBC1RomBank], a
 	ld a, 1
-	ld [$FF00+$82], a
+	ld [hVBlankOccured], a
 	pop hl
 	pop de
 	pop bc
 	pop af
 	reti
 
-Init:
-	ld a, IEF_VBLANK
-	di
-	ld [rIF], a
-	ld [rIE], a
-	xor a
-	ld [rSCY], a
-	ld [rSCX], a
-	ld [rSTAT], a
-	ld [rSB], a
-	ld [rSC], a
-	ld a, LCDCF_ON
-	ld [rLCDC], a
-
-.waitVBlank
-	ld a, [rLY]
-	cp 148
-	jr nz, .waitVBlank
-
-	ld a, LCDCF_BGON | LCDCF_OBJON
-	ld [rLCDC], a
-
-	ld sp, sStackEnd - 1
-	ld a, SRAM_ENABLE
-	ld [MBC1SRamEnable], a
-
-	xor a		; fill A100 - DFFF with 00
-	ld hl, $DFFF
-	ld c, $3F
-	ld b, $00
-
-.clear_ram:
-	ld [hld], a
-	dec b
-	jr nz, .clear_ram
-	dec c
-	jr nz, .clear_ram
-
-	ld hl, $FEFF	; fill FE00 - FEFF with 00 (OAM)
-	ld b, 0
-
-.clear_oam:
-	ld [hld], a
-	dec b
-	jr nz, .clear_oam
-
-	ld hl, $FFFE	; fill FF7F - FFFE with 00 (HRAM)
-	ld b, 128
-
-.clear_hram:
-	ld [hld], a
-	dec b
-	jr nz, .clear_hram
-
-	ld a, %10010011
-	ld [sBGP], a
-
-	ld a, %11010000
-	ld [sOBP0], a
-
-	ld a, %00111000
-	ld [sOBP1], a
-
-	ld c, LOW(hOAMDMA)
-	ld b, DMARoutineEnd-DMARoutine
-	ld hl, DMARoutine
-
-.copy_oamdma:
-	ld a, [hli]
-	ld [$FF00+c], a
-	inc c
-	dec b
-	jr nz, .copy_oamdma
-
-	call BlankBGMaps
-	ld a, IEF_VBLANK
-	ld [rIE], a
-	ld a, 7
-	ld [rWX], a
-	ld a, LCDCF_ON
-	ld [rLCDC], a
-	ei
-	xor a
-	ld [rIF], a
-	ld [rWY], a
-	ld [rTMA], a
-	call ResetAudio
-
+INCLUDE "home/init.asm"
 MainLoop:
 	xor a
 	ld [$AA01], a
@@ -239,53 +151,76 @@ MainLoop:
 	call GetDemoInputs
 
 UnknownRJump_0x0279:
-	call UnknownCall_0x02AD
-	ld a, [$FF00+$9B]
-	cp $04
-	jr z, UnknownRJump_0x028D
+	call CallGameModeHandler
+	ld a, [hGameMode]
+	cp MODE_LEVEL
+	jr z, .skip_sound_update
+
 	cp $18
-	jr z, UnknownRJump_0x028D
-	cp $13
-	jr z, UnknownRJump_0x028D
+	jr z, .skip_sound_update
+
+	cp MODE_CREDITS
+	jr z, .skip_sound_update
+
 	call UpdateSound
 
-UnknownRJump_0x028D:
+.skip_sound_update:
 	call UnknownCall_0x20A4
 	ld a, [hKeysHeld]
-	and $0F
-	cp $0F
-	jp z, UnknownJump_0x029F
+	and A_BUTTON | B_BUTTON | SELECT | START
+	cp A_BUTTON | B_BUTTON | SELECT | START
+	jp z, .soft_reset
 	call UnknownCall_0x02FF
 	jp MainLoop
 
-UnknownJump_0x029F:
-UnknownData_0x029F: ;soft reset?
+.soft_reset:
 INCBIN "baserom.gb", $029F, $02AD - $029F
 
 
-UnknownCall_0x02AD:
-	ld a, [$FF00+$9B]
+CallGameModeHandler:
+	ld a, [hGameMode]
 	jumptable
+	dw $2cc4		; 00
+	dw $2cdb		; 01
+	dw $03f1		; 02
+	dw $04f1		; 03
+	dw $05d5		; 04
+	dw $27af		; 05
+	dw UnknownCall_0x02FE	; 06
+	dw $287e		; 07
+	dw $2756		; 08
+	dw $311a		; 09
+	dw UnknownCall_0x02FE	; 0A
+	dw $2ce9		; 0B
+	dw $2c2e		; 0C
+	dw UnknownCall_0x02FE	; 0D
+	dw UnknownCall_0x02FE	; 0E
+	dw UnknownCall_0x02FE	; 0F
+	dw $2974		; 10
+	dw $29ca		; 11
+	dw $2cae		; 12
+	dw $2cb9		; 13
+	dw $2c23		; 14
+INCBIN "baserom.gb", $02DA, $02FE - $02DA
 
-UnknownData_0x02B0:
-INCBIN "baserom.gb", $02B0, $02FF - $02B0
-
+UnknownCall_0x02FE:
+	ret
 
 UnknownCall_0x02FF:
 	halt
 
 UnknownRJump_0x0300:
-	ld a, [$FF00+$82]
+	ld a, [hVBlankOccured]
 	and a
 	jr z, UnknownRJump_0x0300
 	ld a, [$FF00+$97]
 	inc a
 	ld [$FF00+$97], a
-	ld a, [$A298]
+	ld a, [sAnimatedTilesCounter]
 	inc a
-	ld [$A298], a
+	ld [sAnimatedTilesCounter], a
 	xor a
-	ld [$FF00+$82], a
+	ld [hVBlankOccured], a
 	ld a, 192
 	ld [$FF00+$8C], a
 	xor a
@@ -430,7 +365,7 @@ Read_Level_Data: ;$0386
 	ld a, 255
 	ld [$A266], a
 	ld a, 18
-	ld [$FF00+$9B], a
+	ld [hGameMode], a
 	ret
 
 UnknownData_0x03E1:
@@ -530,7 +465,7 @@ UnknownRJump_0x0472:
 	xor a
 	ld [$A20E], a
 	ld [$A2A7], a
-	ld [$A248], a
+	ld [sVBlankCopyEnabled], a
 	ld [$A26E], a
 	ld hl, $AA80
 
@@ -542,9 +477,9 @@ UnknownRJump_0x049C:
 	ld l, a
 	jr nz, UnknownRJump_0x049C
 	ld a, [$A813]
-	ld [sTimerHigh], a
+	ld [sTimer+1], a
 	xor a
-	ld [sTimerLow], a
+	ld [sTimer], a
 	ld [$A2B4], a
 	ld a, 48
 	ld [$A24B], a
@@ -571,9 +506,9 @@ UnknownRJump_0x04DD:
 	add de
 	ld a, [hl] ;check level space physics
 	ld [sMoonPhysics], a
-	ld a, [$FF00+$9B]
+	ld a, [hGameMode]
 	inc a
-	ld [$FF00+$9B], a
+	ld [hGameMode], a
 	ret
 	call DisableVBlank
 	call LoadMarioGFX
@@ -663,9 +598,9 @@ UnknownRJump_0x0598:
 	ld [$A890], a
 	ld [$A2E0], a
 	ld [$A2E3], a
-	ld a, [$FF00+$9B]
+	ld a, [hGameMode]
 	inc a
-	ld [$FF00+$9B], a
+	ld [hGameMode], a
 	ld a, [$A2D5]
 	and a
 	ret z
@@ -869,60 +804,53 @@ UnknownRJump_0x06C0:
 	add de
 	ld a, [hl]
 	inc a
-	ld [$A299], a
+	ld [sAnimatedTilesCtl], a
 	ret
 
 UnknownData_0x0763:
 INCBIN "baserom.gb", $0763, $076B - $0763
 
+drawdigit: MACRO
+; params: x, y
+	add $80
+	ld [SCREEN2 + SCREEN_WIDTH * (\2) + (\1)], a
+ENDM
 
-UnknownCall_0x076B:
-	ld a, [$FF00+$9B]
-	cp $04
+drawhigh: MACRO
+; params: address, x, y
+	ld a, [\1]
+	and $F0
+	swap a
+	drawdigit \2, \3
+ENDM
+
+drawlow: MACRO
+; params: address, x, y
+	ld a, [\1]
+	and $0F
+	drawdigit \2, \3
+ENDM
+
+UpdateWindow:
+	ld a, [hGameMode]
+	cp MODE_LEVEL
 	ret nz
-	ld a, [$A22C]
-	and $F0
-	swap a
-	add 128
-	ld [$9C02], a
-	ld a, [$A22C]
-	and $0F
-	add 128
-	ld [$9C03], a
-	ld a, [sCoinHigh]
-	and $0F
-	add 128
-	ld [$9C07], a
-	ld a, [sCoinLow]
-	and $F0
-	swap a
-	add 128
-	ld [$9C08], a
-	ld a, [sCoinLow]
-	and $0F
-	add 128
-	ld [$9C09], a
-	ld a, [$A28D]
-	and $F0
-	swap a
-	add 128
-	ld [$9C0D], a
-	ld a, [$A28D]
-	and $0F
-	add 128
-	ld [$9C0E], a
-	ld a, [sTimerHigh]
-	add 128
-	ld [$9C11], a
-	ld a, [sTimerLow]
-	and $F0
-	swap a
-	add 128
-	ld [$9C12], a
-	ld a, [sTimerLow]
-	and $0F
-	add 128
-	ld [$9C13], a
+
+	drawhigh sLifeCount, 2, 0
+	drawlow  sLifeCount, 3, 0
+
+	drawlow  sCoinCount+1, 7, 0
+	drawhigh sCoinCount,   8, 0
+	drawlow  sCoinCount,   9, 0
+
+	drawhigh sKillCount, 13, 0
+	drawlow  sKillCount, 14, 0
+
+	ld a, [sTimer+1]
+	drawdigit 17, 0
+
+	drawhigh sTimer,   18, 0
+	drawlow  sTimer,   19, 0
 	ret
 
 UnknownCall_0x07DB:
@@ -3397,13 +3325,13 @@ UnknownRJump_0x1CD7:
 	ld [$A478], a
 	ld [$A470], a
 	ld a, 24
-	ld [$FF00+$9B], a
+	ld [hGameMode], a
 	ld a, 192
 	ld [$A266], a
 	xor a
 	ld [$A267], a
 	ld [$A2A0], a
-	ld [$A299], a
+	ld [sAnimatedTilesCtl], a
 	jr UnknownRJump_0x1D71
 
 UnknownRJump_0x1CFB:
@@ -3481,13 +3409,13 @@ UnknownCall_0x1D75:
 	ld a, 7
 	ld [$A460], a
 	call UnknownCall_0x1DA5
-	ld a, [sCoinLow]
+	ld a, [sCoinCount]
 	inc a
 	daa
-	ld [sCoinLow], a
-	ld a, [sCoinHigh]
+	ld [sCoinCount], a
+	ld a, [sCoinCount+1]
 	adc 0
-	ld [sCoinHigh], a
+	ld [sCoinCount+1], a
 	cp $0A
 	jr c, UnknownRJump_0x1DA4
 
@@ -3968,7 +3896,7 @@ UnknownJump_0x20EB:
 	ld a, 96
 	ld [$A266], a
 	xor a
-	ld [$A299], a
+	ld [sAnimatedTilesCtl], a
 	ld [$A271], a
 	ld [$A272], a
 	inc hl
@@ -4081,17 +4009,17 @@ UnknownCall_0x2202:
 	ld [sRomBank], a
 	ld [$A265], a
 	ld a, [hli]
-	ld [$FF00+$B1], a
+	ld [hVBlankCopySrc], a
 	ld a, [hli]
-	ld [$FF00+$B2], a
+	ld [hVBlankCopySrc+1], a
 	ld a, 0
-	ld [$FF00+$B3], a
+	ld [hVBlankCopyDst], a
 	ld a, 139
-	ld [$FF00+$B4], a
+	ld [hVBlankCopyDst+1], a
 	ld a, 128
-	ld [$FF00+$B5], a
+	ld [hVBlankCopyLen], a
 	ld a, 3
-	ld [$FF00+$B6], a
+	ld [hVBlankCopyLen+1], a
 	jp UnknownJump_0x22B9
 
 UnknownRJump_0x222E:
@@ -4106,7 +4034,7 @@ INCBIN "baserom.gb", $224E, $22B9 - $224E
 
 UnknownJump_0x22B9:
 	ld a, 255
-	ld [$A248], a
+	ld [sVBlankCopyEnabled], a
 
 UnknownRJump_0x22BE:
 	ld a, [$A28C]
@@ -4119,7 +4047,7 @@ INCBIN "baserom.gb", $22C4, $22D5 - $22C4
 
 UnknownRJump_0x22D5:
 	call UnknownCall_0x2728
-	ld a, [$A248]
+	ld a, [sVBlankCopyEnabled]
 	and a
 	jr nz, UnknownRJump_0x22BE
 	ret
@@ -4537,11 +4465,11 @@ UnknownRJump_0x266D:
 	cp $A8
 	jr nz, UnknownRJump_0x266D
 	xor a
-	ld [$FF00+$47], a
+	ld [rBGP], a
 	ld [sBGP], a
-	ld [$FF00+$48], a
+	ld [rOBP0], a
 	ld [sOBP0], a
-	ld [$FF00+$49], a
+	ld [rOBP1], a
 	ld [sOBP1], a
 	ld a, 227
 	ld [$FF00+$40], a
@@ -4555,27 +4483,27 @@ INCBIN "baserom.gb", $268B, $26C3 - $268B
 UnknownJump_0x26C3:
 	ld a, [$AA01]
 	and a
-	jr z, UnknownRJump_0x2712
+	jr z, FinishVBlankAlt
 	ld a, [sLevelBank]
 	ld [sRomBank], a
 	ld [MBC1RomBank], a
 	call ScrollLevelMap
-	jr UnknownRJump_0x2712
+	jr FinishVBlankAlt
 
-UnknownJump_0x26D7:
+VBlankCopy:
 	ld a, [$A265]
 	ld [MBC1RomBank], a
-	ld a, [$FF00+$B5]
+	ld a, [hVBlankCopyLen]
 	ld c, a
-	ld a, [$FF00+$B6]
+	ld a, [hVBlankCopyLen+1]
 	ld b, a
-	ld a, [$FF00+$B1]
+	ld a, [hVBlankCopySrc]
 	ld l, a
-	ld a, [$FF00+$B2]
+	ld a, [hVBlankCopySrc+1]
 	ld h, a
-	ld a, [$FF00+$B3]
+	ld a, [hVBlankCopyDst]
 	ld e, a
-	ld a, [$FF00+$B4]
+	ld a, [hVBlankCopyDst+1]
 	ld d, a
 
 UnknownRJump_0x26EF:
@@ -4587,29 +4515,29 @@ UnknownRJump_0x26EF:
 	and $3F
 	jr nz, UnknownRJump_0x26EF
 	ld a, c
-	ld [$FF00+$B5], a
+	ld [hVBlankCopyLen], a
 	ld a, b
-	ld [$FF00+$B6], a
+	ld [hVBlankCopyLen+1], a
 	ld a, l
-	ld [$FF00+$B1], a
+	ld [hVBlankCopySrc], a
 	ld a, h
-	ld [$FF00+$B2], a
+	ld [hVBlankCopySrc+1], a
 	ld a, e
-	ld [$FF00+$B3], a
+	ld [hVBlankCopyDst], a
 	ld a, d
-	ld [$FF00+$B4], a
+	ld [hVBlankCopyDst+1], a
 	ld a, b
 	or c
-	jr nz, UnknownRJump_0x2712
+	jr nz, FinishVBlankAlt
 	xor a
-	ld [$A248], a
+	ld [sVBlankCopyEnabled], a
 
-UnknownRJump_0x2712:
-	ld a, [$FF00+$9B]
-	cp $13
+FinishVBlankAlt:
+	ld a, [hGameMode]
+	cp MODE_CREDITS
 	call nz, UpdateSound
 	ld a, 1
-	ld [$FF00+$82], a
+	ld [hVBlankOccured], a
 	ld a, [sRomBank]
 	ld [MBC1RomBank], a
 	pop hl
@@ -4619,17 +4547,17 @@ UnknownRJump_0x2712:
 	reti
 
 UnknownCall_0x2728:
-	db $76 ;halt (rgbds adds a nop after)
+	halt
 
 UnknownRJump_0x2729:
-	ld a, [$FF00+$82]
+	ld a, [hVBlankOccured]
 	and a
 	jr z, UnknownRJump_0x2729
 	ld a, [$FF00+$97]
 	inc a
 	ld [$FF00+$97], a
 	xor a
-	ld [$FF00+$82], a
+	ld [hVBlankOccured], a
 	ld a, 192
 	ld [$FF00+$8C], a
 	xor a
@@ -4646,7 +4574,7 @@ UnknownCall_0x273E:
 	xor a
 	ld [$A23D], a
 	ld a, 8
-	ld [$FF00+$9B], a
+	ld [hGameMode], a
 	ld a, 1
 	ld [$A45E], a
 	ret
@@ -4671,11 +4599,11 @@ UnknownRJump_0x2760:
 	ld [$A224], a
 	xor a
 	ld [sAutoScroll], a
-	ld [$A299], a
+	ld [sAnimatedTilesCtl], a
 	ld [$A2B4], a
 	ld [sFastMusic], a
 	ld a, 20
-	ld [$FF00+$9B], a
+	ld [hGameMode], a
 	ret
 
 UnknownRJump_0x278E:
@@ -4689,7 +4617,7 @@ UnknownRJump_0x278E:
 	ld a, [$A811]
 	ld [sOBP1], a
 	ld a, 4
-	ld [$FF00+$9B], a
+	ld [hGameMode], a
 	ld a, 2
 	ld [$A45E], a
 	ret
@@ -4725,11 +4653,11 @@ UnknownRJump_0x27D2:
 	ld [$A207], a
 	ld [$FF00+$40], a
 	ld a, 5
-	ld [$A22C], a
+	ld [sLifeCount], a
 	xor a
-	ld [sCoinLow], a
-	ld [sCoinHigh], a
-	ld [$A28D], a
+	ld [sCoinCount], a
+	ld [sCoinCount+1], a
+	ld [sKillCount], a
 	ld b, a
 	ld a, [$A84D]
 	and $80
@@ -4785,7 +4713,7 @@ UnknownRJump_0x2844:
 	ld a, 7
 	ld [$A468], a
 	ld a, 7
-	ld [$FF00+$9B], a
+	ld [hGameMode], a
 	ret
 
 UnknownData_0x2874:
@@ -4806,7 +4734,7 @@ INCBIN "baserom.gb", $2874, $287E - $2874
 	cp $08
 	ret nz
 	ld a, 0
-	ld [$FF00+$9B], a
+	ld [hGameMode], a
 	ld a, 255
 	ld [$A468], a
 	ret
@@ -4932,11 +4860,11 @@ UnknownRJump_0x294D:
 	inc de
 	dec b
 	jr nz, UnknownRJump_0x294D
-	ld a, [sCoinLow]
+	ld a, [sCoinCount]
 	ld [hli], a
 	add c
 	ld c, a
-	ld a, [sCoinHigh]
+	ld a, [sCoinCount+1]
 	ld [hli], a
 	add c
 	ld c, a
@@ -4944,11 +4872,11 @@ UnknownRJump_0x294D:
 	ld [hli], a
 	add c
 	ld c, a
-	ld a, [$A22C]
+	ld a, [sLifeCount]
 	ld [hli], a
 	add c
 	ld c, a
-	ld a, [$A28D]
+	ld a, [sKillCount]
 	ld [hli], a
 	add c
 	ld [hl], a
@@ -5507,10 +5435,10 @@ UnknownJump_0x2EAA:
 	ret c
 	ld a, 9
 	ld [$A460], a
-	ld a, [$A22C]
+	ld a, [sLifeCount]
 	inc a
 	daa
-	ld [$A22C], a
+	ld [sLifeCount], a
 	ret nz
 
 UnknownData_0x2ED7:
@@ -5894,25 +5822,25 @@ UnknownRJump_0x3120:
 
 UnknownRJump_0x3127:
 	xor a
-	ld [$A299], a
+	ld [sAnimatedTilesCtl], a
 	ld [$A2DC], a
 	ld a, 20
-	ld [$FF00+$9B], a
+	ld [hGameMode], a
 	call UnknownCall_0x2D41
 	ld a, [sDemoMode]
 	and a
 	jp nz, UnknownJump_0x3150
-	ld a, [$A22C]
+	ld a, [sLifeCount]
 	sub 1
 	daa
-	ld [$A22C], a
+	ld [sLifeCount], a
 	jr c, UnknownRJump_0x314B
 	call UnknownCall_0x2934
 	ret
 
 UnknownRJump_0x314B:
 	ld a, 5
-	ld [$FF00+$9B], a
+	ld [hGameMode], a
 	ret
 
 UnknownJump_0x3150:
@@ -5954,7 +5882,7 @@ UnknownRJump_0x3186:
 	ld a, 192
 	ld [$A266], a
 	ld a, 9
-	ld [$FF00+$9B], a
+	ld [hGameMode], a
 	ret
 
 UnknownCall_0x319F:
@@ -6364,10 +6292,10 @@ UnknownRJump_0x34AF:
 	jr nz, UnknownRJump_0x34C9
 	ld a, 9
 	ld [$A460], a
-	ld a, [$A22C]
+	ld a, [sLifeCount]
 	inc a
 	daa
-	ld [$A22C], a
+	ld [sLifeCount], a
 	jr nz, UnknownRJump_0x3539
 
 UnknownData_0x34C2:
@@ -6413,19 +6341,19 @@ UnknownRJump_0x350A:
 	jr nz, UnknownRJump_0x3539
 	ld a, 7
 	ld [$A460], a
-	ld a, [sCoinLow]
+	ld a, [sCoinCount]
 	add 80
 	daa
-	ld [sCoinLow], a
-	ld a, [sCoinHigh]
+	ld [sCoinCount], a
+	ld a, [sCoinCount+1]
 	adc 0
-	ld [sCoinHigh], a
+	ld [sCoinCount+1], a
 	cp $0A
 	jr c, UnknownRJump_0x3539
 	ld a, 153
-	ld [sCoinLow], a
+	ld [sCoinCount], a
 	ld a, 9
-	ld [sCoinHigh], a
+	ld [sCoinCount+1], a
 	jr UnknownRJump_0x3539
 
 UnknownJump_0x3534:
@@ -6440,7 +6368,7 @@ UnknownRJump_0x3539:
 	xor a
 	ld [sCurPowerup], a
 	ld a, 20
-	ld [$FF00+$9B], a
+	ld [hGameMode], a
 	ret
 	ld a, [$A266]
 	ld b, a
@@ -6468,13 +6396,13 @@ UnknownRJump_0x3558:
 
 UnknownRJump_0x356E:
 	ld a, 20
-	ld [$FF00+$9B], a
+	ld [hGameMode], a
 	ret
 	ld a, [sCurLevel]
 	cp $FF
 	jr nz, .CheckEasyMode
 	ld a, 27
-	ld [$FF00+$9B], a
+	ld [hGameMode], a
 	ret
 
 .CheckEasyMode
@@ -6482,7 +6410,7 @@ UnknownRJump_0x356E:
 	cp $01
 	jr z, .EasyModeOn
 	ld a, 11
-	ld [$FF00+$9B], a
+	ld [hGameMode], a
 	ret
 
 .EasyModeOn
@@ -6509,9 +6437,9 @@ UnknownRJump_0x356E:
 	ld [$A267], a
 	ld a, 64
 	ld [$A266], a
-	ld a, [$FF00+$9B]
+	ld a, [hGameMode]
 	inc a
-	ld [$FF00+$9B], a
+	ld [hGameMode], a
 	ret
 	ld a, 80
 	ld [$FF00+$C4], a
@@ -6526,7 +6454,7 @@ UnknownRJump_0x356E:
 	or b
 	ret nz
 	ld a, 11
-	ld [$FF00+$9B], a
+	ld [hGameMode], a
 	ret
 
 UnknownData_0x35EA:
@@ -6575,47 +6503,53 @@ UnknownData_0x377B:
 INCBIN "baserom.gb", $377B, $3873 - $377B
 
 
-UnknownCall_0x3873:
-	ld a, [$A299]
+UpdateAnimatedTiles:
+	ld a, [sAnimatedTilesCtl]
 	and a
 	ret z
+
 	dec a
 	and $0F
 	ld d, a
-	ld a, [$A299]
+	ld a, [sAnimatedTilesCtl]
 	and $F0
 	swap a
 	sla a
 	ld b, a
-	ld a, 29
+
+	ld a, BANK(GFX_AnimatedTiles)
 	ld [MBC1RomBank], a
-	ld a, [$A298]
+
+	ld a, [sAnimatedTilesCounter]
 	cp b
 	ret c
 	xor a
-	ld [$A298], a
+	ld [sAnimatedTilesCounter], a
+
 	ld e, 0
-	ld hl, $6680
+	ld hl, GFX_AnimatedTiles
 	add de
-	ld a, [$A2CD]
+
+	ld a, [sAnimatedTilesState]
 	inc a
 	and $03
-	ld [$A2CD], a
-	sla a
+	ld [sAnimatedTilesState], a
+
+	sla a ; two RRCAs would be shorter...
 	sla a
 	swap a
+
 	ld e, a
 	ld d, 0
 	add de
 	ld de, $9200
 	ld b, 64
-
-UnknownRJump_0x38B2:
+.copy_loop:
 	ld a, [hli]
 	ld [de], a
 	inc de
 	dec b
-	jr nz, UnknownRJump_0x38B2
+	jr nz, .copy_loop
 	ret
 
 INCLUDE "home/demo.asm"

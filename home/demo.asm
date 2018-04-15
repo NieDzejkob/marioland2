@@ -65,7 +65,7 @@ GetDemoInputs:
 	cp $ff
 	jr nz, .skip
 	ld a, 6
-	ld [$FF00+$9B], a
+	ld [hGameMode], a
 	ret
 .skip:
 	ld a, [hKeysHeld]

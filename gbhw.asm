@@ -12,6 +12,9 @@ VRAM_HIGH   EQU $8800 ; $8800->$9800
 SCREEN1     EQU $9800 ; $9800->$9BFF
 SCREEN2     EQU $9C00 ; $9C00->$9FFF
 
+SCREEN_WIDTH  EQU 20
+SCREEN_HEIGHT EQU 18
+
 ; --
 ; -- P1 ($FF00)
 ; -- Register for reading joy pad info. (R/W)
