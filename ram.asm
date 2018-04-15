@@ -1,3 +1,22 @@
+SECTION "OAM Buffer", SRAM[$A100], BANK[0]
+sOAMBuffer:
+	ds $A0
+sOAMBufferEnd:
+
+SECTION "Audio SRAM", SRAM[$A400], BANK[0]
+sAudio1:
+	ds $100
+sAudio1End:
+
+sAudio2:
+	ds $100
+sAudio2End:
+
+SECTION "Stack", SRAM[$A800], BANK[0]
+sStack:
+	ds $100
+sStackEnd:
+
 sHVelocityIndex = $A200
 sVVelocityIndex = $A201
 sMarioOnGround = $A214
@@ -18,12 +37,12 @@ sCoinLow = $A262
 sCoinHigh = $A263
 sSpinJump = $A268
 sCurLevel = $A269
-sBGPalette = $A27E
-sOAMPalette1 = $A27F
-sOAMPalette2 = $A280
+sBGP = $A27E
+sOBP0 = $A27F
+sOBP1 = $A280
 sMoonPhysics = $A287
-sScrollY = $A2B0
-sScrollX = $A2B1
+sSCY = $A2B0
+sSCX = $A2B1
 sAutoScroll = $A2C8
 sSoundDisabled = $A2CE
 sRomBank = $A24E
@@ -35,3 +54,4 @@ sFastMusic = $A50D
 
 hKeysHeld = $FF80
 hKeysPressed = $FF81
+hOAMDMA = $FFA0

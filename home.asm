@@ -6,8 +6,6 @@ SECTION "rst08", ROM0[$08]
 	db $80, $1B, $9B, $10, $80, $83, $28, $E2, $A2, $1A, $28, $02, $07, $40, $20, $C2, $AC, $BA, $33, $AE, $02, $80, $21, $88, $8A, $28, $08, $63, $3A
 
 SECTION "rst28", ROM0[$28]
-_Jumptable::
-;rst28 jumps to address of address table, where a is the index
 	add a
 	pop hl
 	ld e, a
@@ -41,37 +39,38 @@ SECTION "serial", ROM0[$58]
 INCBIN "baserom.gb", $005B, $0100 - $005B
 
 SECTION "Header", ROM0[$100]
-_Start:
 	nop
 	jp Start
 
+	ds $150 - $104
+
 SECTION "Home", ROM0[$150]
-Start: ;$0150
+Start:
 	jp Init
 
 EmptyInterrupt:
 	reti
 
-VBlank: ;$0154
+VBlank:
 	di
 	push af
 	push bc
 	push de
 	push hl
 
-	ld a, [sScrollY]
+	ld a, [sSCY]
 	ld [rSCY], a
 
-	ld a, [sScrollX]
+	ld a, [sSCX]
 	ld [rSCX], a
 
-	ld a, [sBGPalette]
+	ld a, [sBGP]
 	ld [rBGP], a
 
-	ld a, [sOAMPalette1]
+	ld a, [sOBP0]
 	ld [rOBP0], a
 
-	ld a, [sOAMPalette2]
+	ld a, [sOBP1]
 	ld [rOBP1], a
 
 	ld a, [$A266]	; 16-bit frame counter?
@@ -140,8 +139,8 @@ UnknownRJump_0x01C5:
 	pop af
 	reti
 
-Init: ;$01E5
-	ld a, (1 << VBLANK)
+Init:
+	ld a, IEF_VBLANK
 	di
 	ld [rIF], a
 	ld [rIE], a
@@ -151,18 +150,18 @@ Init: ;$01E5
 	ld [rSTAT], a
 	ld [rSB], a
 	ld [rSC], a
-	ld a, $80 ; enabled
+	ld a, LCDCF_ON
 	ld [rLCDC], a
 
 .waitVBlank
 	ld a, [rLY]
-	cp $94
+	cp 148
 	jr nz, .waitVBlank
 
-	ld a, $03 ; OBJ & BG enabled, LCD disabled
+	ld a, LCDCF_BGON | LCDCF_OBJON
 	ld [rLCDC], a
 
-	ld sp, $A8FF
+	ld sp, sStackEnd - 1
 	ld a, SRAM_ENABLE
 	ld [MBC1SRamEnable], a
 
@@ -171,60 +170,62 @@ Init: ;$01E5
 	ld c, $3F
 	ld b, $00
 
-.loop1:
+.clear_ram:
 	ld [hld], a
 	dec b
-	jr nz, .loop1
+	jr nz, .clear_ram
 	dec c
-	jr nz, .loop1
+	jr nz, .clear_ram
 
 	ld hl, $FEFF	; fill FE00 - FEFF with 00 (OAM)
 	ld b, 0
 
-.loop2:
+.clear_oam:
 	ld [hld], a
 	dec b
-	jr nz, .loop2
-	ld hl, $FFFE
+	jr nz, .clear_oam
 
+	ld hl, $FFFE	; fill FF7F - FFFE with 00 (HRAM)
 	ld b, 128
 
-.loop3:
+.clear_hram:
 	ld [hld], a
 	dec b
-	jr nz, .loop3
+	jr nz, .clear_hram
 
-	ld a, $93
-	ld [sBGPalette], a
-	ld a, $D0
-	ld [sOAMPalette1], a
-	ld a, $38
-	ld [sOAMPalette2], a
+	ld a, %10010011
+	ld [sBGP], a
 
-	ld c, $A0	; copy 0A byte from 2058 to FFA0
-	ld b, $0A
-	ld hl, $2058
+	ld a, %11010000
+	ld [sOBP0], a
 
-.loop4:
+	ld a, %00111000
+	ld [sOBP1], a
+
+	ld c, hOAMDMA % $100
+	ld b, DMARoutineEnd-DMARoutine
+	ld hl, DMARoutine
+
+.copy_oamdma:
 	ld a, [hli]
 	ld [$FF00+c], a
 	inc c
 	dec b
-	jr nz, .loop4
+	jr nz, .copy_oamdma
 
-	call BlankBGMap1
-	ld a, (1 << VBLANK)
+	call BlankBGMaps
+	ld a, IEF_VBLANK
 	ld [rIE], a
 	ld a, 7
 	ld [rWX], a
-	ld a, 128
+	ld a, LCDCF_ON
 	ld [rLCDC], a
 	ei
 	xor a
 	ld [rIF], a
 	ld [rWY], a
 	ld [rTMA], a
-	call UnknownCall_0x207D
+	call ResetAudio
 
 MainLoop:
 	xor a
@@ -264,7 +265,7 @@ INCBIN "baserom.gb", $029F, $02AD - $029F
 
 UnknownCall_0x02AD:
 	ld a, [$FF00+$9B]
-	rst Jumptable
+	jumptable
 
 UnknownData_0x02B0:
 INCBIN "baserom.gb", $02B0, $02FF - $02B0
@@ -302,27 +303,27 @@ UnknownRJump_0x0322:
 	jr nz, UnknownRJump_0x0322
 	ret
 
-BlankBGMap1: ;$0327
+BlankBGMaps:
 	ld hl, $9FFF
 	ld bc, $0800
 
-.continue
+.loop
 	ld a, 255
 	ld [hld], a
 	dec bc
 	ld a, b
 	or c
-	jr nz, .continue
+	jr nz, .loop
 	ret
 
-CopyMem: ;$0336 copies bc bytes from hl to de.
+CopyData:
 	ld a, [hli]
 	ld [de], a
 	inc de
 	dec bc
 	ld a, b
 	or c
-	jr nz, CopyMem
+	jr nz, CopyData
 	ret
 
 UnknownData_0x033F:
@@ -414,11 +415,11 @@ Read_Level_Data: ;$0386
 	ld hl, $03E1
 	add de
 	ld a, [hli]
-	ld [sBGPalette], a
+	ld [sBGP], a
 	ld a, [hli]
-	ld [sOAMPalette1], a
+	ld [sOBP0], a
 	ld a, [hli]
-	ld [sOAMPalette2], a
+	ld [sOBP1], a
 	ld a, [$A267]
 	ld b, a
 	ld a, [$A266]
@@ -437,7 +438,9 @@ INCBIN "baserom.gb", $03E1, $03F1 - $03E1
 
 	call UnknownCall_0x2D41
 	call UnknownCall_0x0F2A
-	rbk 8
+	ld a, 8
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	ld a, [$A80B]
 	ld l, a
 	ld a, [$A80C]
@@ -451,7 +454,9 @@ UnknownRJump_0x040A:
 	ld a, d
 	cp $A8
 	jr nz, UnknownRJump_0x040A
-	rbk [$A80D]
+	ld a, [$A80D]
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	ld hl, $4000
 	ld a, [hli]
 	ld b, a
@@ -482,7 +487,9 @@ UnknownRJump_0x043F:
 	inc de
 	dec b
 	jr nz, UnknownRJump_0x043F
-	rbk [$A80D]
+	ld a, [$A80D]
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	ld hl, $4002
 	ld a, [hli]
 	ld b, a
@@ -570,16 +577,18 @@ UnknownRJump_0x04DD:
 	ret
 	call DisableVBlank
 	call LoadMarioGFX
-	rbk [sLevelBank]
+	ld a, [sLevelBank]
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	call UnknownCall_0x0361
 	ld a, [$A80F]
-	ld [sBGPalette], a
+	ld [sBGP], a
 	ld [$FF00+$47], a
 	ld a, [$A810]
-	ld [sOAMPalette1], a
+	ld [sOBP0], a
 	ld [$FF00+$48], a
 	ld a, [$A811]
-	ld [sOAMPalette2], a
+	ld [sOBP1], a
 	ld [$FF00+$49], a
 	ld a, [$A804]
 	ld [$FF00+$C8], a
@@ -619,12 +628,14 @@ UnknownRJump_0x052F:
 	ld [$FF00+$CB], a
 	ld a, [$FF00+$C8]
 	sub 120
-	ld [sScrollY], a
+	ld [sSCY], a
 	ld a, [$FF00+$CA]
 	sub 48
-	ld [sScrollX], a
+	ld [sSCX], a
 	call UnknownCall_0x07DB
-	rbk 3
+	ld a, 3
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	call UnknownCall_0xEBBB
 	ld a, 227
 	ld [$FF00+$40], a
@@ -724,7 +735,9 @@ UnknownCall_0x0652:
 	ld a, [$A28B]
 	and $F0
 	jr nz, UnknownRJump_0x0665
-	rbk 2
+	ld a, 2
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	call UnknownCall_0x8000
 	ret
 
@@ -743,32 +756,40 @@ LoadMarioGFX: ;$0669
 	and $0F
 	and a
 	jr nz, .MarioDark
-	rbk BANK(GFX_Mario)
+	ld a, BANK(GFX_Mario)
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	ld bc, $0800
 	ld hl, GFX_Mario
 	ld de, $8000
-	call CopyMem
+	call CopyData
 	jr UnknownRJump_0x06C0
 
 .MarioDark
 	cp $01
 	jr nz, .MarioMoon
-	rbk BANK(GFX_MarioDark)
+	ld a, BANK(GFX_MarioDark)
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	ld bc, $0800
 	ld hl, GFX_MarioDark
 	ld de, $8000
-	call CopyMem
+	call CopyData
 	jr UnknownRJump_0x06C0
 
 .MarioMoon
-	rbk BANK(GFX_MarioMoon)
+	ld a, BANK(GFX_MarioMoon)
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	ld bc, $0800
 	ld hl, GFX_MarioMoon
 	ld de, $8000
-	call CopyMem
+	call CopyData
 
 UnknownRJump_0x06C0:
-	rbk 7
+	ld a, 7
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	ld a, [$A2D2]
 	and $F0
 	swap a
@@ -784,8 +805,10 @@ UnknownRJump_0x06C0:
 	ld l, e
 	ld bc, $0380
 	ld de, $8E80
-	call CopyMem
-	rbk 27
+	call CopyData
+	ld a, 27
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	ld a, [$A2D2]
 	and $F0
 	swap a
@@ -798,7 +821,7 @@ UnknownRJump_0x06C0:
 	add de
 	ld bc, $0300
 	ld de, $8800
-	call CopyMem
+	call CopyData
 	ld a, [sCurLevel]
 	ld hl, LevelEnemySets
 	sla a
@@ -806,7 +829,9 @@ UnknownRJump_0x06C0:
 	ld e, a
 	ld d, 0
 	add de
-	rbk [hli]
+	ld a, [hli]
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	inc hl
 	ld bc, $0380 ;size of enemy sets
 	ld a, [hli]
@@ -816,7 +841,7 @@ UnknownRJump_0x06C0:
 	ld a, e
 	ld l, a
 	ld de, $8B00
-	call CopyMem
+	call CopyData
 	ld a, [sCurLevel]
 	ld hl, LevelTileSets
 	sla a
@@ -824,7 +849,9 @@ UnknownRJump_0x06C0:
 	ld e, a
 	ld d, 0
 	add de
-	rbk [hli]
+	ld a, [hli]
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	inc hl
 	ld bc, $0600 ;size of tilesets
 	ld a, [hli]
@@ -834,7 +861,7 @@ UnknownRJump_0x06C0:
 	ld a, e
 	ld l, a
 	ld de, $9200
-	call CopyMem
+	call CopyData
 	ld hl, $35EA
 	ld a, [sCurLevel]
 	ld e, a
@@ -916,7 +943,9 @@ INCBIN "baserom.gb", $07EA, $0879 - $07EA
 
 
 UnknownCall_0x0879:
-	rbk [sLevelBank]
+	ld a, [sLevelBank]
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	ld a, 0
 	ld [$FF00+$AF], a
 	ld a, 170
@@ -1852,11 +1881,11 @@ UnknownRJump_0x0EF3:
 	ld a, 5
 	ld [$A460], a
 	ld a, [$A80F]
-	ld [sBGPalette], a
+	ld [sBGP], a
 	ld a, [$A810]
-	ld [sOAMPalette1], a
+	ld [sOBP0], a
 	ld a, [$A811]
-	ld [sOAMPalette2], a
+	ld [sOBP1], a
 	ret
 
 UnknownCall_0x0F0B:
@@ -3782,23 +3811,23 @@ ReadJoypad: ;$1FD2
 	ld a, [hKeysHeld]
 	ld [$A2D0], a
 	ld a, $20
-	ld [rJOYP], a
-	ld a, [rJOYP]
-	ld a, [rJOYP]
+	ld [rP1], a
+	ld a, [rP1]
+	ld a, [rP1]
 	cpl
 	and $0F
 	swap a
 	ld b, a
 	ld a, $10
-	ld [rJOYP], a
-	ld a, [rJOYP]
-	ld a, [rJOYP]
-	ld a, [rJOYP]
-	ld a, [rJOYP]
-	ld a, [rJOYP]
-	ld a, [rJOYP]
-	ld a, [rJOYP]
-	ld a, [rJOYP]
+	ld [rP1], a
+	ld a, [rP1]
+	ld a, [rP1]
+	ld a, [rP1]
+	ld a, [rP1]
+	ld a, [rP1]
+	ld a, [rP1]
+	ld a, [rP1]
+	ld a, [rP1]
 	cpl
 	and $0F
 	or b
@@ -3810,7 +3839,7 @@ ReadJoypad: ;$1FD2
 	ld a, c
 	ld [hKeysHeld], a
 	ld a, $30
-	ld [rJOYP], a
+	ld [rP1], a
 	ret
 
 UnknownCall_0x200C:
@@ -3837,8 +3866,17 @@ UnknownRJump_0x2018:
 	ret
 
 UnknownData_0x202F:
-INCBIN "baserom.gb", $202F, $2062 - $202F
+INCBIN "baserom.gb", $202F, $2058 - $202F
 
+DMARoutine:
+	ld a, sOAMBuffer / $100
+	ld [rDMA], a
+	ld a, $28
+.wait:
+	dec a
+	jr nz, .wait
+	ret
+DMARoutineEnd:
 
 UnknownCall_0x2062:
 	ld b, 0
@@ -3852,22 +3890,24 @@ UnknownRJump_0x206D:
 	ld a, [$FF00+$C8]
 	sub 72
 	sub b
-	ld [sScrollY], a
+	ld [sSCY], a
 	ld a, [$FF00+$CA]
 	sub 80
-	ld [sScrollX], a
+	ld [sSCX], a
 	ret
 
-UnknownCall_0x207D:
-	rbk 4
-	call UnknownCall_0x10000
+ResetAudio:
+	ld a, BANK(_ResetAudio)
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
+	call _ResetAudio
 	ret
 
-UpdateSound: ;$2089
+UpdateSound:
 	ld a, [sSoundDisabled]
 	and a
 	ret nz
-	ld a, 4
+	ld a, BANK(_UpdateSound)
 	ld [MBC1RomBank], a
 	call _UpdateSound
 	ret
@@ -3887,7 +3927,9 @@ UnknownCall_0x20A4:
 	call UnknownCall_0x2CFF
 	call UnknownCall_0x2728
 	call $FFA0
-	rbk 5
+	ld a, 5
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	ld a, [$A28E]
 	ld e, a
 	ld d, 0
@@ -3903,7 +3945,9 @@ UnknownCall_0x20A4:
 	ld l, a
 
 UnknownJump_0x20D9:
-	rbk 5
+	ld a, 5
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	ld a, [hl]
 	cp $FF
 	jp nz, UnknownJump_0x20EB
@@ -4112,7 +4156,9 @@ INCBIN "baserom.gb", $2357, $2359 - $2357
 
 
 UnknownRJump_0x2359:
-	rbk [sLevelBank]
+	ld a, [sLevelBank]
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	ld a, 0
 	ld [$FF00+$AF], a
 	ld a, 170
@@ -4135,7 +4181,9 @@ UnknownRJump_0x2359:
 	ld [$FF00+$CD], a
 	call UnknownCall_0x0A35
 	call UnknownCall_0x2728
-	rbk [sLevelBank]
+	ld a, [sLevelBank]
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	ld a, 0
 	ld [$FF00+$AF], a
 	ld a, 170
@@ -4151,7 +4199,9 @@ UnknownRJump_0x2359:
 	ld [$FF00+$CF], a
 	call UnknownCall_0x0A35
 	call UnknownCall_0x2728
-	rbk [sLevelBank]
+	ld a, [sLevelBank]
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	ld a, 0
 	ld [$FF00+$AF], a
 	ld a, 170
@@ -4170,7 +4220,9 @@ UnknownRJump_0x2359:
 	ret
 
 UnknownJump_0x23E4:
-	rbk [sLevelBank]
+	ld a, [sLevelBank]
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	ld a, 0
 	ld [$FF00+$AF], a
 	ld a, 170
@@ -4193,7 +4245,9 @@ UnknownJump_0x23E4:
 	ld [$FF00+$CD], a
 	call UnknownCall_0x0A35
 	call UnknownCall_0x2728
-	rbk [sLevelBank]
+	ld a, [sLevelBank]
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	ld a, 0
 	ld [$FF00+$AF], a
 	ld a, 170
@@ -4209,7 +4263,9 @@ UnknownJump_0x23E4:
 	ld [$FF00+$CF], a
 	call UnknownCall_0x0A35
 	call UnknownCall_0x2728
-	rbk [sLevelBank]
+	ld a, [sLevelBank]
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	ld a, 0
 	ld [$FF00+$AF], a
 	ld a, 170
@@ -4228,7 +4284,9 @@ UnknownJump_0x23E4:
 	ret
 
 UnknownJump_0x246F:
-	rbk [sLevelBank]
+	ld a, [sLevelBank]
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	ld a, 0
 	ld [$FF00+$AF], a
 	ld a, 170
@@ -4251,7 +4309,9 @@ UnknownJump_0x246F:
 	ld [$FF00+$CD], a
 	call UnknownCall_0x0969
 	call UnknownCall_0x2728
-	rbk [sLevelBank]
+	ld a, [sLevelBank]
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	ld a, 0
 	ld [$FF00+$AF], a
 	ld a, 170
@@ -4267,7 +4327,9 @@ UnknownJump_0x246F:
 	ld [$FF00+$CD], a
 	call UnknownCall_0x0969
 	call UnknownCall_0x2728
-	rbk [sLevelBank]
+	ld a, [sLevelBank]
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	ld a, 0
 	ld [$FF00+$AF], a
 	ld a, 170
@@ -4283,7 +4345,9 @@ UnknownJump_0x246F:
 	ld [$FF00+$CD], a
 	call UnknownCall_0x0969
 	call UnknownCall_0x2728
-	rbk [sLevelBank]
+	ld a, [sLevelBank]
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	ld a, 0
 	ld [$FF00+$AF], a
 	ld a, 170
@@ -4302,7 +4366,9 @@ UnknownJump_0x246F:
 	ret
 
 UnknownJump_0x2524:
-	rbk [sLevelBank]
+	ld a, [sLevelBank]
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	ld a, 0
 	ld [$FF00+$AF], a
 	ld a, 170
@@ -4325,7 +4391,9 @@ UnknownJump_0x2524:
 	ld [$FF00+$CD], a
 	call UnknownCall_0x0969
 	call UnknownCall_0x2728
-	rbk [sLevelBank]
+	ld a, [sLevelBank]
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	ld a, 0
 	ld [$FF00+$AF], a
 	ld a, 170
@@ -4341,7 +4409,9 @@ UnknownJump_0x2524:
 	ld [$FF00+$CD], a
 	call UnknownCall_0x0969
 	call UnknownCall_0x2728
-	rbk [sLevelBank]
+	ld a, [sLevelBank]
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	ld a, 0
 	ld [$FF00+$AF], a
 	ld a, 170
@@ -4371,11 +4441,13 @@ UnknownCall_0x25AF:
 	ld a, 3
 	ld [$A812], a
 	call UnknownCall_0x0361
-	rbk 7
+	ld a, 7
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	ld bc, $0050
 	ld hl, $7800
 	ld de, $8E80
-	call CopyMem
+	call CopyData
 	ld hl, $268B
 	ld a, [$A22D]
 	sla a
@@ -4406,7 +4478,7 @@ UnknownCall_0x25AF:
 	ld de, $9000
 
 UnknownRJump_0x2614:
-	call CopyMem
+	call CopyData
 	ld hl, $268B
 	ld a, [$A22D]
 	sla a
@@ -4438,8 +4510,10 @@ UnknownRJump_0x2614:
 	ld de, $8900
 
 UnknownRJump_0x264F:
-	call CopyMem
-	rbk 8
+	call CopyData
+	ld a, 8
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	ld hl, $26B5
 	ld a, [$A22D]
 	sla a
@@ -4461,11 +4535,11 @@ UnknownRJump_0x266D:
 	jr nz, UnknownRJump_0x266D
 	xor a
 	ld [$FF00+$47], a
-	ld [sBGPalette], a
+	ld [sBGP], a
 	ld [$FF00+$48], a
-	ld [sOAMPalette1], a
+	ld [sOBP0], a
 	ld [$FF00+$49], a
-	ld [sOAMPalette2], a
+	ld [sOBP1], a
 	ld a, 227
 	ld [$FF00+$40], a
 	pop hl
@@ -4479,7 +4553,9 @@ UnknownJump_0x26C3:
 	ld a, [$AA01]
 	and a
 	jr z, UnknownRJump_0x2712
-	rbk [sLevelBank]
+	ld a, [sLevelBank]
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	call ScrollLevelMap
 	jr UnknownRJump_0x2712
 
@@ -4579,8 +4655,8 @@ UnknownCall_0x273E:
 
 UnknownRJump_0x2760:
 	ld a, b
-	ld [sBGPalette], a
-	ld [sOAMPalette1], a
+	ld [sBGP], a
+	ld [sOBP0], a
 	ld a, [hKeysPressed]
 	cp $04
 	jr nz, UnknownRJump_0x278E
@@ -4604,11 +4680,11 @@ UnknownRJump_0x278E:
 	bit 3, a
 	ret z
 	ld a, [$A80F]
-	ld [sBGPalette], a
+	ld [sBGP], a
 	ld a, [$A810]
-	ld [sOAMPalette1], a
+	ld [sOBP0], a
 	ld a, [$A811]
-	ld [sOAMPalette2], a
+	ld [sOBP1], a
 	ld a, 4
 	ld [$FF00+$9B], a
 	ld a, 2
@@ -4618,11 +4694,13 @@ UnknownRJump_0x278E:
 	xor a
 	ld [$FF00+$8D], a
 	call UnknownCall_0x2D41
-	rbk 12
+	ld a, 12
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	ld bc, $1800
 	ld hl, $4C92
 	ld de, $8000
-	call CopyMem
+	call CopyData
 	ld de, $9800
 	ld hl, $6492
 
@@ -4634,12 +4712,12 @@ UnknownRJump_0x27D2:
 	cp $9B
 	jr nz, UnknownRJump_0x27D2
 	xor a
-	ld [sScrollY], a
-	ld [sScrollX], a
+	ld [sSCY], a
+	ld [sSCX], a
 	ld [$FF00+$42], a
 	ld [$FF00+$43], a
 	ld a, 228
-	ld [sBGPalette], a
+	ld [sBGP], a
 	ld a, 195
 	ld [$A207], a
 	ld [$FF00+$40], a
@@ -4710,7 +4788,9 @@ UnknownRJump_0x2844:
 UnknownData_0x2874:
 INCBIN "baserom.gb", $2874, $287E - $2874
 
-	rbk 12
+	ld a, 12
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	call UnknownCall_0x30884
 	call UnknownCall_0x28A7
 	call UnknownCall_0x2CFF
@@ -4751,7 +4831,9 @@ UnknownCall_0x28A7:
 	ld [$FF00+$C4], a
 
 UnknownRJump_0x28CD:
-	rbk 1
+	ld a, 1
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	call UnknownCall_0x5297
 	ret
 
@@ -4873,12 +4955,16 @@ UnknownData_0x2974:
 INCBIN "baserom.gb", $2974, $29DD - $2974
 
 	call DisableVBlank
-	rbk 17
+	ld a, 17
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	ld bc, $1800
 	ld hl, $5800
 	ld de, $8000
-	call CopyMem
-	rbk 26
+	call CopyData
+	ld a, 26
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	ld hl, $9800
 	ld de, $548E
 
@@ -4890,14 +4976,14 @@ UnknownRJump_0x2A02:
 	cp $9C
 	jr nz, UnknownRJump_0x2A02
 	xor a
-	ld [sScrollY], a
-	ld [sScrollX], a
+	ld [sSCY], a
+	ld [sSCX], a
 	ld a, 225
-	ld [sBGPalette], a
+	ld [sBGP], a
 	ld a, 210
-	ld [sOAMPalette1], a
+	ld [sOBP0], a
 	ld a, 57
-	ld [sOAMPalette2], a
+	ld [sOBP1], a
 	ld hl, $A100
 
 UnknownRJump_0x2A23:
@@ -4914,18 +5000,24 @@ UnknownRJump_0x2A23:
 	ld [$A266], a
 	ld a, 44
 	ld [$A2E1], a
-	rbk 26
+	ld a, 26
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	ld a, [$A2DD]
 	inc a
 	ld [$A2DD], a
 	ret
 
 UnknownJump_0x2A4D:
-	rbk 12
+	ld a, 12
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	jp UnknownJump_0x309CD
 
 UnknownCall_0x2A58:
-	rbk 1
+	ld a, 1
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	jp UnknownJump_0x6485
 
 UnknownData_0x2A63:
@@ -4933,32 +5025,50 @@ INCBIN "baserom.gb", $2A63, $2A96 - $2A63
 
 
 UnknownCall_0x2A96:
-	rbk 4
+	ld a, 4
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	call _UpdateSound
-	rbk 26
+	ld a, 26
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	ret
 
 UnknownCall_0x2AAA:
-	rbk 4
+	ld a, 4
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	call _UpdateSound
-	rbk 15
+	ld a, 15
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	ret
 
 UnknownCall_0x2ABE:
-	rbk BANK(GFX_TitleScreen)
+	ld a, BANK(GFX_TitleScreen)
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	ld bc, $1800
 	ld hl, GFX_TitleScreen
 	ld de, $8000
-	call CopyMem
+	call CopyData
 	ret
 
-	rbk 12
+	ld a, 12
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	jp UnknownJump_0x305B6
-	rbk 12
+	ld a, 12
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	jp UnknownJump_0x3067A
-	rbk 12
+	ld a, 12
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	jp UnknownJump_0x3041D
-	rbk 12
+	ld a, 12
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	jp UnknownJump_0x30451
 
 UnknownData_0x2AFF:
@@ -4966,90 +5076,134 @@ INCBIN "baserom.gb", $2AFF, $2B13 - $2AFF
 
 
 UnknownCall_0x2B13:
-	rbk 1
+	ld a, 1
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	call UnknownCall_0x5297
-	rbk 12
+	ld a, 12
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	ret
 
 UnknownCall_0x2B27:
-	rbk 1
+	ld a, 1
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	call UnknownCall_0x5297
-	rbk 26
+	ld a, 26
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	ret
 
 UnknownCall_0x2B3B:
-	rbk 1
+	ld a, 1
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	call UnknownCall_0x5267
-	rbk 12
+	ld a, 12
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	ret
 
 UnknownCall_0x2B4F:
-	rbk 1
+	ld a, 1
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	call UnknownCall_0x52E7
-	rbk 26
+	ld a, 26
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	ret
 
 UnknownCall_0x2B63:
-	rbk 1
+	ld a, 1
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	call UnknownCall_0x52E7
-	rbk 12
+	ld a, 12
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	ret
 
 UnknownCall_0x2B77:
-	rbk 1
+	ld a, 1
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	call UnknownCall_0x5302
-	rbk 12
+	ld a, 12
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	ret
 
 UnknownCall_0x2B8B:
-	rbk 7
+	ld a, 7
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	ld bc, $0600
 	ld hl, $5E00
 	ld de, $9200
-	call CopyMem
+	call CopyData
 	ld bc, $0380
 	ld hl, $6A00
 	ld de, $8E80
-	call CopyMem
-	rbk BANK(GFX_Mario)
+	call CopyData
+	ld a, BANK(GFX_Mario)
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	ld bc, $0800
 	ld hl, GFX_Mario
 	ld de, $8000
-	call CopyMem
-	rbk 27
+	call CopyData
+	ld a, 27
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	ld hl, $7000
 	ld bc, $0300
 	ld de, $8800
-	call CopyMem
+	call CopyData
 	ld a, 12
 	ld [MBC1RomBank], a
 	ld bc, $0380
 	ld hl, $6ACA
 	ld de, $8B00
-	call CopyMem
+	call CopyData
 	ret
-	rbk 12
-	jp UnknownJump_0x30000
-	rbk 12
-	jp UnknownJump_0x3005F
-
-FarCopyMem: ;$2BFB copymem from bank a
+	ld a, 12
 	ld [sRomBank], a
 	ld [MBC1RomBank], a
-	call CopyMem
-	rbk 15
+	jp UnknownJump_0x30000
+	ld a, 12
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
+	jp UnknownJump_0x3005F
+
+FarCopyData: ;$2BFB copymem from bank a
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
+	call CopyData
+	ld a, 15
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	ret
 
 UnknownCall_0x2C0D:
-	rbk 1
+	ld a, 1
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	jp UnknownJump_0x5CF2
 
 UnknownJump_0x2C18:
-	rbk 15
+	ld a, 15
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	jp UnknownJump_0x3E73
-	rbk 15
+	ld a, 15
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	jp UnknownJump_0x3EF2B
-	rbk 15
+	ld a, 15
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	jp UnknownJump_0x3C000
 
 UnknownData_0x2C39:
@@ -5057,19 +5211,27 @@ INCBIN "baserom.gb", $2C39, $2C61 - $2C39
 
 
 UnknownCall_0x2C61:
-	rbk 1
+	ld a, 1
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	jp UnknownJump_0x5D25
 
 UnknownCall_0x2C6C:
-	rbk 1
+	ld a, 1
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	jp UnknownJump_0x5960
 
 UnknownCall_0x2C77:
-	rbk 1
+	ld a, 1
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	jp UnknownJump_0x591F
 
 UnknownCall_0x2C82:
-	rbk 1
+	ld a, 1
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	jp UnknownJump_0x5997
 
 UnknownData_0x2C8D:
@@ -5077,39 +5239,59 @@ INCBIN "baserom.gb", $2C8D, $2CA3 - $2C8D
 
 
 UnknownJump_0x2CA3:
-	rbk 26
+	ld a, 26
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	jp UnknownJump_0x68528
-	rbk 26
+	ld a, 26
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	jp UnknownJump_0x68000
-	rbk 26
+	ld a, 26
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	jp UnknownJump_0x6800F
 	call DisableVBlank
 	call UnknownCall_0x031C
 	xor a
 	ld [$FF00+$8D], a
 	call UnknownCall_0x2CFF
-	rbk 5
+	ld a, 5
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	jp UnknownJump_0x14043
 	call UnknownCall_0x031C
-	rbk 5
+	ld a, 5
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	jp UnknownJump_0x1407C
-	rbk 1
+	ld a, 1
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	jp UnknownJump_0x5579
 
 UnknownCall_0x2CF4:
-	rbk 1
+	ld a, 1
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	jp UnknownJump_0x5297
 
 UnknownCall_0x2CFF:
-	rbk 1
+	ld a, 1
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	jp UnknownJump_0x52E7
 
 UnknownCall_0x2D0A:
-	rbk 1
+	ld a, 1
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	jp UnknownJump_0x530D
 
 UnknownCall_0x2D15:
-	rbk 1
+	ld a, 1
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	jp UnknownJump_0x5550
 
 UnknownData_0x2D20:
@@ -5117,7 +5299,9 @@ INCBIN "baserom.gb", $2D20, $2D41 - $2D20
 
 
 UnknownCall_0x2D41:
-	rbk 1
+	ld a, 1
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	jp UnknownJump_0x5302
 
 UnknownData_0x2D4C:
@@ -5428,7 +5612,7 @@ UnknownRJump_0x2F71:
 UnknownCall_0x2F72:
 	xor a
 	ld [$A256], a
-	ld a, [sScrollY]
+	ld a, [sSCY]
 	ld b, a
 	ld a, [$FF00+$B7]
 	and $F0
@@ -5436,7 +5620,7 @@ UnknownCall_0x2F72:
 	sub b
 	sub 16
 	ld [$FF00+$B7], a
-	ld a, [sScrollX]
+	ld a, [sSCX]
 	ld b, a
 	ld a, [$FF00+$B9]
 	add 8
@@ -5626,7 +5810,9 @@ UnknownRJump_0x3098:
 	ld a, [sMarioScreenY]
 	cp $20
 	ret c
-	rbk [sLevelBank]
+	ld a, [sLevelBank]
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	ld a, [$FF00+$C9]
 	swap a
 	ld b, a
@@ -5661,7 +5847,9 @@ UnknownRJump_0x30D9:
 	ld a, [sMarioScreenY]
 	cp $70
 	ret nc
-	rbk [sLevelBank]
+	ld a, [sLevelBank]
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	ld a, [$FF00+$C9]
 	swap a
 	ld b, a
@@ -6296,20 +6484,22 @@ UnknownRJump_0x356E:
 
 .EasyModeOn
 	ld a, 208
-	ld [sOAMPalette1], a
+	ld [sOBP0], a
 	call DisableVBlank
-	rbk 26
+	ld a, 26
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	ld hl, $4656
 	ld bc, $0300
 	ld de, $8800
-	call CopyMem
+	call CopyData
 	call UnknownCall_0x2D41
 	ld a, 224
-	ld [sBGPalette], a
+	ld [sBGP], a
 	ld a, 210
-	ld [sOAMPalette1], a
+	ld [sOBP0], a
 	ld a, 57
-	ld [sOAMPalette2], a
+	ld [sOBP1], a
 	ld a, 226
 	ld [$FF00+$40], a
 	ld a, 0
@@ -6440,7 +6630,9 @@ UnknownRJump_0x38C8:
 	jr z, UnknownRJump_0x38E5
 
 UnknownJump_0x38CE:
-	rbk 4
+	ld a, 4
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	call UnknownCall_0x1002D
 	ld a, [$A0F0]
 	inc a
@@ -6483,15 +6675,23 @@ INCBIN "baserom.gb", $3911, $3A00 - $3911
 
 
 UnknownCall_0x3A00:
-	rbk 3
+	ld a, 3
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	call UnknownCall_0xEC31
-	rbk 2
+	ld a, 2
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	ret
 
 UnknownCall_0x3A14:
-	rbk 25
+	ld a, 25
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	call UnknownCall_0x66000
-	rbk 2
+	ld a, 2
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	ret
 
 UnknownCall_0x3A28:
@@ -7158,7 +7358,7 @@ UnknownCall_0x3F58:
 	ld bc, $0800
 	ld hl, GFX_Mario
 	ld de, $8000
-	call CopyMem
+	call CopyData
 	ld a, 15
 	ld [sRomBank], a
 	ld [MBC1RomBank], a
@@ -7202,7 +7402,9 @@ UnknownRJump_0x3FAC:
 	ld a, b
 	or c
 	jr nz, UnknownRJump_0x3FAC
-	rbk 15
+	ld a, 15
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
 	ret
 
 UnknownData_0x3FBD:

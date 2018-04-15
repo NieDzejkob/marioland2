@@ -1,121 +1,249 @@
-; Graciously aped from http://nocash.emubase.de/pandocs.htm .
-
 ; MBC1
 MBC1SRamEnable EQU $0000
 MBC1RomBank    EQU $2100
 MBC1SRamBank   EQU $4000
 MBC1ModeSelect EQU $6000
 
-SRAM_DISABLE EQU $00
-SRAM_ENABLE  EQU $0a
+SRAM_DISABLE   EQU $00
+SRAM_ENABLE    EQU $0a
 
-NUM_SRAM_BANKS EQU 4
+VRAM_LOW    EQU $8000 ; $8000->$8800
+VRAM_HIGH   EQU $8800 ; $8800->$9800
+SCREEN1     EQU $9800 ; $9800->$9BFF
+SCREEN2     EQU $9C00 ; $9C00->$9FFF
 
-; interrupt flags
-VBLANK   EQU 0
-LCD_STAT EQU 1
-TIMER    EQU 2
-SERIAL   EQU 3
-JOYPAD   EQU 4
-
-; OAM attribute flags
-OAM_PALETTE   EQU %111
-OAM_TILE_BANK EQU 3
-OAM_OBP_NUM   EQU 4 ; Non CGB Mode Only
-OAM_X_FLIP    EQU 5
-OAM_Y_FLIP    EQU 6
-OAM_PRIORITY  EQU 7 ; 0: OBJ above BG, 1: OBJ behind BG (colors 1-3)
+; --
+; -- P1 ($FF00)
+; -- Register for reading joy pad info. (R/W)
+; --
+rP1 EQU $FF00
 
 
-; Hardware registers
-rJOYP       EQU $ff00 ; Joypad (R/W)
-rSB         EQU $ff01 ; Serial transfer data (R/W)
-rSC         EQU $ff02 ; Serial Transfer Control (R/W)
-rSC_ON    EQU 7
-rSC_CGB   EQU 1
-rSC_CLOCK EQU 0
-rDIV        EQU $ff04 ; Divider Register (R/W)
-rTIMA       EQU $ff05 ; Timer counter (R/W)
-rTMA        EQU $ff06 ; Timer Modulo (R/W)
-rTAC        EQU $ff07 ; Timer Control (R/W)
-rTAC_ON        EQU 2
-rTAC_4096_HZ   EQU 0
-rTAC_262144_HZ EQU 1
-rTAC_65536_HZ  EQU 2
-rTAC_16384_HZ  EQU 3
-rIF         EQU $ff0f ; Interrupt Flag (R/W)
-rNR10       EQU $ff10 ; Channel 1 Sweep register (R/W)
-rNR11       EQU $ff11 ; Channel 1 Sound length/Wave pattern duty (R/W)
-rNR12       EQU $ff12 ; Channel 1 Volume Envelope (R/W)
-rNR13       EQU $ff13 ; Channel 1 Frequency lo (Write Only)
-rNR14       EQU $ff14 ; Channel 1 Frequency hi (R/W)
-rNR20       EQU $ff15 ; Channel 2 Sweep register (R/W)
-rNR21       EQU $ff16 ; Channel 2 Sound Length/Wave Pattern Duty (R/W)
-rNR22       EQU $ff17 ; Channel 2 Volume Envelope (R/W)
-rNR23       EQU $ff18 ; Channel 2 Frequency lo data (W)
-rNR24       EQU $ff19 ; Channel 2 Frequency hi data (R/W)
-rNR30       EQU $ff1a ; Channel 3 Sound on/off (R/W)
-rNR31       EQU $ff1b ; Channel 3 Sound Length
-rNR32       EQU $ff1c ; Channel 3 Select output level (R/W)
-rNR33       EQU $ff1d ; Channel 3 Frequency's lower data (W)
-rNR34       EQU $ff1e ; Channel 3 Frequency's higher data (R/W)
-rNR40       EQU $ff1f ; Channel 4 Sweep register (R/W)
-rNR41       EQU $ff20 ; Channel 4 Sound Length (R/W)
-rNR42       EQU $ff21 ; Channel 4 Volume Envelope (R/W)
-rNR43       EQU $ff22 ; Channel 4 Polynomial Counter (R/W)
-rNR44       EQU $ff23 ; Channel 4 Counter/consecutive; Inital (R/W)
-rNR50       EQU $ff24 ; Channel control / ON-OFF / Volume (R/W)
-rNR51       EQU $ff25 ; Selection of Sound output terminal (R/W)
-rNR52       EQU $ff26 ; Sound on/off
-rWAVE       EQU $ff30
-rWave_0     EQU $ff30
-rWave_1     EQU $ff31
-rWave_2     EQU $ff32
-rWave_3     EQU $ff33
-rWave_4     EQU $ff34
-rWave_5     EQU $ff35
-rWave_6     EQU $ff36
-rWave_7     EQU $ff37
-rWave_8     EQU $ff38
-rWave_9     EQU $ff39
-rWave_a     EQU $ff3a
-rWave_b     EQU $ff3b
-rWave_c     EQU $ff3c
-rWave_d     EQU $ff3d
-rWave_e     EQU $ff3e
-rWave_f     EQU $ff3f
-rLCDC       EQU $ff40 ; LCD Control (R/W)
-rSTAT       EQU $ff41 ; LCDC Status (R/W)
-rSCY        EQU $ff42 ; Scroll Y (R/W)
-rSCX        EQU $ff43 ; Scroll X (R/W)
-rLY         EQU $ff44 ; LCDC Y-Coordinate (R)
-rLYC        EQU $ff45 ; LY Compare (R/W)
-rDMA        EQU $ff46 ; DMA Transfer and Start Address (W)
-rBGP        EQU $ff47 ; BG Palette Data (R/W) - Non CGB Mode Only
-rOBP0       EQU $ff48 ; Object Palette 0 Data (R/W) - Non CGB Mode Only
-rOBP1       EQU $ff49 ; Object Palette 1 Data (R/W) - Non CGB Mode Only
-rWY         EQU $ff4a ; Window Y Position (R/W)
-rWX         EQU $ff4b ; Window X Position minus 7 (R/W)
-rLCDMODE    EQU $ff4c
-rKEY1       EQU $ff4d ; CGB Mode Only - Prepare Speed Switch
-rVBK        EQU $ff4f ; CGB Mode Only - VRAM Bank
-rBLCK       EQU $ff50
-rHDMA1      EQU $ff51 ; CGB Mode Only - New DMA Source, High
-rHDMA2      EQU $ff52 ; CGB Mode Only - New DMA Source, Low
-rHDMA3      EQU $ff53 ; CGB Mode Only - New DMA Destination, High
-rHDMA4      EQU $ff54 ; CGB Mode Only - New DMA Destination, Low
-rHDMA5      EQU $ff55 ; CGB Mode Only - New DMA Length/Mode/Start
-rRP         EQU $ff56 ; CGB Mode Only - Infrared Communications Port
-rBGPI       EQU $ff68 ; CGB Mode Only - Background Palette Index
-rBGPD       EQU $ff69 ; CGB Mode Only - Background Palette Data
-rOBPI       EQU $ff6a ; CGB Mode Only - Sprite Palette Index
-rOBPD       EQU $ff6b ; CGB Mode Only - Sprite Palette Data
-rUNKNOWN1   EQU $ff6c ; (FEh) Bit 0 (Read/Write) - CGB Mode Only
-rSVBK       EQU $ff70 ; CGB Mode Only - WRAM Bank
-rUNKNOWN2   EQU $ff72 ; (00h) - Bit 0-7 (Read/Write)
-rUNKNOWN3   EQU $ff73 ; (00h) - Bit 0-7 (Read/Write)
-rUNKNOWN4   EQU $ff74 ; (00h) - Bit 0-7 (Read/Write) - CGB Mode Only
-rUNKNOWN5   EQU $ff75 ; (8Fh) - Bit 4-6 (Read/Write)
-rUNKNOWN6   EQU $ff76 ; (00h) - Always 00h (Read Only)
-rUNKNOWN7   EQU $ff77 ; (00h) - Always 00h (Read Only)
-rIE         EQU $ffff ; Interrupt Enable (R/W)
+; --
+; -- LCDC ($FF40)
+; -- LCD Control (R/W)
+; --
+rLCDC EQU $FF40
+
+LCDCF_OFF EQU %00000000 ; LCD Control Operation
+LCDCF_ON EQU %10000000 ; LCD Control Operation
+LCDCF_WIN9800 EQU %00000000 ; Window Tile Map Display Select
+LCDCF_WIN9C00 EQU %01000000 ; Window Tile Map Display Select
+LCDCF_WINOFF EQU %00000000 ; Window Display
+LCDCF_WINON EQU %00100000 ; Window Display
+LCDCF_BG8800 EQU %00000000 ; BG & Window Tile Data Select
+LCDCF_BG8000 EQU %00010000 ; BG & Window Tile Data Select
+LCDCF_BG9800 EQU %00000000 ; BG Tile Map Display Select
+LCDCF_BG9C00 EQU %00001000 ; BG Tile Map Display Select
+LCDCF_OBJ8 EQU %00000000 ; OBJ Construction
+LCDCF_OBJ16 EQU %00000100 ; OBJ Construction
+LCDCF_OBJOFF EQU %00000000 ; OBJ Display
+LCDCF_OBJON EQU %00000010 ; OBJ Display
+LCDCF_BGOFF EQU %00000000 ; BG Display
+LCDCF_BGON EQU %00000001 ; BG Display
+LCDCF_BG_MASK EQU %11110111 
+
+
+; --
+; -- STAT ($FF41)
+; -- LCDC Status (R/W)
+; --
+rSTAT EQU $FF41
+
+STATF_LYC EQU %01000000 ; LYCEQULY Coincidence (Selectable)
+STATF_MODE10 EQU %00100000 ; Mode 10
+STATF_MODE01 EQU %00010000 ; Mode 01 (V-Blank)
+STATF_MODE00 EQU %00001000 ; Mode 00 (H-Blank)
+STATF_LYCF EQU %00000100 ; Coincidence Flag
+STATF_HB EQU %00000000 ; H-Blank
+STATF_VB EQU %00000001 ; V-Blank
+STATF_OAM EQU %00000010 ; OAM-RAM is used by system
+STATF_LCD EQU %00000011 ; Both OAM and VRAM used by system
+STATF_BUSY EQU %00000010 ; When set, VRAM access is unsafe
+
+
+; --
+; -- SCY ($FF42)
+; -- Scroll Y (R/W)
+; --
+rSCY EQU $FF42
+
+
+; --
+; -- SCY ($FF43)
+; -- Scroll X (R/W)
+; --
+rSCX EQU $FF43
+
+
+; --
+; -- LY ($FF44)
+; -- LCDC Y-Coordinate (R)
+; --
+; -- Values range from 0->153. 144->153 is the VBlank period.
+; --
+rLY EQU $FF44
+
+
+; --
+; -- LYC ($FF45)
+; -- LY Compare (R/W)
+; --
+; -- When LYEQUEQULYC, STATF_LYCF will be set in STAT
+; --
+rLYC EQU $FF45
+
+
+; --
+; -- WY ($FF4A)
+; -- Window Y Position (R/W)
+; --
+; -- 0 <EQU WY <EQU 143
+; --
+rWY EQU $FF4A
+
+
+; --
+; -- WX ($FF4B)
+; -- Window X Position (R/W)
+; --
+; -- 7 <EQU WX <EQU 166
+; --
+rWX EQU $FF4B
+
+
+; --
+; -- DMA ($FF46)
+; -- DMA Transfer and Start Address (W)
+; --
+rDMA EQU $FF46
+
+
+; --
+; -- BGP ($FF47)
+; -- BG Palette Data (W)
+; --
+; -- Bit 7-6 - Intensity for %11
+; -- Bit 5-4 - Intensity for %10
+; -- Bit 3-2 - Intensity for %01
+; -- Bit 1-0 - Intensity for %00
+; --
+rBGP EQU $FF47
+
+
+; --
+; -- OBP0 ($FF48)
+; -- Object Palette 0 Data (W)
+; --
+; -- See BGP for info
+; --
+rOBP0 EQU $FF48
+
+
+; --
+; -- OBP1 ($FF49)
+; -- Object Palette 1 Data (W)
+; --
+; -- See BGP for info
+; --
+rOBP1 EQU $FF49
+
+
+; --
+; -- NR50 ($FF24)
+; --
+; -- Bit 7   - Vin L enable
+; -- Bit 6-4 - Left volume
+; -- Bit 3   - Vin R enable
+; -- Bit 2-0 - Right volume
+; --
+rNR50 EQU $FF24
+
+NR50_FULL_VOLUME EQU $77
+NR50_HALF_VOLUME EQU $33
+
+; --
+; -- NR51 ($FF25)
+; -- Channel enables
+; --
+rNR51 EQU $FF25
+
+NR51_NOISE_L  EQU %10000000
+NR51_WAVE_L   EQU %01000000
+NR51_PULSE2_L EQU %00100000
+NR51_PULSE1_L EQU %00010000
+NR51_NOISE_R  EQU %00001000
+NR51_WAVE_R   EQU %00000100
+NR51_PULSE2_R EQU %00000010
+NR51_PULSE1_R EQU %00000001
+
+; --
+; -- NR52 ($FF26)
+; -- Sound on/off, channel length statuses
+; --
+rNR52 EQU $FF26
+
+NR52_ON EQU %10000000
+
+; --
+; -- SB ($FF01)
+; -- Serial Transfer Data (R/W)
+; --
+rSB EQU $FF01
+
+; --
+; -- SC ($FF02)
+; -- Serial I/O Control (R/W)
+; --
+rSC EQU $FF02
+
+; --
+; -- DIV ($FF04)
+; -- Divider register (R/W)
+; --
+rDIV EQU $FF04
+
+
+; --
+; -- TIMA ($FF05)
+; -- Timer counter (R/W)
+; --
+rTIMA EQU $FF05
+
+
+; --
+; -- TMA ($FF06)
+; -- Timer modulo (R/W)
+; --
+rTMA EQU $FF06
+
+
+; --
+; -- TAC ($FF07)
+; -- Timer control (R/W)
+; --
+rTAC EQU $FF07
+
+TACF_START EQU %00000100
+TACF_STOP EQU %00000000
+TACF_4KHZ EQU %00000000
+TACF_16KHZ EQU %00000011
+TACF_65KHZ EQU %00000010
+TACF_262KHZ EQU %00000001
+
+
+; --
+; -- IF ($FF0F)
+; -- Interrupt Flag (R/W)
+; --
+; -- IE ($FFFF)
+; -- Interrupt Enable (R/W)
+; --
+rIF EQU $FF0F
+rIE EQU $FFFF
+
+IEF_HILO EQU %00010000 ; Transition from High to Low of Pin number P10-P13
+IEF_SERIAL EQU %00001000 ; Serial I/O transfer end
+IEF_TIMER EQU %00000100 ; Timer Overflow
+IEF_LCDC EQU %00000010 ; LCDC (see STAT)
+IEF_VBLANK EQU %00000001 ; V-Blank
