@@ -122,7 +122,7 @@ UnknownRJump_0x01BF:
 
 UnknownJump_0x01C5:
 UnknownRJump_0x01C5:
-	call $FFA0
+	call hOAMDMA
 	ld a, [$FF00+$9B]
 	cp $04
 	call z, UpdateSound
@@ -202,7 +202,7 @@ Init:
 	ld a, %00111000
 	ld [sOBP1], a
 
-	ld c, hOAMDMA % $100
+	ld c, LOW(hOAMDMA)
 	ld b, DMARoutineEnd-DMARoutine
 	ld hl, DMARoutine
 
@@ -236,7 +236,7 @@ MainLoop:
 	ld a, [$A2DC]
 	cp $03
 	call nz, ReadJoypad
-	call UnknownCall_0x38B9
+	call GetDemoInputs
 
 UnknownRJump_0x0279:
 	call UnknownCall_0x02AD
@@ -272,7 +272,7 @@ INCBIN "baserom.gb", $02B0, $02FF - $02B0
 
 
 UnknownCall_0x02FF:
-	db $76 ;halt (rgbds adds a nop after)
+	halt
 
 UnknownRJump_0x0300:
 	ld a, [$FF00+$82]
@@ -641,7 +641,7 @@ UnknownRJump_0x052F:
 	ld [$FF00+$40], a
 	xor a
 	ld [$A211], a
-	ld a, [sSoundDisabled]
+	ld a, [sDemoMode]
 	and a
 	jr nz, UnknownRJump_0x0598
 	ld a, [$A80E]
@@ -3807,38 +3807,41 @@ LevelPropertiesSpace: ;$1F91 1 byte per level (Space Physics)
 INCBIN "baserom.gb", $1FB1, $1FD2 - $1FB1
 
 
-ReadJoypad: ;$1FD2
+ReadJoypad:
 	ld a, [hKeysHeld]
-	ld [$A2D0], a
-	ld a, $20
+	ld [sPreviousKeysHeld], a
+
+	ld a, 1 << 5 ; select direction keys
 	ld [rP1], a
+	rept 2
 	ld a, [rP1]
-	ld a, [rP1]
+	endr
+
 	cpl
 	and $0F
 	swap a
 	ld b, a
-	ld a, $10
+
+	ld a, 1 << 4 ; select button keys
 	ld [rP1], a
+
+	rept 8
 	ld a, [rP1]
-	ld a, [rP1]
-	ld a, [rP1]
-	ld a, [rP1]
-	ld a, [rP1]
-	ld a, [rP1]
-	ld a, [rP1]
-	ld a, [rP1]
+	endr
+
 	cpl
 	and $0F
 	or b
+
 	ld c, a
 	ld a, [hKeysHeld]
-	xor c
-	and c
+	xor c ; mask out buttons that didn't change
+	and c ; keep the ones that are pressed
 	ld [hKeysPressed], a
 	ld a, c
 	ld [hKeysHeld], a
-	ld a, $30
+
+	ld a, 1 << 4 + 1 << 5 ; deselect keys
 	ld [rP1], a
 	ret
 
@@ -3869,7 +3872,7 @@ UnknownData_0x202F:
 INCBIN "baserom.gb", $202F, $2058 - $202F
 
 DMARoutine:
-	ld a, sOAMBuffer / $100
+	ld a, HIGH(sOAMBuffer)
 	ld [rDMA], a
 	ld a, $28
 .wait:
@@ -3904,7 +3907,7 @@ ResetAudio:
 	ret
 
 UpdateSound:
-	ld a, [sSoundDisabled]
+	ld a, [sDemoMode]
 	and a
 	ret nz
 	ld a, BANK(_UpdateSound)
@@ -5896,7 +5899,7 @@ UnknownRJump_0x3127:
 	ld a, 20
 	ld [$FF00+$9B], a
 	call UnknownCall_0x2D41
-	ld a, [sSoundDisabled]
+	ld a, [sDemoMode]
 	and a
 	jp nz, UnknownJump_0x3150
 	ld a, [$A22C]
@@ -6615,48 +6618,48 @@ UnknownRJump_0x38B2:
 	jr nz, UnknownRJump_0x38B2
 	ret
 
-UnknownCall_0x38B9:
-	ld a, [sSoundDisabled]
+GetDemoInputs:
+	ld a, [sDemoMode]
 	and $F0
 	jr nz, UnknownRJump_0x3911
-	ld a, [sSoundDisabled]
+	ld a, [sDemoMode]
 	and $0F
-	jr nz, UnknownRJump_0x38C8
+	jr nz, .demo_enabled
 	ret
 
-UnknownRJump_0x38C8:
+.demo_enabled:
 	ld a, [hKeysPressed]
-	and $08
-	jr z, UnknownRJump_0x38E5
+	and START
+	jr z, .continue_demo
 
-UnknownJump_0x38CE:
-	ld a, 4
+.stop_demo:
+	ld a, BANK(PartialAudioReset)
 	ld [sRomBank], a
 	ld [MBC1RomBank], a
-	call UnknownCall_0x1002D
-	ld a, [$A0F0]
+	call PartialAudioReset
+	ld a, [sDemoNumber]
 	inc a
 	and $03
-	ld [$A0F0], a
+	ld [sDemoNumber], a
 	jp Init
 
-UnknownRJump_0x38E5:
+.continue_demo:
 	ld a, 5
 	ld [MBC1RomBank], a
-	ld a, [$A2D0]
+	ld a, [sPreviousKeysHeld]
 	ld [hKeysHeld], a
-	ld h, 163
-	ld a, [$A2CF]
+	ld h, HIGH(sDemoData)
+	ld a, [sDemoIndex]
 	ld l, a
 
-UnknownRJump_0x38F5:
+.get_input:
 	ld a, [hli]
 	cp $FF
-	jp z, UnknownJump_0x38CE
+	jp z, .stop_demo
 	ld b, a
 	ld a, [hli]
 	sub 1
-	jr c, UnknownRJump_0x38F5
+	jr c, .get_input
 	dec hl
 	ld [hld], a
 	ld a, [hKeysHeld]
@@ -6666,7 +6669,7 @@ UnknownRJump_0x38F5:
 	ld a, b
 	ld [hKeysHeld], a
 	ld a, l
-	ld [$A2CF], a
+	ld [sDemoIndex], a
 	ret
 
 UnknownRJump_0x3911:

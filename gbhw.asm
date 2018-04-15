@@ -18,6 +18,14 @@ SCREEN2     EQU $9C00 ; $9C00->$9FFF
 ; --
 rP1 EQU $FF00
 
+A_BUTTON EQU %00000001
+B_BUTTON EQU %00000010
+SELECT   EQU %00000100
+START    EQU %00001000
+D_RIGHT  EQU %00010000
+D_LEFT   EQU %00100000
+D_UP     EQU %01000000
+D_DOWN   EQU %10000000
 
 ; --
 ; -- LCDC ($FF40)
@@ -150,6 +158,132 @@ rOBP1 EQU $FF49
 
 
 ; --
+; -- NR10 ($FF10)
+; -- Channel 1 Sweep
+; --
+rNR10 EQU $FF10
+
+
+; --
+; -- NR11 ($FF11)
+; -- Channel 1 Sound length / Wave pattern duty
+; --
+rNR11 EQU $FF11
+
+
+; --
+; -- NR12 ($FF12)
+; -- Channel 1 Volume Envelope
+; --
+rNR12 EQU $FF12
+
+
+; --
+; -- NR13 ($FF13)
+; -- Channel 1 Frequency lo
+; --
+rNR13 EQU $FF13
+
+
+; --
+; -- NR14 ($FF14)
+; -- Channel 1 Frequency hi
+; --
+rNR14 EQU $FF14
+
+
+; --
+; -- NR21 ($FF16)
+; -- Channel 2 Sound length / Wave pattern duty
+; --
+rNR21 EQU $FF16
+
+
+; --
+; -- NR22 ($FF17)
+; -- Channel 2 Volume Envelope
+; --
+rNR22 EQU $FF17
+
+
+; --
+; -- NR23 ($FF18)
+; -- Channel 2 Frequency lo
+; --
+rNR23 EQU $FF18
+
+
+; --
+; -- NR24 ($FF19)
+; -- Channel 2 Frequency hi
+; --
+rNR24 EQU $FF19
+
+
+; --
+; -- NR30 ($FF1A)
+; -- Channel 3 Sound on/off
+; --
+rNR30 EQU $FF1A
+
+
+; --
+; -- NR31 ($FF1B)
+; -- Channel 3 Sound length
+; --
+rNR31 EQU $FF1B
+
+
+; --
+; -- NR32 ($FF1C)
+; -- Channel 3 Select output level
+; --
+rNR32 EQU $FF1C
+
+
+; --
+; -- NR33 ($FF1D)
+; -- Channel 3 Frequency lo
+; --
+rNR33 EQU $FF1D
+
+
+; --
+; -- NR34 ($FF1E)
+; -- Channel 3 Frequency hi
+; --
+rNR34 EQU $FF1E
+
+
+; --
+; -- NR41 ($FF20)
+; -- Channel 4 Sound length
+; --
+rNR41 EQU $FF20
+
+
+; --
+; -- NR42 ($FF21)
+; -- Channel 4 Volume Envelope
+; --
+rNR42 EQU $FF21
+
+
+; --
+; -- NR43 ($FF22)
+; -- Channel 4 Polynomial Counter
+; --
+rNR43 EQU $FF22
+
+
+; --
+; -- NR44 ($FF23)
+; -- Channel 4 Counter/consecutive, initial
+; --
+rNR44 EQU $FF23
+
+
+; --
 ; -- NR50 ($FF24)
 ; --
 ; -- Bit 7   - Vin L enable
@@ -176,6 +310,7 @@ NR51_NOISE_R  EQU %00001000
 NR51_WAVE_R   EQU %00000100
 NR51_PULSE2_R EQU %00000010
 NR51_PULSE1_R EQU %00000001
+NR51_ALL      EQU %11111111
 
 ; --
 ; -- NR52 ($FF26)

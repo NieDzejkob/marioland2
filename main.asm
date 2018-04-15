@@ -7467,7 +7467,7 @@ INCBIN "baserom.gb", $140A8, $140D6 - $140A8
 
 
 UnknownRJump_0x140D6:
-	ld a, [$A0F0]
+	ld a, [sDemoNumber]
 	and $03
 	ld b, a
 	ld a, 127
@@ -7484,12 +7484,12 @@ UnknownRJump_0x140E5:
 	and a
 	jr nz, UnknownRJump_0x140E5
 	ld a, 15
-	ld [sSoundDisabled], a
+	ld [sDemoMode], a
 	xor a
-	ld [$A2CF], a
+	ld [sDemoIndex], a
 	ldh_n_a $97
 	ld hl, $4121
-	ld a, [$A0F0]
+	ld a, [sDemoNumber]
 	and $03
 	ld e, a
 	ld d, 0

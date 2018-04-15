@@ -19,7 +19,7 @@ _ResetAudio:
 	ld a, NR50_FULL_VOLUME
 	ld [rNR50], a
 
-	ld a, NR51_NOISE_L | NR51_WAVE_L | NR51_PULSE2_L | NR51_PULSE1_L | NR51_NOISE_R | NR51_WAVE_R | NR51_PULSE2_R | NR51_PULSE1_R
+	ld a, NR51_ALL
 	ld [rNR51], a
 	ret
 
@@ -27,8 +27,8 @@ UnknownData_0x1001D:
 INCBIN "baserom.gb", $1001D, $1002D - $1001D
 
 
-UnknownCall_0x1002D:
-	jp UnknownJump_0x13F5E
+PartialAudioReset:
+	jp _PartialAudioReset
 
 _UpdateSound:
 	ld a, [$A45E]
@@ -45,9 +45,11 @@ UnknownJump_0x10044:
 	ld a, [hli]
 	and a
 	jr nz, UnknownRJump_0x10078
+
 	ld a, [sVolume]
 	and a
 	jr z, .full_volume
+
 	ld a, NR50_HALF_VOLUME
 	ld [rNR50], a
 	jr .volume_done
@@ -285,7 +287,7 @@ INCBIN "baserom.gb", $1029E, $102B2 - $1029E
 UnknownData_0x102CD:
 INCBIN "baserom.gb", $102CD, $102E2 - $102CD
 
-	call UnknownCall_0x13F5E
+	call _PartialAudioReset
 	ld a, 6
 	ld [$A52D], a
 	ld hl, $4343
@@ -382,7 +384,7 @@ UnknownRJump_0x103B2:
 UnknownData_0x103C0:
 INCBIN "baserom.gb", $103C0, $103DC - $103C0
 
-	call UnknownCall_0x13F5E
+	call _PartialAudioReset
 	ld hl, $4402
 	jp UnknownJump_0x10680
 	call UnknownCall_0x111B3
@@ -418,7 +420,7 @@ INCBIN "baserom.gb", $103FA, $10408 - $103FA
 UnknownData_0x10431:
 INCBIN "baserom.gb", $10431, $10465 - $10431
 
-	call UnknownCall_0x13F5E
+	call _PartialAudioReset
 	jp UnknownJump_0x1049C
 	ld hl, $448A
 	jp UnknownJump_0x1068A
@@ -1696,7 +1698,7 @@ INCBIN "baserom.gb", $112B4, $112DD - $112B4
 
 
 UnknownRJump_0x112DD:
-	jp UnknownJump_0x13F5E
+	jp _PartialAudioReset
 
 UnknownCall_0x112E0:
 	cp $FF
@@ -2044,7 +2046,7 @@ UnknownRJump_0x115B6:
 UnknownRJump_0x115CD:
 	ld hl, sCurSong
 	ld [hl], 0
-	call UnknownCall_0x13F5E
+	call _PartialAudioReset
 	ret
 
 UnknownJump_0x115D6:
@@ -2606,7 +2608,7 @@ UnknownCall_0x118E4:
 	ret
 
 UnknownJump_0x118F7:
-	call UnknownCall_0x13FE7
+	call MuteSoundChannels
 	xor a
 	ld [$A461], a
 	ld [$A471], a
@@ -2892,10 +2894,9 @@ UnknownData_0x11ACC:
 INCBIN "baserom.gb", $11ACC, $13F5E - $11ACC
 
 
-UnknownJump_0x13F5E:
-UnknownCall_0x13F5E:
-	ld a, 255
-	ld [$FF00+$25], a
+_PartialAudioReset:
+	ld a, NR51_ALL
+	ld [rNR51], a
 	ld a, 3
 	ld [$A455], a
 	xor a
@@ -2945,19 +2946,19 @@ UnknownCall_0x13F6B:
 	ld [$A523], a
 	ld [sVolume], a
 
-UnknownCall_0x13FE7:
+MuteSoundChannels:
 	ld a, 8
-	ld [$FF00+$12], a
-	ld [$FF00+$17], a
-	ld [$FF00+$21], a
+	ld [rNR12], a
+	ld [rNR22], a
+	ld [rNR42], a
 	ld a, 128
-	ld [$FF00+$14], a
-	ld [$FF00+$19], a
-	ld [$FF00+$23], a
+	ld [rNR14], a
+	ld [rNR24], a
+	ld [rNR44], a
 	xor a
-	ld [$FF00+$10], a
-	ld [$FF00+$1A], a
+	ld [rNR10], a
+	ld [rNR30], a
 	ret
 
 UnknownData_0x13FFD:
-INCBIN "baserom.gb", $13FFD, $14000 - $13FFD
+	db $8b, $12, $aa
