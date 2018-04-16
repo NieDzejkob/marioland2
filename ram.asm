@@ -35,7 +35,13 @@ sLevelBank:: db
 
 sCoinCount:: dw ; BCD
 
-	ds 10
+	ds 2
+
+sFrameCounter:: dw
+sSpinJump:: db
+sCurLevel:: db
+
+	ds 4
 
 sOAMCleared:: db
 
@@ -120,8 +126,6 @@ sMarioYU = $A22A
 sMarioDirection = $A22B
 sMarioScreenY = $A23B
 sMarioScreenX = $A23C
-sSpinJump = $A268
-sCurLevel = $A269
 sMoonPhysics = $A287
 sAutoScroll = $A2C8
 sPreviousKeysHeld = $A2D0

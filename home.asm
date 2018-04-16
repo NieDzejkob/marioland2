@@ -73,18 +73,18 @@ VBlank:
 	ld a, [sOBP1]
 	ldh [rOBP1], a
 
-	ld a, [$A266]	; 16-bit frame counter?
+	ld a, [sFrameCounter]
 	sub 1
-	ld [$A266], a
+	ld [sFrameCounter], a
 
-	ld a, [$A267]
+	ld a, [sFrameCounter+1]
 	sbc 0
-	ld [$A267], a
+	ld [sFrameCounter+1], a
 
 	jr nc, .skipZeroingFrameCounter
 	xor a
-	ld [$A266], a
-	ld [$A267], a
+	ld [sFrameCounter], a
+	ld [sFrameCounter+1], a
 
 .skipZeroingFrameCounter:
 	ld a, [$A2C9]
@@ -174,17 +174,14 @@ MainLoop:
 	jp MainLoop
 
 .soft_reset:
-	ld a, BANK(PartialAudioReset)
-	ld [sRomBank], a
-	ld [MBC1RomBank], a
-	call PartialAudioReset
+	callba PartialAudioReset
 	jp Init
 
 CallGameModeHandler:
 	ldh a, [hGameMode]
 	jumptable
-	dw $2cc4		; 00
-	dw $2cdb		; MODE_TITLE
+	dw LoadTitlescreen	; MODE_LOAD_TITLESCREEN
+	dw HandleTitlescreen	; MODE_TITLESCREEN
 	dw $03f1		; 02
 	dw $04f1		; 03
 	dw $05d5		; MODE_LEVEL
@@ -201,7 +198,7 @@ CallGameModeHandler:
 	dw GenericDummyFunction	; 0F
 	dw $2974		; 10
 	dw $29ca		; 11
-	dw $2cae		; 12
+	dw $2cae		; MODE_LOAD_CREDITS
 	dw $2cb9		; MODE_CREDITS
 	dw $2c23		; 14
 INCBIN "baserom.gb", $02DA, $02FE - $02DA
@@ -351,7 +348,7 @@ ReadLevelData: ;$0386
 	cp $E0
 	jr nz, ReadLevelData
 	ret
-	ld a, [$A266]
+	ld a, [sFrameCounter]
 	and $C0
 	swap a
 	ld e, a
@@ -364,16 +361,16 @@ ReadLevelData: ;$0386
 	ld [sOBP0], a
 	ld a, [hli]
 	ld [sOBP1], a
-	ld a, [$A267]
+	ld a, [sFrameCounter+1]
 	ld b, a
-	ld a, [$A266]
+	ld a, [sFrameCounter]
 	or b
 	ret nz
 	ld a, 0
-	ld [$A267], a
+	ld [sFrameCounter+1], a
 	ld a, 255
-	ld [$A266], a
-	ld a, MODE_CREDITS_TRANSITION
+	ld [sFrameCounter], a
+	ld a, MODE_LOAD_CREDITS
 	ldh [hGameMode], a
 	ret
 
@@ -600,8 +597,8 @@ UnknownRJump_0x0598:
 	ld a, [hl] ;level properties unknown
 	ld [$A2D9], a
 	xor a
-	ld [$A266], a
-	ld [$A267], a
+	ld [sFrameCounter], a
+	ld [sFrameCounter+1], a
 	ld [$A217], a
 	ld [$A880], a
 	ld [$A890], a
@@ -617,9 +614,9 @@ UnknownRJump_0x0598:
 UnknownData_0x05C6:
 INCBIN "baserom.gb", $05C6, $05D5 - $05C6
 
-	ld a, [$A266]
+	ld a, [sFrameCounter]
 	ld b, a
-	ld a, [$A267]
+	ld a, [sFrameCounter+1]
 	or b
 	jr z, UnknownRJump_0x05E4
 	xor a
@@ -1867,11 +1864,11 @@ UnknownCall_0x0F2A:
 	ld [$A24F], a
 	ld [$A224], a
 	ld a, 64
-	ld [$A266], a
+	ld [sFrameCounter], a
 	ld [sMarioScreenY], a
 	ld [sMarioScreenX], a
 	ld a, 1
-	ld [$A267], a
+	ld [sFrameCounter+1], a
 	ret
 
 UnknownCall_0x0F71:
@@ -3336,9 +3333,9 @@ UnknownRJump_0x1CD7:
 	ld a, 24
 	ldh [hGameMode], a
 	ld a, 192
-	ld [$A266], a
+	ld [sFrameCounter], a
 	xor a
-	ld [$A267], a
+	ld [sFrameCounter+1], a
 	ld [$A2A0], a
 	ld [sAnimatedTilesCtl], a
 	jr UnknownRJump_0x1D71
@@ -3901,9 +3898,9 @@ UnknownJump_0x20EB:
 	ld a, 15
 	ld [$A28B], a
 	ld a, 1
-	ld [$A267], a
+	ld [sFrameCounter+1], a
 	ld a, 96
-	ld [$A266], a
+	ld [sFrameCounter], a
 	xor a
 	ld [sAnimatedTilesCtl], a
 	ld [$A271], a
@@ -4718,7 +4715,7 @@ UnknownRJump_0x2844:
 	ld [$A856], a
 	call UnknownCall_0x2934
 	ld a, 255
-	ld [$A266], a
+	ld [sFrameCounter], a
 	ld a, 7
 	ld [$A468], a
 	ld a, 7
@@ -4734,9 +4731,9 @@ INCBIN "baserom.gb", $2874, $287E - $2874
 	call UnknownCall_0x30884
 	call UnknownCall_0x28A7
 	call ClearFreedOAM
-	ld a, [$A267]
+	ld a, [sFrameCounter+1]
 	ld b, a
-	ld a, [$A266]
+	ld a, [sFrameCounter]
 	or b
 	ret nz
 	ldh a, [hKeysPressed]
@@ -4749,7 +4746,7 @@ INCBIN "baserom.gb", $2874, $287E - $2874
 	ret
 
 UnknownCall_0x28A7:
-	ld a, [$A267]
+	ld a, [sFrameCounter+1]
 	and a
 	ret nz
 	ldh a, [$FF00+$97]
@@ -4761,7 +4758,7 @@ UnknownCall_0x28A7:
 	ldh [hSpriteX], a
 	ld a, 32
 	ldh [hSpriteY], a
-	ld a, [$A266]
+	ld a, [sFrameCounter]
 	sub 192
 	jr c, UnknownRJump_0x28CD
 	srl a
@@ -4932,9 +4929,9 @@ UnknownRJump_0x2A23:
 	ld a, 195
 	ldh [$FF00+$40], a
 	ld a, 1
-	ld [$A267], a
+	ld [sFrameCounter+1], a
 	ld a, 0
-	ld [$A266], a
+	ld [sFrameCounter], a
 	ld a, 44
 	ld [$A2E1], a
 	ld a, 26
@@ -5161,17 +5158,17 @@ UnknownNothing_0x2CAE::
 UnknownNothing_0x2CB9::
 	jpba UnknownJump_0x6800F
 
-UnknownNothing_0x2CC6::
+LoadTitlescreen::
 	call DisableLCD
 	call ClearwUnkC000
 	xor a
 	ldh [hOAMUsed], a
 	call ClearFreedOAM
-	jpba UnknownJump_0x14043
+	jpba _LoadTitlescreen
 
-UnknownNothing_0x2CDB::
+HandleTitlescreen::
 	call ClearwUnkC000
-	jpba UnknownJump_0x1407C
+	jpba _HandleTitlescreen
 
 UnknownNothing_0x2CE9::
 	jpba UnknownJump_0x5579
@@ -5769,7 +5766,7 @@ UnknownRJump_0x310D:
 	sbc 0
 	ldh [$FF00+$C9], a
 	ret
-	ld a, [$A266]
+	ld a, [sFrameCounter]
 	and a
 	jr z, UnknownRJump_0x3127
 
@@ -5837,9 +5834,9 @@ UnknownRJump_0x3186:
 	xor a
 	ld [sCurPowerup], a
 	ld [$A217], a
-	ld [$A267], a
+	ld [sFrameCounter+1], a
 	ld a, 192
-	ld [$A266], a
+	ld [sFrameCounter], a
 	ld a, 9
 	ldh [hGameMode], a
 	ret
@@ -6329,9 +6326,9 @@ UnknownRJump_0x3539:
 	ld a, 20
 	ldh [hGameMode], a
 	ret
-	ld a, [$A266]
+	ld a, [sFrameCounter]
 	ld b, a
-	ld a, [$A267]
+	ld a, [sFrameCounter+1]
 	or b
 	jr z, UnknownRJump_0x3558
 
@@ -6393,9 +6390,9 @@ UnknownRJump_0x356E:
 	ld a, 226
 	ldh [$FF00+$40], a
 	ld a, 0
-	ld [$A267], a
+	ld [sFrameCounter+1], a
 	ld a, 64
-	ld [$A266], a
+	ld [sFrameCounter], a
 	ldh a, [hGameMode]
 	inc a
 	ldh [hGameMode], a
@@ -6407,9 +6404,9 @@ UnknownRJump_0x356E:
 	ld a, 240
 	ldh [hSpriteID], a
 	call UnknownCall_0x2CF4
-	ld a, [$A266]
+	ld a, [sFrameCounter]
 	ld b, a
-	ld a, [$A267]
+	ld a, [sFrameCounter+1]
 	or b
 	ret nz
 	ld a, 11

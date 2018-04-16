@@ -2829,9 +2829,9 @@ UnknownRJump_0x92C4:
 	cp $06
 	ret nc
 	ld a, 2
-	ld [$A267], a
+	ld [sFrameCounter+1], a
 	ld a, 128
-	ld [$A266], a
+	ld [sFrameCounter], a
 	ld a, 1
 	ld [$A2E3], a
 	ret
@@ -5508,7 +5508,7 @@ UnknownRJump_0xA8D6:
 	ldh a, [$FF00+$DF]
 	and a
 	jr nz, UnknownRJump_0xA90A
-	ld a, [$A266]
+	ld a, [sFrameCounter]
 	cp $61
 	call z, UnknownCall_0xA8FF
 	ld a, [$AFCF]
@@ -5583,7 +5583,7 @@ INCBIN "baserom.gb", $A90E, $A920 - $A90E
 	ld [$AFD0], a
 	ret
 	ld a, 5
-	ld [$A266], a
+	ld [sFrameCounter], a
 	call UnknownCall_0xB40E
 	call UnknownCall_0xB339
 	ld b, 2
@@ -5929,7 +5929,7 @@ UnknownRJump_0xABB6:
 	ld [$AF37], a
 	call UnknownCall_0xB224
 	ret
-	ld a, [$A266]
+	ld a, [sFrameCounter]
 	cp $61
 	call z, UnknownCall_0xABF5
 	ld a, [$AFCF]
@@ -5963,7 +5963,7 @@ UnknownData_0xAC04:
 INCBIN "baserom.gb", $AC04, $AC1A - $AC04
 
 	ld a, 5
-	ld [$A266], a
+	ld [sFrameCounter], a
 	call UnknownCall_0xB40E
 	ldh a, [$FF00+$EC]
 	dec a
@@ -5995,7 +5995,7 @@ INCBIN "baserom.gb", $AC04, $AC1A - $AC04
 	ld [$AFD0], a
 	ret
 	ld a, 5
-	ld [$A266], a
+	ld [sFrameCounter], a
 	call UnknownCall_0xB339
 	call UnknownCall_0xB40E
 	ld b, 2
@@ -6207,7 +6207,7 @@ UnknownRJump_0xADBE:
 	ld [$AF37], a
 	call UnknownCall_0xB224
 	ret
-	ld a, [$A266]
+	ld a, [sFrameCounter]
 	cp $61
 	call z, UnknownCall_0xABF5
 	ld a, [$AFCF]
@@ -6265,7 +6265,7 @@ INCBIN "baserom.gb", $ADFD, $AE17 - $ADFD
 	ldh [$FF00+$DB], a
 	ret
 	ld a, 5
-	ld [$A266], a
+	ld [sFrameCounter], a
 	call UnknownCall_0xB2E8
 	ldh a, [$FF00+$EC]
 	dec a
@@ -6294,7 +6294,7 @@ UnknownRJump_0xAE6F:
 	call UnknownCall_0xB224
 	ret
 	ld a, 5
-	ld [$A266], a
+	ld [sFrameCounter], a
 	ldh a, [$FF00+$EC]
 	dec a
 	ldh [$FF00+$EC], a
@@ -6310,7 +6310,7 @@ UnknownRJump_0xAE6F:
 	ldh [$FF00+$EC], a
 	ret
 	ld a, 5
-	ld [$A266], a
+	ld [sFrameCounter], a
 	call UnknownCall_0xB35A
 	ldh a, [$FF00+$EC]
 	and a
@@ -6622,9 +6622,9 @@ UnknownRJump_0xB145:
 	ret
 
 UnknownCall_0xB14E:
-	ld a, [$A266]
+	ld a, [sFrameCounter]
 	ld b, a
-	ld a, [$A267]
+	ld a, [sFrameCounter+1]
 	or b
 	ret
 
@@ -7158,7 +7158,7 @@ UnknownRJump_0xC014:
 	ld a, [hl]
 	ld d, a
 	ld h, 161
-	ld a, [$FF00+$8D]
+	ld a, [hOAMUsed]
 	ld l, a
 	ldh a, [$FF00+$D9]
 	ld b, a
@@ -7228,7 +7228,7 @@ UnknownRJump_0xC077:
 	pop hl
 	ld [hli], a
 	ld a, l
-	ld [$FF00+$8D], a
+	ld [hOAMUsed], a
 	inc de
 	jr UnknownRJump_0xC042
 
@@ -7409,10 +7409,10 @@ UnknownData_0x14000:
 INCBIN "baserom.gb", $14000, $14043 - $14000
 
 
-UnknownJump_0x14043:
+_LoadTitlescreen:
 	call LoadTitleScreenTiles
 	ld de, SCREEN1
-	ld hl, $59E5
+	ld hl, GFX_TitleScreen_Tilemap
 
 .copy_tilemap:
 	ld a, [hli]
@@ -7423,73 +7423,110 @@ UnknownJump_0x14043:
 	jr nz, .copy_tilemap
 
 	ld a, 7
-	ld [$FF00+$4B], a
+	ld [rWX], a
 	ld a, 136
-	ld [$FF00+$4A], a
+	ld [rWY], a
+
 	xor a
 	ld [sSCY], a
-	ld a, 195
-	ld [$FF00+$40], a
-	ld a, 5
-	ld [$A267], a
-	ld a, 64
-	ld [$A266], a
+	ld a, LCDCF_ON | LCDCF_WIN9C00 | LCDCF_WINOFF | LCDCF_BG8800 | LCDCF_BG9800 | LCDCF_OBJ8 | LCDCF_OBJON | LCDCF_BGON
+	ld [rLCDC], a
+
+	ld a, HIGH(TITLESCREEN_DEMO_TIMEOUT)
+	ld [sFrameCounter+1], a
+	ld a, LOW(TITLESCREEN_DEMO_TIMEOUT)
+	ld [sFrameCounter], a
+
 	ld a, 255
 	ld [$A468], a
-	ld a, 1
-	ld [$FF00+$9B], a
+
+	ld a, MODE_TITLESCREEN
+	ld [hGameMode], a
 	ret
 
-UnknownJump_0x1407C:
+_HandleTitlescreen:
 	call ClearwUnkC000
-	ld a, 228
+
+	ld a, %11100100
 	ld [sBGP], a
-	ld a, 208
+	ld a, %11010000
 	ld [sOBP0], a
-	call UnknownCall_0x14113
-	ld a, [$A267]
+
+	call ClearOAM
+	ld a, [sFrameCounter+1]
 	cp $05
-	ret nc
+	ret nc ; don't react to buttons in the first second
+
 	and a
-	jr z, UnknownRJump_0x140D6
-	ld a, [$FF00+$81]
-	cp $04
-	jr z, UnknownRJump_0x140A8
-	ld a, [$FF00+$81]
-	cp $08
+	jr z, .start_demo
+
+	ld a, [hKeysPressed]
+	cp SELECT
+	jr z, .maybe_record_demo
+
+	ld a, [hKeysPressed] ; redundant
+	cp START
 	ret nz
-	ld a, 25
-	ld [$FF00+$9B], a
+
+	ld a, MODE_LOAD_SAVEFILE_SELECT
+	ld [hGameMode], a
 	ret
 
-UnknownRJump_0x140A8:
-UnknownData_0x140A8:
-INCBIN "baserom.gb", $140A8, $140D6 - $140A8
+.maybe_record_demo:
+	ld a, [hKeysHeld]
+	bit D_UP_BIT, a
+	ret z
 
+	ld a, [hKeysHeld] ; redundant
+	and A_BUTTON | B_BUTTON
+	ld [sDemoNumber], a
 
-UnknownRJump_0x140D6:
+	ld a, DEMO_RECORDING
+	ld [sDemoMode], a
+	
+	xor a
+	ld [sDemoIndex], a
+	ld [$FF00+$97], a
+
+	ld hl, DemoLevelIDs
+	ld a, [sDemoNumber]
+	ld e, a
+	ld d, 0
+	add hl, de
+
+	ld a, [hl]
+	ld [sCurLevel], a
+
+	ld a, MODE_0B
+	ld [hGameMode], a
+	ret
+
+.start_demo:
 	ld a, [sDemoNumber]
 	and $03
 	ld b, a
-	ld a, 127
+	ld a, HIGH(DemoData1)
 	sub b
 	ld h, a
 	ld l, 0
-	ld de, $A300
+	ld de, sDemoData
 
-UnknownRJump_0x140E5:
+.copy_demo_data:
 	ld a, [hli]
 	ld [de], a
 	inc de
 	ld a, l
 	and a
-	jr nz, UnknownRJump_0x140E5
+	jr nz, .copy_demo_data
+
 	ld a, DEMO_PLAYBACK
 	ld [sDemoMode], a
+
 	xor a
 	ld [sDemoIndex], a
 	ld [$FF00+$97], a
-	ld hl, $4121
+
+	ld hl, DemoLevelIDs
 	ld a, [sDemoNumber]
 	and $03
 	ld e, a
@@ -7503,28 +7540,42 @@ UnknownRJump_0x140E5:
 	ld [$FF00+$9B], a
 	ret
 
-UnknownCall_0x14113:
-	ld h, 161
-	ld a, [$FF00+$8D]
+ClearOAM:
+	ld h, HIGH(sOAMBuffer)
+	ld a, [hOAMUsed]
 	ld l, a
-
-UnknownRJump_0x14119:
+.loop:
 	xor a
 	ld [hli], a
 	ld a, l
-	cp $A0
-	jr c, UnknownRJump_0x14119
+	cp sOAMBufferEnd - sOAMBuffer
+	jr c, .loop
 	ret
 
-UnknownData_0x14121:
-INCBIN "baserom.gb", $14121, $141E5 - $14121
+DemoLevelIDs:
+	db LEVEL_INTRO
+	db LEVEL_11
+	db LEVEL_0E
+	db LEVEL_14
 
-GFX_TitleScreen:
+INCBIN "baserom.gb", $14125, $141E5 - $14125
+
+GFX_TitleScreen::
 INCBIN "gfx/titlescreen.2bpp"
 GFX_TitleScreen_End:
 
-INCBIN "baserom.gb", $159E5, $18000 - $159E5
+GFX_TitleScreen_Tilemap::
 
+INCBIN "baserom.gb", $159E5, $17c00 - $159E5
+
+DemoData4:
+	INCBIN "data/demos/macro_zone.bin"
+DemoData3:
+	INCBIN "data/demos/turtle_zone.bin"
+DemoData2:
+	INCBIN "data/demos/hippo.bin"
+DemoData1:
+	INCBIN "data/demos/intro.bin"
 
 SECTION "bank06", ROMX, BANK[$06]
 
@@ -8396,7 +8447,7 @@ UnknownCall_0x3046B:
 UnknownData_0x3046F:
 INCBIN "baserom.gb", $3046F, $30477 - $3046F
 
-	ld a, [$A266]
+	ld a, [sFrameCounter]
 	and a
 	ret nz
 	ld a, [$A2CA]
@@ -8406,7 +8457,7 @@ INCBIN "baserom.gb", $3046F, $30477 - $3046F
 	dec a
 	ld [$A2CA], a
 	ld a, 64
-	ld [$A266], a
+	ld [sFrameCounter], a
 	ld a, 10
 	ld [$A478], a
 	ret
@@ -8416,17 +8467,17 @@ UnknownRJump_0x30494:
 	inc a
 	ld [$A277], a
 	ld a, 255
-	ld [$A266], a
+	ld [sFrameCounter], a
 	ret
-	ld a, [$A266]
+	ld a, [sFrameCounter]
 	and a
 	ret nz
 	ld a, 20
 	ld [$FF00+$9B], a
 	ret
-	ld a, [$A267]
+	ld a, [sFrameCounter+1]
 	ld b, a
-	ld a, [$A266]
+	ld a, [sFrameCounter]
 	or b
 	jr nz, UnknownRJump_0x3050A
 	ld a, 208
@@ -8455,7 +8506,7 @@ UnknownRJump_0x304DD:
 	inc a
 	ld [$A277], a
 	ld a, 64
-	ld [$A266], a
+	ld [sFrameCounter], a
 	ld a, 5
 	ld [$A2CA], a
 	jp UnknownJump_0x3045B
@@ -8546,9 +8597,9 @@ UnknownRJump_0x305A4:
 	ld a, 1
 	ld [$A277], a
 	ld a, 1
-	ld [$A267], a
+	ld [sFrameCounter+1], a
 	ld a, 255
-	ld [$A266], a
+	ld [sFrameCounter], a
 	jp UnknownJump_0x3045B
 
 UnknownJump_0x305B6:
@@ -8673,7 +8724,7 @@ UnknownData_0x30697:
 INCBIN "baserom.gb", $30697, $3069F - $30697
 
 	ld hl, $46D1
-	ld a, [$A266]
+	ld a, [sFrameCounter]
 	and $F0
 	swap a
 	sla a
@@ -8689,7 +8740,7 @@ INCBIN "baserom.gb", $30697, $3069F - $30697
 	ld [sOBP1], a
 	ld a, 187
 	ldh [hSpriteID], a
-	ld a, [$A266]
+	ld a, [sFrameCounter]
 	and a
 	ret nz
 	ld a, 24
@@ -8713,7 +8764,7 @@ INCBIN "baserom.gb", $306D1, $306E1 - $306D1
 	inc a
 	ld [$A277], a
 	ld a, 64
-	ld [$A266], a
+	ld [sFrameCounter], a
 	ret
 
 UnknownRJump_0x30700:
@@ -8750,8 +8801,8 @@ UnknownRJump_0x30736:
 	ld a, 20
 	ld [$FF00+$9B], a
 	xor a
-	ld [$A266], a
-	ld [$A267], a
+	ld [sFrameCounter], a
+	ld [sFrameCounter+1], a
 	ld a, 1
 	ld [$A224], a
 	ret
@@ -8887,10 +8938,10 @@ UnknownRJump_0x30864:
 UnknownCall_0x30884:
 	xor a
 	ld [$A2D3], a
-	ld a, [$A267]
+	ld a, [sFrameCounter+1]
 	and a
 	jr nz, UnknownRJump_0x3089A
-	ld a, [$A266]
+	ld a, [sFrameCounter]
 	cp $80
 	jr nc, UnknownRJump_0x3089A
 	sub 128
@@ -25821,7 +25872,7 @@ UnknownCall_0x66000:
 	ld a, [hl]
 	ld d, a
 	ld h, 161
-	ld a, [$FF00+$8D]
+	ld a, [hOAMUsed]
 	ld l, a
 	ldh a, [$FF00+$D9]
 	ld b, a
@@ -25908,7 +25959,7 @@ UnknownRJump_0x6606E:
 	pop hl
 	ld [hli], a
 	ld a, l
-	ld [$FF00+$8D], a
+	ld [hOAMUsed], a
 	inc de
 	jr UnknownRJump_0x66039
 
@@ -25961,9 +26012,9 @@ INCBIN "baserom.gb", $6801A, $68042 - $6801A
 	ld a, 6
 	ld [$A460], a
 	xor a
-	ld [$A267], a
+	ld [sFrameCounter+1], a
 	ld a, 64
-	ld [$A266], a
+	ld [sFrameCounter], a
 	ret
 	call UnknownCall_0x684C5
 	call UnknownCall_0x2A96
@@ -26011,7 +26062,7 @@ UnknownRJump_0x680B8:
 	jr nz, UnknownRJump_0x680B8
 	ld a, 211
 	ld [$FF00+$40], a
-	ld a, [$A266]
+	ld a, [sFrameCounter]
 	add 32
 	cp $40
 	jr nc, UnknownRJump_0x680FE
@@ -26046,17 +26097,17 @@ UnknownRJump_0x680FE:
 	ld a, [$A2D8]
 	and a
 	jr nz, UnknownRJump_0x6811D
-	ld a, [$A267]
+	ld a, [sFrameCounter+1]
 	ld b, a
-	ld a, [$A266]
+	ld a, [sFrameCounter]
 	or b
 	ret nz
 	ld a, 4
 	ld [$A2D6], a
 	ld a, 0
-	ld [$A267], a
+	ld [sFrameCounter+1], a
 	ld a, 255
-	ld [$A266], a
+	ld [sFrameCounter], a
 	ret
 
 UnknownRJump_0x6811D:
@@ -26097,20 +26148,20 @@ INCBIN "baserom.gb", $68125, $68139 - $68125
 	ld a, 255
 	ld [sVBlankCopyEnabled], a
 	ld a, 2
-	ld [$A267], a
+	ld [sFrameCounter+1], a
 	ld a, 0
-	ld [$A266], a
+	ld [sFrameCounter], a
 	ld a, [$A2DD]
 	inc a
 	ld [$A2DD], a
 	ret
 	call UnknownCall_0x68492
 	call UnknownCall_0x2A96
-	ld a, [$A266]
+	ld a, [sFrameCounter]
 	and $F0
 	swap a
 	ld b, a
-	ld a, [$A267]
+	ld a, [sFrameCounter+1]
 	and $0F
 	swap a
 	or b
@@ -26140,15 +26191,15 @@ INCBIN "baserom.gb", $68125, $68139 - $68125
 	ret
 	call UnknownCall_0x2A96
 	call UnknownCall_0x684E0
-	ld a, [$A267]
+	ld a, [sFrameCounter+1]
 	ld b, a
-	ld a, [$A266]
+	ld a, [sFrameCounter]
 	or b
 	ret nz
 	ld a, 0
-	ld [$A267], a
+	ld [sFrameCounter+1], a
 	ld a, 64
-	ld [$A266], a
+	ld [sFrameCounter], a
 	ld a, [$A2DD]
 	inc a
 	ld [$A2DD], a
@@ -26159,29 +26210,29 @@ INCBIN "baserom.gb", $68125, $68139 - $68125
 	ret
 	call UnknownCall_0x2A96
 	call UnknownCall_0x684C5
-	ld a, [$A267]
+	ld a, [sFrameCounter+1]
 	ld b, a
-	ld a, [$A266]
+	ld a, [sFrameCounter]
 	or b
 	ret nz
 	ld a, 2
-	ld [$A267], a
+	ld [sFrameCounter+1], a
 	ld a, 0
-	ld [$A266], a
+	ld [sFrameCounter], a
 	ld a, [$A2DD]
 	inc a
 	ld [$A2DD], a
 	ret
 	call UnknownCall_0x2A96
-	ld a, [$A267]
+	ld a, [sFrameCounter+1]
 	ld b, a
-	ld a, [$A266]
+	ld a, [sFrameCounter]
 	or b
 	ret nz
 	ld a, 1
-	ld [$A267], a
+	ld [sFrameCounter+1], a
 	ld a, 128
-	ld [$A266], a
+	ld [sFrameCounter], a
 	ld a, [$A2DD]
 	inc a
 	ld [$A2DD], a
@@ -26192,15 +26243,15 @@ INCBIN "baserom.gb", $68125, $68139 - $68125
 	ld [$A2E1], a
 	call UnknownCall_0x68492
 	call UnknownCall_0x2A96
-	ld a, [$A267]
+	ld a, [sFrameCounter+1]
 	ld b, a
-	ld a, [$A266]
+	ld a, [sFrameCounter]
 	or b
 	ret nz
 	ld a, 1
-	ld [$A267], a
+	ld [sFrameCounter+1], a
 	ld a, 128
-	ld [$A266], a
+	ld [sFrameCounter], a
 	ld a, [$A2DD]
 	inc a
 	ld [$A2DD], a
@@ -26231,7 +26282,7 @@ UnknownRJump_0x68281:
 UnknownData_0x6828E:
 INCBIN "baserom.gb", $6828E, $682BA - $6828E
 
-	ld a, [$A266]
+	ld a, [sFrameCounter]
 	and $03
 	jr nz, UnknownRJump_0x682C8
 	ld a, [$A2E1]
@@ -26241,15 +26292,15 @@ INCBIN "baserom.gb", $6828E, $682BA - $6828E
 UnknownRJump_0x682C8:
 	call UnknownCall_0x6845F
 	call UnknownCall_0x2A96
-	ld a, [$A267]
+	ld a, [sFrameCounter+1]
 	ld b, a
-	ld a, [$A266]
+	ld a, [sFrameCounter]
 	or b
 	ret nz
 	ld a, 0
-	ld [$A267], a
+	ld [sFrameCounter+1], a
 	ld a, 32
-	ld [$A266], a
+	ld [sFrameCounter], a
 	ld a, [$A2DD]
 	inc a
 	ld [$A2DD], a
@@ -26258,15 +26309,15 @@ UnknownRJump_0x682C8:
 	ret
 	call UnknownCall_0x6845F
 	call UnknownCall_0x2A96
-	ld a, [$A267]
+	ld a, [sFrameCounter+1]
 	ld b, a
-	ld a, [$A266]
+	ld a, [sFrameCounter]
 	or b
 	ret nz
 	ld a, 0
-	ld [$A267], a
+	ld [sFrameCounter+1], a
 	ld a, 128
-	ld [$A266], a
+	ld [sFrameCounter], a
 	ld a, [$A2DD]
 	inc a
 	ld [$A2DD], a
@@ -26285,9 +26336,9 @@ INCBIN "baserom.gb", $6830F, $68398 - $6830F
 	cp $0D
 	ret nz
 	ld a, 0
-	ld [$A267], a
+	ld [sFrameCounter+1], a
 	ld a, 192
-	ld [$A266], a
+	ld [sFrameCounter], a
 	ld a, [$A2DD]
 	inc a
 	ld [$A2DD], a
@@ -26573,9 +26624,9 @@ UnknownRJump_0x685C1:
 	and a
 	jr nz, UnknownRJump_0x685D5
 	ld a, 1
-	ld [$A267], a
+	ld [sFrameCounter+1], a
 	ld a, 0
-	ld [$A266], a
+	ld [sFrameCounter], a
 
 UnknownRJump_0x685D5:
 	ld a, [sRomBank] ;prepare bank switch
