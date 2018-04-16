@@ -35,7 +35,11 @@ sLevelBank:: db
 
 sCoinCount:: dw ; BCD
 
-	ds $1A
+	ds 10
+
+sOAMCleared:: db
+
+	ds 15
 
 sBGP::  db
 sOBP0:: db
@@ -94,9 +98,14 @@ sVolume:: db
 sAudio2End::
 
 SECTION "Stack", SRAM[$A800], BANK[0]
-sStack:
+sStack::
 	ds $100
-sStackEnd:
+sStackEnd::
+
+SECTION "WRA0", WRAM0[$C000]
+wUnkC000::
+	ds $A0
+wUnkC000End::
 
 sHVelocityIndex = $A200
 sVVelocityIndex = $A201
@@ -111,7 +120,6 @@ sMarioYU = $A22A
 sMarioDirection = $A22B
 sMarioScreenY = $A23B
 sMarioScreenX = $A23C
-sLevelBank = $A258
 sSpinJump = $A268
 sCurLevel = $A269
 sMoonPhysics = $A287
@@ -122,8 +130,15 @@ sEasyMode = $A2E4
 hKeysHeld = $FF80
 hKeysPressed = $FF81
 hVBlankOccured = $FF82
+hOAMUsed = $FF8D
+hTemp = $FF99
 hGameMode = $FF9B
 hOAMDMA = $FFA0
 hVBlankCopySrc = $FFB1
 hVBlankCopyDst = $FFB3
 hVBlankCopyLen = $FFB5
+
+hSpritePriority = $FFBB
+hSpriteY = $FFC4
+hSpriteX = $FFC5
+hUseOBP1 = $FFC7

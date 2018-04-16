@@ -144,13 +144,13 @@ MainLoop:
 	ld [$AA01], a
 	ld a, [$A20E]
 	and a
-	jr nz, UnknownRJump_0x0279
+	jr nz, .skip_input
 	ld a, [$A2DC]
 	cp $03
 	call nz, ReadJoypad
 	call GetDemoInputs
 
-UnknownRJump_0x0279:
+.skip_input:
 	call CallGameModeHandler
 	ld a, [hGameMode]
 	cp MODE_LEVEL
@@ -170,72 +170,78 @@ UnknownRJump_0x0279:
 	and A_BUTTON | B_BUTTON | SELECT | START
 	cp A_BUTTON | B_BUTTON | SELECT | START
 	jp z, .soft_reset
-	call UnknownCall_0x02FF
+	call MainLoop_IncrementCountersAfterVBlank
 	jp MainLoop
 
 .soft_reset:
-INCBIN "baserom.gb", $029F, $02AD - $029F
-
+	ld a, BANK(PartialAudioReset)
+	ld [sRomBank], a
+	ld [MBC1RomBank], a
+	call PartialAudioReset
+	jp Init
 
 CallGameModeHandler:
 	ld a, [hGameMode]
 	jumptable
 	dw $2cc4		; 00
-	dw $2cdb		; 01
+	dw $2cdb		; MODE_TITLE
 	dw $03f1		; 02
 	dw $04f1		; 03
-	dw $05d5		; 04
+	dw $05d5		; MODE_LEVEL
 	dw $27af		; 05
-	dw UnknownCall_0x02FE	; 06
+	dw GenericDummyFunction	; 06
 	dw $287e		; 07
-	dw $2756		; 08
+	dw $2756		; MODE_PAUSED
 	dw $311a		; 09
-	dw UnknownCall_0x02FE	; 0A
+	dw GenericDummyFunction	; 0A
 	dw $2ce9		; 0B
-	dw $2c2e		; 0C
-	dw UnknownCall_0x02FE	; 0D
-	dw UnknownCall_0x02FE	; 0E
-	dw UnknownCall_0x02FE	; 0F
+	dw $2c2e		; MODE_WORLD
+	dw GenericDummyFunction	; 0D
+	dw GenericDummyFunction	; 0E
+	dw GenericDummyFunction	; 0F
 	dw $2974		; 10
 	dw $29ca		; 11
 	dw $2cae		; 12
-	dw $2cb9		; 13
+	dw $2cb9		; MODE_CREDITS
 	dw $2c23		; 14
 INCBIN "baserom.gb", $02DA, $02FE - $02DA
 
-UnknownCall_0x02FE:
+GenericDummyFunction:
 	ret
 
-UnknownCall_0x02FF:
+MainLoop_IncrementCountersAfterVBlank:
 	halt
 
-UnknownRJump_0x0300:
+.wait_for_vblank:
 	ld a, [hVBlankOccured]
 	and a
-	jr z, UnknownRJump_0x0300
+	jr z, .wait_for_vblank
+
 	ld a, [$FF00+$97]
 	inc a
 	ld [$FF00+$97], a
+
 	ld a, [sAnimatedTilesCounter]
 	inc a
 	ld [sAnimatedTilesCounter], a
+
 	xor a
 	ld [hVBlankOccured], a
+
 	ld a, 192
 	ld [$FF00+$8C], a
 	xor a
-	ld [$FF00+$8D], a
+	ld [hOAMUsed], a
 	ret
 
-UnknownCall_0x031C:
+ClearwUnkC000:
 	xor a
-	ld hl, $C000
-	ld b, 160
-
-UnknownRJump_0x0322:
+	ld hl, wUnkC000
+	ld b, wUnkC000End - wUnkC000
+.loop:
 	ld [hli], a
 	dec b
-	jr nz, UnknownRJump_0x0322
+	jr nz, .loop
 	ret
 
 BlankBGMaps:
@@ -265,21 +271,22 @@ UnknownData_0x033F:
 INCBIN "baserom.gb", $033F, $0348 - $033F
 
 
-DisableVBlank: ;$0348
-	ld a, [$FF00+$FF]
-	ld [$FF00+$99], a
+DisableLCD:
+	ld a, [rIE]
+	ld [hTemp], a
 	res 0, a
-	ld [$FF00+$FF], a
+	ld [rIE], a
 
-UnknownRJump_0x0350:
-	ld a, [$FF00+$44]
-	cp $91
-	jr nz, UnknownRJump_0x0350
-	ld a, [$FF00+$40]
+.wait_for_vblank:
+	ld a, [rLY]
+	cp 145
+	jr nz, .wait_for_vblank
+
+	ld a, [rLCDC]
 	and $7F
-	ld [$FF00+$40], a
-	ld a, [$FF00+$99]
-	ld [$FF00+$FF], a
+	ld [rLCDC], a
+	ld a, [hTemp]
+	ld [rIE], a
 	ret
 
 UnknownCall_0x0361:
@@ -294,18 +301,20 @@ UnknownCall_0x0361:
 	ld e, a
 	ld a, [hl]
 	ld d, a
-	ld hl, $0000
-	ld a, 10
+
+	ld hl, MBC1SRamEnable
+	ld a, SRAM_ENABLE
 	ld [hl], a ;enable SRAM
-	ld h, 64
+	ld h, HIGH(MBC1SRamBank)
 	ld a, 0
 	ld [hl], a ;Ram Bank 0
-	ld h, 96
+	ld h, HIGH(MBC1ModeSelect)
 	ld a, 1
 	ld [hl], a ;Ram Banking mode
+
 	ld hl, $B000
 
-Read_Level_Data: ;$0386
+ReadLevelData: ;$0386
 	ld a, [de]
 	inc de
 	bit 7, a
@@ -314,7 +323,7 @@ Read_Level_Data: ;$0386
 	ld a, l
 	or a
 	jr z, .checkRAMbounds
-	jr Read_Level_Data
+	jr ReadLevelData
 
 .compressed
 	and $7F
@@ -335,12 +344,12 @@ Read_Level_Data: ;$0386
 	jr z, .checkRAMbounds
 	dec b
 	jr nz, .decompress
-	jr Read_Level_Data
+	jr ReadLevelData
 
 .checkRAMbounds
 	ld a, h
 	cp $E0
-	jr nz, Read_Level_Data
+	jr nz, ReadLevelData
 	ret
 	ld a, [$A266]
 	and $C0
@@ -364,7 +373,7 @@ Read_Level_Data: ;$0386
 	ld [$A267], a
 	ld a, 255
 	ld [$A266], a
-	ld a, 18
+	ld a, MODE_CREDITS_TRANSITION
 	ld [hGameMode], a
 	ret
 
@@ -466,7 +475,7 @@ UnknownRJump_0x0472:
 	ld [$A20E], a
 	ld [$A2A7], a
 	ld [sVBlankCopyEnabled], a
-	ld [$A26E], a
+	ld [sOAMCleared], a
 	ld hl, $AA80
 
 UnknownRJump_0x049C:
@@ -510,7 +519,7 @@ UnknownRJump_0x04DD:
 	inc a
 	ld [hGameMode], a
 	ret
-	call DisableVBlank
+	call DisableLCD
 	call LoadMarioGFX
 	ld a, [sLevelBank]
 	ld [sRomBank], a
@@ -650,19 +659,19 @@ UnknownRJump_0x060F:
 	bit 1, a
 	call nz, UnknownCall_0x3753
 	call UnknownCall_0x2A58
-	ld a, [$FF00+$8D]
+	ld a, [hOAMUsed]
 	ld [$A264], a
 	call UnknownCall_0x0652
-	call UnknownCall_0x2CFF
+	call ClearFreedOAM
 	call UnknownCall_0x273E
 	ret
 
 UnknownRJump_0x0640:
 	call UnknownCall_0x315C
-	ld a, [$FF00+$8D]
+	ld a, [hOAMUsed]
 	ld [$A264], a
 	call UnknownCall_0x0652
-	call UnknownCall_0x2CFF
+	call ClearFreedOAM
 	call UnknownCall_0x273E
 	ret
 
@@ -1468,7 +1477,7 @@ UnknownJump_0x0C7D:
 	ld a, [$FF00+$C0]
 	sub b
 	add 96
-	ld [$FF00+$99], a
+	ld [hTemp], a
 	ld a, [$A20C]
 	ld b, a
 	ld a, [$FF00+$C0]
@@ -1506,7 +1515,7 @@ UnknownRJump_0x0CC0:
 	jp UnknownJump_0x0D97
 
 UnknownRJump_0x0CD3:
-	ld a, [$FF00+$99]
+	ld a, [hTemp]
 	cp $58
 	jp c, UnknownJump_0x0D97
 	ld a, [$A238]
@@ -1520,7 +1529,7 @@ UnknownRJump_0x0CD3:
 	jp UnknownJump_0x0D97
 
 UnknownRJump_0x0CEC:
-	ld a, [$FF00+$99]
+	ld a, [hTemp]
 	cp $50
 	jp c, UnknownJump_0x0D97
 	ld a, [$A238]
@@ -1575,13 +1584,13 @@ UnknownRJump_0x0D4F:
 	ld a, [$A2D9]
 	and a
 	jr z, UnknownRJump_0x0D5D
-	ld a, [$FF00+$99]
+	ld a, [hTemp]
 	cp $40
 	jr nc, UnknownRJump_0x0D97
 	jr UnknownRJump_0x0D63
 
 UnknownRJump_0x0D5D:
-	ld a, [$FF00+$99]
+	ld a, [hTemp]
 	cp $38
 	jr nc, UnknownRJump_0x0D97
 
@@ -1600,13 +1609,13 @@ UnknownRJump_0x0D74:
 	ld a, [$A2D9]
 	and a
 	jr z, UnknownRJump_0x0D82
-	ld a, [$FF00+$99]
+	ld a, [hTemp]
 	cp $40
 	jr nc, UnknownRJump_0x0D97
 	jr UnknownRJump_0x0D88
 
 UnknownRJump_0x0D82:
-	ld a, [$FF00+$99]
+	ld a, [hTemp]
 	cp $28
 	jr nc, UnknownRJump_0x0D97
 
@@ -1782,7 +1791,7 @@ UnknownRJump_0x0EB0:
 	jr z, UnknownRJump_0x0EE4
 	ld a, 240
 	ld [$A28B], a
-	call DisableVBlank
+	call DisableLCD
 	call UnknownCall_0x3C94
 	ld a, 195
 	ld [$FF00+$40], a
@@ -3854,8 +3863,8 @@ UnknownCall_0x20A4:
 	or b
 	jp z, UnknownJump_0x21EE
 	ld a, [$A264]
-	ld [$FF00+$8D], a
-	call UnknownCall_0x2CFF
+	ld [hOAMUsed], a
+	call ClearFreedOAM
 	call UnknownCall_0x2728
 	call $FFA0
 	ld a, 5
@@ -4365,7 +4374,7 @@ UnknownCall_0x25AF:
 	and $0F
 	ld [$A22D], a
 	push hl
-	call DisableVBlank
+	call DisableLCD
 	ld a, 19
 	ld [sLevelBank], a
 	ld [MBC1RomBank], a
@@ -4561,7 +4570,7 @@ UnknownRJump_0x2729:
 	ld a, 192
 	ld [$FF00+$8C], a
 	xor a
-	ld [$FF00+$8D], a
+	ld [hOAMUsed], a
 	ret
 
 UnknownCall_0x273E:
@@ -4621,9 +4630,9 @@ UnknownRJump_0x278E:
 	ld a, 2
 	ld [$A45E], a
 	ret
-	call DisableVBlank
+	call DisableLCD
 	xor a
-	ld [$FF00+$8D], a
+	ld [hOAMUsed], a
 	call UnknownCall_0x2D41
 	ld a, 12
 	ld [sRomBank], a
@@ -4724,7 +4733,7 @@ INCBIN "baserom.gb", $2874, $287E - $2874
 	ld [MBC1RomBank], a
 	call UnknownCall_0x30884
 	call UnknownCall_0x28A7
-	call UnknownCall_0x2CFF
+	call ClearFreedOAM
 	ld a, [$A267]
 	ld b, a
 	ld a, [$A266]
@@ -4749,9 +4758,9 @@ UnknownCall_0x28A7:
 	add 227
 	ld [$FF00+$C6], a
 	ld a, 68
-	ld [$FF00+$C5], a
+	ld [hSpriteX], a
 	ld a, 32
-	ld [$FF00+$C4], a
+	ld [hSpriteY], a
 	ld a, [$A266]
 	sub 192
 	jr c, UnknownRJump_0x28CD
@@ -4759,13 +4768,13 @@ UnknownCall_0x28A7:
 	ld b, a
 	ld a, 32
 	sub b
-	ld [$FF00+$C4], a
+	ld [hSpriteY], a
 
 UnknownRJump_0x28CD:
 	ld a, 1
 	ld [sRomBank], a
 	ld [MBC1RomBank], a
-	call UnknownCall_0x5297
+	call LoadSprite
 	ret
 
 UnknownCall_0x28D9:
@@ -4885,7 +4894,7 @@ UnknownRJump_0x294D:
 UnknownData_0x2974:
 INCBIN "baserom.gb", $2974, $29DD - $2974
 
-	call DisableVBlank
+	call DisableLCD
 	ld a, 17
 	ld [sRomBank], a
 	ld [MBC1RomBank], a
@@ -5010,7 +5019,7 @@ UnknownCall_0x2B13:
 	ld a, 1
 	ld [sRomBank], a
 	ld [MBC1RomBank], a
-	call UnknownCall_0x5297
+	call LoadSprite
 	ld a, 12
 	ld [sRomBank], a
 	ld [MBC1RomBank], a
@@ -5020,7 +5029,7 @@ UnknownCall_0x2B27:
 	ld a, 1
 	ld [sRomBank], a
 	ld [MBC1RomBank], a
-	call UnknownCall_0x5297
+	call LoadSprite
 	ld a, 26
 	ld [sRomBank], a
 	ld [MBC1RomBank], a
@@ -5040,7 +5049,7 @@ UnknownCall_0x2B4F:
 	ld a, 1
 	ld [sRomBank], a
 	ld [MBC1RomBank], a
-	call UnknownCall_0x52E7
+	call _ClearFreedOAM
 	ld a, 26
 	ld [sRomBank], a
 	ld [MBC1RomBank], a
@@ -5050,7 +5059,7 @@ UnknownCall_0x2B63:
 	ld a, 1
 	ld [sRomBank], a
 	ld [MBC1RomBank], a
-	call UnknownCall_0x52E7
+	call _ClearFreedOAM
 	ld a, 12
 	ld [sRomBank], a
 	ld [MBC1RomBank], a
@@ -5078,6 +5087,7 @@ UnknownCall_0x2B8B:
 	ld hl, $6A00
 	ld de, $8E80
 	call CopyData
+
 	ld a, BANK(GFX_Mario)
 	ld [sRomBank], a
 	ld [MBC1RomBank], a
@@ -5085,6 +5095,7 @@ UnknownCall_0x2B8B:
 	ld hl, GFX_Mario
 	ld de, $8000
 	call CopyData
+
 	ld a, 27
 	ld [sRomBank], a
 	ld [MBC1RomBank], a
@@ -5099,16 +5110,11 @@ UnknownCall_0x2B8B:
 	ld de, $8B00
 	call CopyData
 	ret
-	ld a, 12
-	ld [sRomBank], a
-	ld [MBC1RomBank], a
-	jp UnknownJump_0x30000
-	ld a, 12
-	ld [sRomBank], a
-	ld [MBC1RomBank], a
-	jp UnknownJump_0x3005F
 
-FarCopyData: ;$2BFB copymem from bank a
+	jpba UnknownJump_0x30000
+	jpba UnknownJump_0x3005F
+
+FarCopyData:
 	ld [sRomBank], a
 	ld [MBC1RomBank], a
 	call CopyData
@@ -5118,122 +5124,78 @@ FarCopyData: ;$2BFB copymem from bank a
 	ret
 
 UnknownCall_0x2C0D:
-	ld a, 1
-	ld [sRomBank], a
-	ld [MBC1RomBank], a
-	jp UnknownJump_0x5CF2
+	jpba UnknownJump_0x5CF2
 
 UnknownJump_0x2C18:
 	ld a, 15
 	ld [sRomBank], a
 	ld [MBC1RomBank], a
 	jp UnknownJump_0x3E73
-	ld a, 15
-	ld [sRomBank], a
-	ld [MBC1RomBank], a
-	jp UnknownJump_0x3EF2B
-	ld a, 15
-	ld [sRomBank], a
-	ld [MBC1RomBank], a
-	jp UnknownJump_0x3C000
+
+	jpba UnknownJump_0x3EF2B
+	jpba UnknownJump_0x3C000
 
 UnknownData_0x2C39:
 INCBIN "baserom.gb", $2C39, $2C61 - $2C39
 
 
 UnknownCall_0x2C61:
-	ld a, 1
-	ld [sRomBank], a
-	ld [MBC1RomBank], a
-	jp UnknownJump_0x5D25
+	jpba UnknownJump_0x5D25
 
 UnknownCall_0x2C6C:
-	ld a, 1
-	ld [sRomBank], a
-	ld [MBC1RomBank], a
-	jp UnknownJump_0x5960
+	jpba UnknownJump_0x5960
 
 UnknownCall_0x2C77:
-	ld a, 1
-	ld [sRomBank], a
-	ld [MBC1RomBank], a
-	jp UnknownJump_0x591F
+	jpba UnknownJump_0x591F
 
 UnknownCall_0x2C82:
-	ld a, 1
-	ld [sRomBank], a
-	ld [MBC1RomBank], a
-	jp UnknownJump_0x5997
+	jpba UnknownJump_0x5997
 
 UnknownData_0x2C8D:
 INCBIN "baserom.gb", $2C8D, $2CA3 - $2C8D
 
 
-UnknownJump_0x2CA3:
-	ld a, 26
-	ld [sRomBank], a
-	ld [MBC1RomBank], a
-	jp UnknownJump_0x68528
-	ld a, 26
-	ld [sRomBank], a
-	ld [MBC1RomBank], a
-	jp UnknownJump_0x68000
-	ld a, 26
-	ld [sRomBank], a
-	ld [MBC1RomBank], a
-	jp UnknownJump_0x6800F
-	call DisableVBlank
-	call UnknownCall_0x031C
+UnknownJump_0x2CA3::
+	jpba UnknownJump_0x68528
+
+UnknownNothing_0x2CAE::
+	jpba UnknownJump_0x68000
+
+UnknownNothing_0x2CB9::
+	jpba UnknownJump_0x6800F
+
+UnknownNothing_0x2CC6::
+	call DisableLCD
+	call ClearwUnkC000
 	xor a
-	ld [$FF00+$8D], a
-	call UnknownCall_0x2CFF
-	ld a, 5
-	ld [sRomBank], a
-	ld [MBC1RomBank], a
-	jp UnknownJump_0x14043
-	call UnknownCall_0x031C
-	ld a, 5
-	ld [sRomBank], a
-	ld [MBC1RomBank], a
-	jp UnknownJump_0x1407C
-	ld a, 1
-	ld [sRomBank], a
-	ld [MBC1RomBank], a
-	jp UnknownJump_0x5579
+	ld [hOAMUsed], a
+	call ClearFreedOAM
+	jpba UnknownJump_0x14043
+
+UnknownNothing_0x2CDB::
+	call ClearwUnkC000
+	jpba UnknownJump_0x1407C
+
+UnknownNothing_0x2CE9::
+	jpba UnknownJump_0x5579
 
 UnknownCall_0x2CF4:
-	ld a, 1
-	ld [sRomBank], a
-	ld [MBC1RomBank], a
-	jp UnknownJump_0x5297
+	jpba LoadSprite
 
-UnknownCall_0x2CFF:
-	ld a, 1
-	ld [sRomBank], a
-	ld [MBC1RomBank], a
-	jp UnknownJump_0x52E7
+ClearFreedOAM:
+	jpba _ClearFreedOAM
 
 UnknownCall_0x2D0A:
-	ld a, 1
-	ld [sRomBank], a
-	ld [MBC1RomBank], a
-	jp UnknownJump_0x530D
+	jpba UnknownJump_0x530D
 
 UnknownCall_0x2D15:
-	ld a, 1
-	ld [sRomBank], a
-	ld [MBC1RomBank], a
-	jp UnknownJump_0x5550
+	jpba UnknownJump_0x5550
 
 UnknownData_0x2D20:
 INCBIN "baserom.gb", $2D20, $2D41 - $2D20
 
-
 UnknownCall_0x2D41:
-	ld a, 1
-	ld [sRomBank], a
-	ld [MBC1RomBank], a
-	jp UnknownJump_0x5302
+	jpba UnknownJump_0x5302
 
 UnknownData_0x2D4C:
 INCBIN "baserom.gb", $2D4C, $2D7D - $2D4C
@@ -5682,7 +5644,7 @@ UnknownCall_0x3007:
 	add b
 	sub d
 	ld e, a
-	ld a, [$FF00+$C4]
+	ld a, [hSpriteY]
 	sub d
 	cp e
 	jp nc, UnknownJump_0x307C
@@ -5695,7 +5657,7 @@ UnknownCall_0x3007:
 	add c
 	sub d
 	ld e, a
-	ld a, [$FF00+$C5]
+	ld a, [hSpriteX]
 	sub d
 	cp e
 	jp nc, UnknownJump_0x307C
@@ -5860,7 +5822,7 @@ UnknownCall_0x315C:
 	add b
 	ld [$FF00+$C0], a
 	ld a, 1
-	ld [$FF00+$BB], a
+	ld [hSpritePriority], a
 	call UnknownCall_0x2D15
 	ld a, [sMarioScreenY]
 	and $F0
@@ -5963,7 +5925,7 @@ UnknownCall_0x3261:
 	ld a, [$A25F]
 	sub b
 	add 80
-	ld [$FF00+$C5], a
+	ld [hSpriteX], a
 	and $F0
 	cp $C0
 	jr z, UnknownRJump_0x32BD
@@ -5972,7 +5934,7 @@ UnknownCall_0x3261:
 	ld a, [$A25D]
 	sub b
 	add 70
-	ld [$FF00+$C4], a
+	ld [hSpriteY], a
 	and $F0
 	cp $C0
 	jr z, UnknownRJump_0x32BD
@@ -5989,7 +5951,7 @@ UnknownRJump_0x329E:
 	add b
 	ld [$FF00+$C6], a
 	ld a, 1
-	ld [$FF00+$BB], a
+	ld [hSpritePriority], a
 	call UnknownCall_0x2CF4
 	xor a
 	ld [$A246], a
@@ -6416,7 +6378,7 @@ UnknownRJump_0x356E:
 .EasyModeOn
 	ld a, 208
 	ld [sOBP0], a
-	call DisableVBlank
+	call DisableLCD
 	ld a, 26
 	ld [sRomBank], a
 	ld [MBC1RomBank], a
@@ -6442,9 +6404,9 @@ UnknownRJump_0x356E:
 	ld [hGameMode], a
 	ret
 	ld a, 80
-	ld [$FF00+$C4], a
+	ld [hSpriteY], a
 	ld a, 52
-	ld [$FF00+$C5], a
+	ld [hSpriteX], a
 	ld a, 240
 	ld [$FF00+$C6], a
 	call UnknownCall_0x2CF4
@@ -7217,7 +7179,7 @@ UnknownCall_0x3F30:
 	ld a, 1
 	ld [sRomBank], a
 	ld [MBC1RomBank], a
-	call UnknownCall_0x5297
+	call LoadSprite
 	ld a, 15
 	ld [sRomBank], a
 	ld [MBC1RomBank], a
@@ -7227,7 +7189,7 @@ UnknownCall_0x3F44:
 	ld a, 1
 	ld [sRomBank], a
 	ld [MBC1RomBank], a
-	call UnknownCall_0x5297
+	call LoadSprite
 	ld a, 24
 	ld [sRomBank], a
 	ld [MBC1RomBank], a
