@@ -1,24 +1,24 @@
 Init:
 	ld a, IEF_VBLANK
 	di
-	ld [rIF], a
-	ld [rIE], a
+	ldh [rIF], a
+	ldh [rIE], a
 	xor a
-	ld [rSCY], a
-	ld [rSCX], a
-	ld [rSTAT], a
-	ld [rSB], a
-	ld [rSC], a
+	ldh [rSCY], a
+	ldh [rSCX], a
+	ldh [rSTAT], a
+	ldh [rSB], a
+	ldh [rSC], a
 	ld a, LCDCF_ON
-	ld [rLCDC], a
+	ldh [rLCDC], a
 
 .waitVBlank
-	ld a, [rLY]
+	ldh a, [rLY]
 	cp 148
 	jr nz, .waitVBlank
 
 	ld a, LCDCF_BGON | LCDCF_OBJON
-	ld [rLCDC], a
+	ldh [rLCDC], a
 
 	ld sp, sStackEnd - 1
 	ld a, SRAM_ENABLE
@@ -74,14 +74,14 @@ Init:
 
 	call BlankBGMaps
 	ld a, IEF_VBLANK
-	ld [rIE], a
+	ldh [rIE], a
 	ld a, 7
-	ld [rWX], a
+	ldh [rWX], a
 	ld a, LCDCF_ON
-	ld [rLCDC], a
+	ldh [rLCDC], a
 	ei
 	xor a
-	ld [rIF], a
-	ld [rWY], a
-	ld [rTMA], a
+	ldh [rIF], a
+	ldh [rWY], a
+	ldh [rTMA], a
 	call ResetAudio

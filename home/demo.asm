@@ -9,7 +9,7 @@ GetDemoInputs:
 	ret
 
 .play_demo:
-	ld a, [hKeysPressed]
+	ldh a, [hKeysPressed]
 	and START
 	jr z, .dont_stop
 
@@ -29,7 +29,7 @@ GetDemoInputs:
 	ld [MBC1RomBank], a
 
 	ld a, [sPreviousKeysHeld]
-	ld [hKeysHeld], a
+	ldh [hKeysHeld], a
 
 	ld h, HIGH(sDemoData)
 	ld a, [sDemoIndex]
@@ -46,12 +46,12 @@ GetDemoInputs:
 
 	dec hl
 	ld [hld], a
-	ld a, [hKeysHeld]
+	ldh a, [hKeysHeld]
 	xor b
 	and b
-	ld [hKeysPressed], a
+	ldh [hKeysPressed], a
 	ld a, b
-	ld [hKeysHeld], a
+	ldh [hKeysHeld], a
 	ld a, l
 	ld [sDemoIndex], a
 	ret
@@ -65,10 +65,10 @@ GetDemoInputs:
 	cp $ff
 	jr nz, .skip
 	ld a, 6
-	ld [hGameMode], a
+	ldh [hGameMode], a
 	ret
 .skip:
-	ld a, [hKeysHeld]
+	ldh a, [hKeysHeld]
 	ld b, a
 	ld a, [hli]
 	cp b
@@ -84,7 +84,7 @@ GetDemoInputs:
 	ld a, l
 	cp $fe
 	jr z, .no_space
-	ld a, [hKeysHeld]
+	ldh a, [hKeysHeld]
 	ld [hli], a
 	ld a, 1
 	ld [hld], a

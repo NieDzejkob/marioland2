@@ -14,13 +14,13 @@ _ResetAudio:
 	jr nz, .clear_second
 
 	ld a, NR52_ON
-	ld [rNR52], a
+	ldh [rNR52], a
 
 	ld a, NR50_FULL_VOLUME
-	ld [rNR50], a
+	ldh [rNR50], a
 
 	ld a, NR51_ALL
-	ld [rNR51], a
+	ldh [rNR51], a
 	ret
 
 UnknownData_0x1001D:
@@ -51,12 +51,12 @@ UnknownJump_0x10044:
 	jr z, .full_volume
 
 	ld a, NR50_HALF_VOLUME
-	ld [rNR50], a
+	ldh [rNR50], a
 	jr .volume_done
 
 .full_volume:
 	ld a, NR50_FULL_VOLUME
-	ld [rNR50], a
+	ldh [rNR50], a
 
 .volume_done:
 	call UnknownCall_0x100DE
@@ -473,13 +473,13 @@ INCBIN "baserom.gb", $104C2, $104D8 - $104C2
 	cp $08
 	jr nc, UnknownRJump_0x10508
 	ld a, 160
-	ld [$FF00+$12], a
+	ldh [$FF00+$12], a
 
 UnknownRJump_0x104F6:
 	ld a, 47
-	ld [$FF00+$10], a
+	ldh [$FF00+$10], a
 	ld a, 187
-	ld [$FF00+$11], a
+	ldh [$FF00+$11], a
 	ld a, [bc]
 	ld hl, $4514
 	call UnknownCall_0x111A6
@@ -487,12 +487,12 @@ UnknownRJump_0x104F6:
 
 UnknownRJump_0x10508:
 	ld a, 64
-	ld [$FF00+$12], a
+	ldh [$FF00+$12], a
 	jr UnknownRJump_0x104F6
 
 UnknownRJump_0x1050E:
 	ld a, 32
-	ld [$FF00+$12], a
+	ldh [$FF00+$12], a
 	jr UnknownRJump_0x104F6
 
 UnknownData_0x10514:
@@ -540,14 +540,14 @@ INCBIN "baserom.gb", $1058D, $1059B - $1058D
 	and $01
 	jr z, UnknownRJump_0x105C6
 	ld a, 48
-	ld [$FF00+$12], a
+	ldh [$FF00+$12], a
 
 UnknownRJump_0x105C3:
 	jp UnknownJump_0x106CC
 
 UnknownRJump_0x105C6:
 	ld a, 176
-	ld [$FF00+$12], a
+	ldh [$FF00+$12], a
 	jr UnknownRJump_0x105C3
 
 UnknownData_0x105CC:
@@ -631,7 +631,7 @@ UnknownJump_0x106A8:
 	xor a
 	ld [$A461], a
 	ld [$A500], a
-	ld [$FF00+$10], a
+	ldh [$FF00+$10], a
 	ld [$A504], a
 	ld [$A52D], a
 	ld [$A520], a
@@ -1198,7 +1198,7 @@ UnknownJump_0x10DF8:
 	xor a
 	ld [$A502], a
 	ld [$A506], a
-	ld [$FF00+$1A], a
+	ldh [$FF00+$1A], a
 	jp UnknownJump_0x111C7
 
 UnknownData_0x10E11:
@@ -1214,7 +1214,7 @@ UnknownJump_0x10E1D:
 	ld [$A502], a
 	ld [$A506], a
 	ld [$A471], a
-	ld [$FF00+$1A], a
+	ldh [$FF00+$1A], a
 	ld [$A538], a
 	ld hl, $A43F
 	res 7, [hl]
@@ -1231,7 +1231,7 @@ INCBIN "baserom.gb", $10E3C, $10E43 - $10E3C
 UnknownRJump_0x10E43:
 UnknownCall_0x10E43:
 	xor a
-	ld [$FF00+$1A], a
+	ldh [$FF00+$1A], a
 	jp UnknownJump_0x112A7
 
 UnknownCall_0x10E49:
@@ -1309,11 +1309,11 @@ INCBIN "baserom.gb", $10ECE, $10EEB - $10ECE
 	and $01
 	jr nz, UnknownRJump_0x10F18
 	ld a, 73
-	ld [$FF00+$21], a
+	ldh [$FF00+$21], a
 
 UnknownRJump_0x10F0A:
 	ld a, 47
-	ld [$FF00+$20], a
+	ldh [$FF00+$20], a
 	ld a, [bc]
 	ld hl, $4F1E
 	call UnknownCall_0x111A6
@@ -1321,7 +1321,7 @@ UnknownRJump_0x10F0A:
 
 UnknownRJump_0x10F18:
 	ld a, 32
-	ld [$FF00+$21], a
+	ldh [$FF00+$21], a
 	jr UnknownRJump_0x10F0A
 
 UnknownData_0x10F1E:
@@ -1413,7 +1413,7 @@ UnknownRJump_0x11052:
 	inc hl
 	inc hl
 	ld a, 32
-	ld [$FF00+$21], a
+	ldh [$FF00+$21], a
 	jp UnknownJump_0x1119F
 
 UnknownData_0x1105B:
@@ -1748,7 +1748,7 @@ UnknownRJump_0x11404:
 	inc c
 	ld a, [hli]
 	ld [bc], a
-	ld [$FF00+$25], a
+	ldh [$FF00+$25], a
 	inc c
 	ld a, [hli]
 	ld [bc], a
@@ -1885,7 +1885,7 @@ UnknownRJump_0x114FE:
 	and a
 	jr nz, UnknownRJump_0x1150D
 	xor a
-	ld [$FF00+$1A], a
+	ldh [$FF00+$1A], a
 	ld l, e
 	ld h, d
 	call UnknownCall_0x112A7
@@ -2896,7 +2896,7 @@ INCBIN "baserom.gb", $11ACC, $13F5E - $11ACC
 
 _PartialAudioReset:
 	ld a, NR51_ALL
-	ld [rNR51], a
+	ldh [rNR51], a
 	ld a, 3
 	ld [$A455], a
 	xor a
@@ -2948,16 +2948,16 @@ UnknownCall_0x13F6B:
 
 MuteSoundChannels:
 	ld a, 8
-	ld [rNR12], a
-	ld [rNR22], a
-	ld [rNR42], a
+	ldh [rNR12], a
+	ldh [rNR22], a
+	ldh [rNR42], a
 	ld a, 128
-	ld [rNR14], a
-	ld [rNR24], a
-	ld [rNR44], a
+	ldh [rNR14], a
+	ldh [rNR24], a
+	ldh [rNR44], a
 	xor a
-	ld [rNR10], a
-	ld [rNR30], a
+	ldh [rNR10], a
+	ldh [rNR30], a
 	ret
 
 UnknownData_0x13FFD:

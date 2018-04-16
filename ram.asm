@@ -141,4 +141,5 @@ hVBlankCopyLen = $FFB5
 hSpritePriority = $FFBB
 hSpriteY = $FFC4
 hSpriteX = $FFC5
+hSpriteID = $FFC6
 hUseOBP1 = $FFC7

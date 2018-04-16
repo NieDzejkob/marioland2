@@ -10,7 +10,7 @@ compare: baserom.gb sml2.gb
 
 %.o: dep = $(shell $(includes) $(@D)/$*.asm)
 %.o: %.asm $$(dep)
-	rgbasm -h -o $@ $<
+	rgbasm -h -L -o $@ $<
 
 sml2.gb: main.o
 	rgblink -o $@ -n sml2.sym $^
