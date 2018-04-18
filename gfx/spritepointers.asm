@@ -9,13 +9,13 @@ SpritePointers::
 	dw Sprite_Unk_0x507D
 	dw Sprite_Unk_0x50A2
 	dw Sprite_Unk_0x50CB
-	dw Sprite_Unk_0x50F4
+	dw SpriteBigMario_Falling_FacingRight
 	dw Sprite_Unk_0x5119
 	dw Sprite_Unk_0x4ECA
 	dw Sprite_Unk_0x4EA1
 	dw Sprite_Unk_0x4F2D
 	dw Sprite_Unk_0x4F42
-	dw Sprite_Unk_0x4E46
+	dw Sprite_BigMario_Piping
 	dw Sprite_Unk_0x4E6B
 	dw Sprite_Unk_0x4614
 	dw Sprite_Unk_0x463D

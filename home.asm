@@ -220,9 +220,9 @@ MainLoop_IncrementCountersAfterVBlank:
 	and a
 	jr z, .wait_for_vblank
 
-	ldh a, [$FF00+$97]
+	ldh a, [hFrameCounter]
 	inc a
-	ldh [$FF00+$97], a
+	ldh [hFrameCounter], a
 
 	ld a, [sAnimatedTilesCounter]
 	inc a
@@ -276,7 +276,7 @@ INCBIN "baserom.gb", $033F, $0348 - $033F
 
 DisableLCD:
 	ldh a, [rIE]
-	ldh [hTemp], a
+	ldh [hTemp2], a
 	res 0, a
 	ldh [rIE], a
 
@@ -288,7 +288,7 @@ DisableLCD:
 	ldh a, [rLCDC]
 	and $7F
 	ldh [rLCDC], a
-	ldh a, [hTemp]
+	ldh a, [hTemp2]
 	ldh [rIE], a
 	ret
 
@@ -634,14 +634,14 @@ UnknownRJump_0x05E4:
 	ld a, [$A224]
 	cp $FF
 	jr z, UnknownRJump_0x0640
-	ldh a, [$FF00+$C0]
+	ldh a, [hMarioSpriteY]
 	ld [sMarioY], a
 	ldh a, [$FF00+$C1]
-	ld [sMarioYU], a
-	ldh a, [$FF00+$C2]
+	ld [sMarioY+1], a
+	ldh a, [hMarioSpriteX]
 	ld [sMarioX], a
 	ldh a, [$FF00+$C3]
-	ld [sMarioXU], a
+	ld [sMarioX+1], a
 	ld a, [$A20E]
 	and a
 	jr nz, UnknownRJump_0x060F
@@ -892,7 +892,7 @@ UnknownCall_0x0879:
 	ldh [$FF00+$B0], a
 	xor a
 	ld [$A24C], a
-	ldh a, [$FF00+$97]
+	ldh a, [hFrameCounter]
 	and $03
 	jr z, UnknownRJump_0x08A2
 	cp $01
@@ -1308,7 +1308,7 @@ UnknownRJump_0x0B39:
 	ld hl, $A960
 	add de
 	ld a, [hl]
-	ldh [$FF00+$98], a
+	ldh [hTemp], a
 	ld a, [sAutoScroll]
 	and a
 	jr z, UnknownRJump_0x0B5E
@@ -1316,7 +1316,7 @@ UnknownRJump_0x0B39:
 	jp UnknownJump_0x0C7D
 
 UnknownRJump_0x0B5E:
-	ldh a, [$FF00+$98]
+	ldh a, [hTemp]
 	bit 0, a
 	jr z, UnknownRJump_0x0B90
 	ldh a, [$FF00+$CA]
@@ -1363,7 +1363,7 @@ UnknownRJump_0x0B90:
 	ld a, [$A223]
 	set 4, a
 	ld [$A223], a
-	ldh a, [$FF00+$C2]
+	ldh a, [hMarioSpriteX]
 	sub b
 	add 96
 	cp $40
@@ -1390,7 +1390,7 @@ UnknownRJump_0x0BD3:
 
 UnknownJump_0x0BE5:
 UnknownRJump_0x0BE5:
-	ldh a, [$FF00+$98]
+	ldh a, [hTemp]
 	bit 1, a
 	jr z, UnknownRJump_0x0C21
 	ldh a, [$FF00+$CA]
@@ -1402,7 +1402,7 @@ UnknownRJump_0x0BE5:
 	ld a, 2
 	ld [$A20E], a
 	ld a, 0
-	ldh [$FF00+$C2], a
+	ldh [hMarioSpriteX], a
 	ldh a, [$FF00+$C3]
 	inc a
 	and $0F
@@ -1443,7 +1443,7 @@ UnknownRJump_0x0C21:
 	ld a, [$A223]
 	set 5, a
 	ld [$A223], a
-	ldh a, [$FF00+$C2]
+	ldh a, [hMarioSpriteX]
 	sub b
 	add 96
 	cp $70
@@ -1477,13 +1477,13 @@ UnknownRJump_0x0C76:
 UnknownJump_0x0C7D:
 	ldh a, [$FF00+$C8]
 	ld b, a
-	ldh a, [$FF00+$C0]
+	ldh a, [hMarioSpriteY]
 	sub b
 	add 96
-	ldh [hTemp], a
+	ldh [hTemp2], a
 	ld a, [$A20C]
 	ld b, a
-	ldh a, [$FF00+$C0]
+	ldh a, [hMarioSpriteY]
 	sub b
 	jp z, UnknownJump_0x0D97
 	bit 7, a
@@ -1492,7 +1492,7 @@ UnknownJump_0x0C7D:
 	ld a, [$A223]
 	set 7, a
 	ld [$A223], a
-	ldh a, [$FF00+$98]
+	ldh a, [hTemp]
 	bit 3, a
 	jr z, UnknownRJump_0x0CEC
 	ldh a, [$FF00+$C8]
@@ -1518,7 +1518,7 @@ UnknownRJump_0x0CC0:
 	jp UnknownJump_0x0D97
 
 UnknownRJump_0x0CD3:
-	ldh a, [hTemp]
+	ldh a, [hTemp2]
 	cp $58
 	jp c, UnknownJump_0x0D97
 	ld a, [$A238]
@@ -1532,7 +1532,7 @@ UnknownRJump_0x0CD3:
 	jp UnknownJump_0x0D97
 
 UnknownRJump_0x0CEC:
-	ldh a, [hTemp]
+	ldh a, [hTemp2]
 	cp $50
 	jp c, UnknownJump_0x0D97
 	ld a, [$A238]
@@ -1552,7 +1552,7 @@ UnknownJump_0x0D05:
 	ld a, [$A223]
 	set 6, a
 	ld [$A223], a
-	ldh a, [$FF00+$98]
+	ldh a, [hTemp]
 	bit 2, a
 	jr z, UnknownRJump_0x0D74
 	ldh a, [$FF00+$C8]
@@ -1564,7 +1564,7 @@ UnknownJump_0x0D05:
 	ld a, 4
 	ld [$A20E], a
 	ld a, 0
-	ldh [$FF00+$C0], a
+	ldh [hMarioSpriteY], a
 	ldh a, [$FF00+$C9]
 	ldh [$FF00+$C1], a
 	ld a, [$A28B]
@@ -1587,13 +1587,13 @@ UnknownRJump_0x0D4F:
 	ld a, [$A2D9]
 	and a
 	jr z, UnknownRJump_0x0D5D
-	ldh a, [hTemp]
+	ldh a, [hTemp2]
 	cp $40
 	jr nc, UnknownRJump_0x0D97
 	jr UnknownRJump_0x0D63
 
 UnknownRJump_0x0D5D:
-	ldh a, [hTemp]
+	ldh a, [hTemp2]
 	cp $38
 	jr nc, UnknownRJump_0x0D97
 
@@ -1612,13 +1612,13 @@ UnknownRJump_0x0D74:
 	ld a, [$A2D9]
 	and a
 	jr z, UnknownRJump_0x0D82
-	ldh a, [hTemp]
+	ldh a, [hTemp2]
 	cp $40
 	jr nc, UnknownRJump_0x0D97
 	jr UnknownRJump_0x0D88
 
 UnknownRJump_0x0D82:
-	ldh a, [hTemp]
+	ldh a, [hTemp2]
 	cp $28
 	jr nc, UnknownRJump_0x0D97
 
@@ -1637,7 +1637,7 @@ UnknownRJump_0x0D97:
 	xor a
 	ld [$A238], a
 	ld [$A237], a
-	ldh a, [$FF00+$C0]
+	ldh a, [hMarioSpriteY]
 	ld [$A20C], a
 	ret
 
@@ -1646,7 +1646,7 @@ INCBIN "baserom.gb", $0DA4, $0DAF - $0DA4
 
 
 UnknownCall_0x0DAF:
-	ldh a, [$FF00+$98]
+	ldh a, [hTemp]
 	bit 0, a
 	jr z, UnknownRJump_0x0DCA
 	ldh a, [$FF00+$CA]
@@ -1661,7 +1661,7 @@ UnknownCall_0x0DAF:
 	ret
 
 UnknownRJump_0x0DCA:
-	ldh a, [$FF00+$97]
+	ldh a, [hFrameCounter]
 	and $01
 	ret nz
 	xor a
@@ -1696,9 +1696,9 @@ UnknownJump_0x0DED:
 	call UnknownCall_0x14E3
 	ld a, 16
 	ld [$A223], a
-	ldh a, [$FF00+$C2]
+	ldh a, [hMarioSpriteX]
 	add 1
-	ldh [$FF00+$C2], a
+	ldh [hMarioSpriteX], a
 	ldh a, [$FF00+$C3]
 	adc 0
 	ldh [$FF00+$C3], a
@@ -1721,9 +1721,9 @@ UnknownRJump_0x0E20:
 	call UnknownCall_0x14E3
 	ld a, 32
 	ld [$A223], a
-	ldh a, [$FF00+$C2]
+	ldh a, [hMarioSpriteX]
 	sub 1
-	ldh [$FF00+$C2], a
+	ldh [hMarioSpriteX], a
 	ldh a, [$FF00+$C3]
 	sbc 0
 	ldh [$FF00+$C3], a
@@ -1746,9 +1746,9 @@ UnknownRJump_0x0E4F:
 	call UnknownCall_0x14E3
 	ld a, 64
 	ld [$A223], a
-	ldh a, [$FF00+$C0]
+	ldh a, [hMarioSpriteY]
 	sub 1
-	ldh [$FF00+$C0], a
+	ldh [hMarioSpriteY], a
 	ldh a, [$FF00+$C1]
 	sbc 0
 	ldh [$FF00+$C1], a
@@ -1771,13 +1771,13 @@ UnknownRJump_0x0E7E:
 	call UnknownCall_0x14E3
 	ld a, 128
 	ld [$A223], a
-	ldh a, [$FF00+$97]
+	ldh a, [hFrameCounter]
 	and $01
 	add 1
 	ld b, a
-	ldh a, [$FF00+$C0]
+	ldh a, [hMarioSpriteY]
 	add b
-	ldh [$FF00+$C0], a
+	ldh [hMarioSpriteY], a
 	ldh a, [$FF00+$C1]
 	adc 0
 	ldh [$FF00+$C1], a
@@ -1849,9 +1849,9 @@ UnknownCall_0x0F0B:
 
 UnknownCall_0x0F2A:
 	ld a, [$A802]
-	ldh [$FF00+$C2], a
+	ldh [hMarioSpriteX], a
 	ld a, [$A800]
-	ldh [$FF00+$C0], a
+	ldh [hMarioSpriteY], a
 	ld [$A20C], a
 	ld a, [$A803]
 	ldh [$FF00+$C3], a
@@ -1912,7 +1912,7 @@ UnknownRJump_0x0FBB:
 UnknownCall_0x0FBF:
 	ldh a, [$FF00+$CA]
 	ld b, a
-	ldh a, [$FF00+$C2]
+	ldh a, [hMarioSpriteX]
 	sub b
 	add 96
 	ld b, a
@@ -1927,9 +1927,9 @@ UnknownRJump_0x0FD1:
 	xor $FF
 	inc a
 	ld b, a
-	ldh a, [$FF00+$C2]
+	ldh a, [hMarioSpriteX]
 	add b
-	ldh [$FF00+$C2], a
+	ldh [hMarioSpriteX], a
 	ldh a, [$FF00+$C3]
 	adc 0
 	ldh [$FF00+$C3], a
@@ -1938,9 +1938,9 @@ UnknownRJump_0x0FD1:
 UnknownRJump_0x0FE3:
 	sub 160
 	ld b, a
-	ldh a, [$FF00+$C2]
+	ldh a, [hMarioSpriteX]
 	sub b
-	ldh [$FF00+$C2], a
+	ldh [hMarioSpriteX], a
 	ldh a, [$FF00+$C3]
 	sbc 0
 	ldh [$FF00+$C3], a
@@ -2100,9 +2100,9 @@ UnknownCall_0x10EC:
 	ld a, [sPipeTravelDirection]
 	cp $10
 	jr nz, UnknownRJump_0x1111
-	ldh a, [$FF00+$C0]
+	ldh a, [hMarioSpriteY]
 	add 2
-	ldh [$FF00+$C0], a
+	ldh [hMarioSpriteY], a
 	ldh a, [$FF00+$C1]
 	adc 0
 	ldh [$FF00+$C1], a
@@ -2120,9 +2120,9 @@ UnknownRJump_0x1111:
 	ld a, [sPipeTravelDirection]
 	cp $20
 	jr nz, UnknownRJump_0x1136
-	ldh a, [$FF00+$C0]
+	ldh a, [hMarioSpriteY]
 	sub 2
-	ldh [$FF00+$C0], a
+	ldh [hMarioSpriteY], a
 	ldh a, [$FF00+$C1]
 	sbc 0
 	ldh [$FF00+$C1], a
@@ -2140,9 +2140,9 @@ UnknownRJump_0x1136:
 	ld a, [sPipeTravelDirection]
 	cp $30
 	jr nz, UnknownRJump_0x1160
-	ldh a, [$FF00+$C2]
+	ldh a, [hMarioSpriteX]
 	add 2
-	ldh [$FF00+$C2], a
+	ldh [hMarioSpriteX], a
 	ldh a, [$FF00+$C3]
 	adc 0
 	ldh [$FF00+$C3], a
@@ -2162,9 +2162,9 @@ UnknownRJump_0x1160:
 	ld a, [sPipeTravelDirection]
 	cp $40
 	ret nz
-	ldh a, [$FF00+$C2]
+	ldh a, [hMarioSpriteX]
 	sub 2
-	ldh [$FF00+$C2], a
+	ldh [hMarioSpriteX], a
 	ldh a, [$FF00+$C3]
 	sbc 0
 	ldh [$FF00+$C3], a
@@ -2189,7 +2189,7 @@ UnknownCall_0x1189:
 	ldh a, [hKeysHeld]
 	bit 7, a
 	ret z
-	ldh a, [$FF00+$C2]
+	ldh a, [hMarioSpriteX]
 	bit 4, a
 	ret z
 	and $0F
@@ -2215,7 +2215,7 @@ UnknownRJump_0x11C0:
 	ldh a, [hKeysHeld]
 	bit 6, a
 	ret z
-	ldh a, [$FF00+$C2]
+	ldh a, [hMarioSpriteX]
 	bit 4, a
 	ret z
 	and $0F
@@ -2224,9 +2224,9 @@ UnknownRJump_0x11C0:
 	ret nc
 	ld a, 32
 	ld [sPipeTravelDirection], a
-	ldh a, [$FF00+$C0]
+	ldh a, [hMarioSpriteY]
 	sub 2
-	ldh [$FF00+$C0], a
+	ldh [hMarioSpriteY], a
 	ldh a, [$FF00+$C1]
 	sbc 0
 	ldh [$FF00+$C1], a
@@ -2367,12 +2367,12 @@ UnknownRJump_0x12CE:
 	ld a, [$A20D]
 	cp $05
 	jr z, UnknownRJump_0x1302
-	ldh a, [$FF00+$97]
+	ldh a, [hFrameCounter]
 	bit 0, a
 	jr z, UnknownRJump_0x1327
-	ldh a, [$FF00+$C2]
+	ldh a, [hMarioSpriteX]
 	add 1
-	ldh [$FF00+$C2], a
+	ldh [hMarioSpriteX], a
 	ldh a, [$FF00+$C3]
 	adc 0
 	ldh [$FF00+$C3], a
@@ -2387,12 +2387,12 @@ UnknownRJump_0x12CE:
 	jr UnknownRJump_0x1327
 
 UnknownRJump_0x1302:
-	ldh a, [$FF00+$97]
+	ldh a, [hFrameCounter]
 	bit 0, a
 	jr z, UnknownRJump_0x1327
-	ldh a, [$FF00+$C2]
+	ldh a, [hMarioSpriteX]
 	sub 1
-	ldh [$FF00+$C2], a
+	ldh [hMarioSpriteX], a
 	ldh a, [$FF00+$C3]
 	sbc 0
 	ldh [$FF00+$C3], a
@@ -2441,14 +2441,14 @@ UnknownRJump_0x134F:
 UnknownRJump_0x1366:
 	ld a, [$A283]
 	ld b, a
-	ldh a, [$FF00+$C0]
+	ldh a, [hMarioSpriteY]
 	sub 4
 	and $0F
 	cp b
 	ret z
-	ldh a, [$FF00+$C0]
+	ldh a, [hMarioSpriteY]
 	dec a
-	ldh [$FF00+$C0], a
+	ldh [hMarioSpriteY], a
 	ret
 
 UnknownJump_0x1378:
@@ -2499,9 +2499,9 @@ INCBIN "baserom.gb", $1446, $144B - $1446
 
 
 UnknownRJump_0x144B:
-	ldh a, [$FF00+$C2]
+	ldh a, [hMarioSpriteX]
 	add 1
-	ldh [$FF00+$C2], a
+	ldh [hMarioSpriteX], a
 	ldh a, [$FF00+$C3]
 	adc 0
 	ldh [$FF00+$C3], a
@@ -2537,9 +2537,9 @@ INCBIN "baserom.gb", $1488, $148D - $1488
 
 
 UnknownRJump_0x148D:
-	ldh a, [$FF00+$C2]
+	ldh a, [hMarioSpriteX]
 	sub 1
-	ldh [$FF00+$C2], a
+	ldh [hMarioSpriteX], a
 	ldh a, [$FF00+$C3]
 	sbc 0
 	ldh [$FF00+$C3], a
@@ -2625,10 +2625,10 @@ UnknownRJump_0x150C:
 	ld a, [sMarioOnGround]
 	and a
 	ret nz
-	ldh a, [$FF00+$C0]
+	ldh a, [hMarioSpriteY]
 	ld [sMarioY], a
 	ldh a, [$FF00+$C1]
-	ld [sMarioYU], a
+	ld [sMarioY+1], a
 	ld a, [sVVelocityIndex]
 	cp $21
 	jr c, UnknownRJump_0x1533
@@ -2686,15 +2686,15 @@ UnknownRJump_0x1580:
 	ld a, [hl]
 	add 16
 	ld b, a
-	ldh a, [$FF00+$C0]
+	ldh a, [hMarioSpriteY]
 	add b
-	ldh [$FF00+$C0], a
+	ldh [hMarioSpriteY], a
 	ldh a, [$FF00+$C1]
 	adc 0
 	ldh [$FF00+$C1], a
-	ldh a, [$FF00+$C0]
+	ldh a, [hMarioSpriteY]
 	sub 16
-	ldh [$FF00+$C0], a
+	ldh [hMarioSpriteY], a
 	ldh a, [$FF00+$C1]
 	sbc 0
 	ldh [$FF00+$C1], a
@@ -2717,9 +2717,9 @@ UnknownRJump_0x15BB:
 	ldh a, [$FF00+$C1]
 	cp $FF
 	jr nz, UnknownRJump_0x1609
-	ldh a, [$FF00+$C0]
+	ldh a, [hMarioSpriteY]
 	add 1
-	ldh [$FF00+$C0], a
+	ldh [hMarioSpriteY], a
 	ldh a, [$FF00+$C1]
 	adc 0
 	ldh [$FF00+$C1], a
@@ -2727,8 +2727,8 @@ UnknownRJump_0x15BB:
 
 UnknownRJump_0x15CF:
 	ld a, [sMarioY]
-	ldh [$FF00+$C0], a
-	ld a, [sMarioYU]
+	ldh [hMarioSpriteY], a
+	ld a, [sMarioY+1]
 	ldh [$FF00+$C1], a
 	xor a
 	ld [$A2B2], a
@@ -3015,10 +3015,10 @@ INCBIN "baserom.gb", $17DA, $181C - $17DA
 
 
 UnknownCall_0x181C:
-	ldh a, [$FF00+$C2]
+	ldh a, [hMarioSpriteX]
 	ld [sMarioX], a
 	ldh a, [$FF00+$C3]
-	ld [sMarioXU], a
+	ld [sMarioX+1], a
 	ld a, [$A24F]
 	and a
 	jr nz, UnknownRJump_0x1842
@@ -3039,7 +3039,7 @@ UnknownRJump_0x1842:
 UnknownRJump_0x1845:
 	ld a, [sHVelocityIndex]
 	ld e, a
-	ldh a, [$FF00+$97]
+	ldh a, [hFrameCounter]
 	and $07
 	add e
 	ld e, a
@@ -3053,15 +3053,15 @@ UnknownRJump_0x1845:
 	ld [$A202], a
 	add 16
 	ld b, a
-	ldh a, [$FF00+$C2]
+	ldh a, [hMarioSpriteX]
 	add b
-	ldh [$FF00+$C2], a
+	ldh [hMarioSpriteX], a
 	ldh a, [$FF00+$C3]
 	adc 0
 	ldh [$FF00+$C3], a
-	ldh a, [$FF00+$C2]
+	ldh a, [hMarioSpriteX]
 	sub 16
-	ldh [$FF00+$C2], a
+	ldh [hMarioSpriteX], a
 	ldh a, [$FF00+$C3]
 	sbc 0
 	ldh [$FF00+$C3], a
@@ -3078,8 +3078,8 @@ UnknownRJump_0x1886:
 
 UnknownRJump_0x188B:
 	ld a, [sMarioX]
-	ldh [$FF00+$C2], a
-	ld a, [sMarioXU]
+	ldh [hMarioSpriteX], a
+	ld a, [sMarioX+1]
 	ldh [$FF00+$C3], a
 	ld a, [$A219]
 	ld [$A202], a
@@ -3223,7 +3223,7 @@ UnknownCall_0x1BFF:
 	ld [$A27B], a
 	xor a
 	ld [$A26D], a
-	ldh a, [$FF00+$C2]
+	ldh a, [hMarioSpriteX]
 	add 16
 	ldh [$FF00+$B9], a
 	ldh a, [$FF00+$C3]
@@ -3235,7 +3235,7 @@ UnknownCall_0x1BFF:
 	ld a, [$A291]
 	and a
 	jr nz, UnknownRJump_0x1C39
-	ldh a, [$FF00+$C0]
+	ldh a, [hMarioSpriteY]
 	add 22
 	ldh [$FF00+$B7], a
 	ldh a, [$FF00+$C1]
@@ -3247,7 +3247,7 @@ UnknownCall_0x1BFF:
 	jr z, UnknownRJump_0x1C4E
 
 UnknownRJump_0x1C39:
-	ldh a, [$FF00+$C0]
+	ldh a, [hMarioSpriteY]
 	add 28
 	ldh [$FF00+$B7], a
 	ldh a, [$FF00+$C1]
@@ -3501,7 +3501,7 @@ UnknownCall_0x1DFE:
 	push hl
 	push de
 	push bc
-	ldh a, [$FF00+$C2]
+	ldh a, [hMarioSpriteX]
 	add 16
 	ldh [$FF00+$B9], a
 	ldh a, [$FF00+$C3]
@@ -3517,7 +3517,7 @@ UnknownRJump_0x1E17:
 	ld b, 18
 
 UnknownRJump_0x1E19:
-	ldh a, [$FF00+$C0]
+	ldh a, [hMarioSpriteY]
 	add b
 	ldh [$FF00+$B7], a
 	ldh a, [$FF00+$C1]
@@ -3549,20 +3549,20 @@ UnknownCall_0x1E3B:
 	push hl
 	push de
 	push bc
-	ldh a, [$FF00+$C0]
+	ldh a, [hMarioSpriteY]
 	sub 4
 	and $0F
 	cp $05
 	jr nc, UnknownRJump_0x1E78
 
 UnknownRJump_0x1E48:
-	ldh a, [$FF00+$C0]
+	ldh a, [hMarioSpriteY]
 	add 44
 	ldh [$FF00+$B7], a
 	ldh a, [$FF00+$C1]
 	adc 0
 	ldh [$FF00+$B8], a
-	ldh a, [$FF00+$C2]
+	ldh a, [hMarioSpriteX]
 	add 12
 	ldh [$FF00+$B9], a
 	ldh a, [$FF00+$C3]
@@ -3571,7 +3571,7 @@ UnknownRJump_0x1E48:
 	call UnknownCall_0x1EFA
 	cp $48
 	jr c, UnknownRJump_0x1E78
-	ldh a, [$FF00+$C2]
+	ldh a, [hMarioSpriteX]
 	add 20
 	ldh [$FF00+$B9], a
 	ldh a, [$FF00+$C3]
@@ -3590,7 +3590,7 @@ UnknownCall_0x1E7C:
 	push hl
 	push de
 	push bc
-	ldh a, [$FF00+$C2]
+	ldh a, [hMarioSpriteX]
 	add 11
 	ldh [$FF00+$B9], a
 	ldh a, [$FF00+$C3]
@@ -3602,7 +3602,7 @@ UnknownCall_0x1E8D:
 	push hl
 	push de
 	push bc
-	ldh a, [$FF00+$C2]
+	ldh a, [hMarioSpriteX]
 	add 20
 	ldh [$FF00+$B9], a
 	ldh a, [$FF00+$C3]
@@ -3616,7 +3616,7 @@ UnknownRJump_0x1E9C:
 	ld a, [$A291]
 	and a
 	jr nz, UnknownRJump_0x1EBE
-	ldh a, [$FF00+$C0]
+	ldh a, [hMarioSpriteY]
 	add 20
 	ldh [$FF00+$B7], a
 	ldh a, [$FF00+$C1]
@@ -3628,7 +3628,7 @@ UnknownRJump_0x1E9C:
 	call UnknownCall_0x1D75
 
 UnknownRJump_0x1EBE:
-	ldh a, [$FF00+$C0]
+	ldh a, [hMarioSpriteY]
 	add 32
 	ldh [$FF00+$B7], a
 	ldh a, [$FF00+$C1]
@@ -3638,7 +3638,7 @@ UnknownRJump_0x1EBE:
 	cp $38
 	jr c, UnknownRJump_0x1EF0
 	call UnknownCall_0x1D75
-	ldh a, [$FF00+$C0]
+	ldh a, [hMarioSpriteY]
 	add 40
 	ldh [$FF00+$B7], a
 	ldh a, [$FF00+$C1]
@@ -3934,7 +3934,7 @@ UnknownRJump_0x211E:
 	ld a, [hli]
 	ldh [$FF00+$C8], a
 	ld a, [hli]
-	ldh [$FF00+$C0], a
+	ldh [hMarioSpriteY], a
 	jp UnknownJump_0x21E8
 
 UnknownRJump_0x2131:
@@ -4565,9 +4565,9 @@ UnknownRJump_0x2729:
 	ldh a, [hVBlankOccured]
 	and a
 	jr z, UnknownRJump_0x2729
-	ldh a, [$FF00+$97]
+	ldh a, [hFrameCounter]
 	inc a
-	ldh [$FF00+$97], a
+	ldh [hFrameCounter], a
 	xor a
 	ldh [hVBlankOccured], a
 	ld a, 192
@@ -4591,7 +4591,7 @@ UnknownCall_0x273E:
 	ld [$A45E], a
 	ret
 	ld b, 231
-	ldh a, [$FF00+$97]
+	ldh a, [hFrameCounter]
 	bit 4, a
 	jr z, UnknownRJump_0x2760
 	ld b, 147
@@ -4755,7 +4755,7 @@ UnknownCall_0x28A7:
 	ld a, [sFrameCounter+1]
 	and a
 	ret nz
-	ldh a, [$FF00+$97]
+	ldh a, [hFrameCounter]
 	and $10
 	swap a
 	add 227
@@ -5041,8 +5041,8 @@ LoadSprite_Bank1A:
 	ld [MBC1RomBank], a
 	ret
 
-UnknownCall_0x2B3B:
-	callba UnknownCall_0x5267
+ShowHexByte:
+	callba _ShowHexByte
 	ld a, $0C
 	ld [sRomBank], a
 	ld [MBC1RomBank], a
@@ -5291,9 +5291,9 @@ UnknownRJump_0x2DF7:
 	ld a, [$A244]
 	cp $03
 	ret c
-	ldh a, [$FF00+$C0]
+	ldh a, [hMarioSpriteY]
 	sub 1
-	ldh [$FF00+$C0], a
+	ldh [hMarioSpriteY], a
 	ldh a, [$FF00+$C1]
 	sbc 0
 	ldh [$FF00+$C1], a
@@ -5317,9 +5317,9 @@ UnknownRJump_0x2E23:
 	inc b
 	inc b
 	inc b
-	ldh a, [$FF00+$C0]
+	ldh a, [hMarioSpriteY]
 	sub b
-	ldh [$FF00+$C0], a
+	ldh [hMarioSpriteY], a
 	ldh a, [$FF00+$C1]
 	sbc 0
 	ldh [$FF00+$C1], a
@@ -5327,9 +5327,9 @@ UnknownRJump_0x2E23:
 	ld [$A2D4], a
 	call UnknownCall_0x1DFE
 	jr nc, UnknownRJump_0x2E5C
-	ldh a, [$FF00+$C0]
+	ldh a, [hMarioSpriteY]
 	add b
-	ldh [$FF00+$C0], a
+	ldh [hMarioSpriteY], a
 	ldh a, [$FF00+$C1]
 	adc 0
 	ldh [$FF00+$C1], a
@@ -5611,7 +5611,7 @@ UnknownCall_0x3007:
 	sub 5
 	ld l, a
 	ld a, [hl]
-	ldh [$FF00+$98], a
+	ldh [hTemp], a
 	bit 7, a
 	ret nz
 	and a
@@ -5661,7 +5661,7 @@ UnknownCall_0x3007:
 	sub d
 	cp e
 	jp nc, UnknownJump_0x307C
-	ldh a, [$FF00+$98]
+	ldh a, [hTemp]
 	bit 2, a
 	jr nz, UnknownRJump_0x3071
 	ld a, 2
@@ -5716,11 +5716,11 @@ UnknownRJump_0x3098:
 	ld hl, $A960
 	add de
 	ld a, [hl]
-	ldh [$FF00+$98], a
+	ldh [hTemp], a
 	ld a, [$A223]
 	set 7, a
 	ld [$A223], a
-	ldh a, [$FF00+$98]
+	ldh a, [hTemp]
 	bit 3, a
 	jr z, UnknownRJump_0x30CC
 	ldh a, [$FF00+$C8]
@@ -5753,11 +5753,11 @@ UnknownRJump_0x30D9:
 	ld hl, $A960
 	add de
 	ld a, [hl]
-	ldh [$FF00+$98], a
+	ldh [hTemp], a
 	ld a, [$A223]
 	set 6, a
 	ld [$A223], a
-	ldh a, [$FF00+$98]
+	ldh a, [hTemp]
 	bit 2, a
 	jr z, UnknownRJump_0x310D
 	ldh a, [$FF00+$C8]
@@ -5818,11 +5818,11 @@ UnknownCall_0x315C:
 	add bc
 	ld a, [hl]
 	ld b, a
-	ldh a, [$FF00+$C0]
+	ldh a, [hMarioSpriteY]
 	add b
-	ldh [$FF00+$C0], a
+	ldh [hMarioSpriteY], a
 	ld a, 1
-	ldh [hSpritePriority], a
+	ldh [hSpriteOnTop], a
 	call UnknownCall_0x2D15
 	ld a, [sMarioScreenY]
 	and $F0
@@ -5945,13 +5945,13 @@ UnknownCall_0x3261:
 	ld b, 180
 
 UnknownRJump_0x329E:
-	ldh a, [$FF00+$97]
+	ldh a, [hFrameCounter]
 	and $06
 	srl a
 	add b
 	ldh [hSpriteID], a
 	ld a, 1
-	ldh [hSpritePriority], a
+	ldh [hSpriteOnTop], a
 	call UnknownCall_0x2CF4
 	xor a
 	ld [$A246], a
@@ -5997,13 +5997,13 @@ UnknownRJump_0x32D9:
 UnknownRJump_0x32E7:
 	ld a, 1
 	ld [hli], a
-	ldh a, [$FF00+$C0]
+	ldh a, [hMarioSpriteY]
 	add 28
 	ld [hli], a
 	ldh a, [$FF00+$C1]
 	adc 0
 	ld [hli], a
-	ldh a, [$FF00+$C2]
+	ldh a, [hMarioSpriteX]
 	add 16
 	ld [hli], a
 	ldh a, [$FF00+$C3]
@@ -6014,7 +6014,7 @@ UnknownRJump_0x32E7:
 	ld a, [sSpinJump]
 	and a
 	jr z, UnknownRJump_0x330E
-	ldh a, [$FF00+$97]
+	ldh a, [hFrameCounter]
 	and $02
 	dec a
 	ld [hl], a
@@ -6432,16 +6432,16 @@ UnknownCall_0x3735:
 	ld [$A2B7], a
 	ldh a, [$FF00+$C1]
 	ld [$A2B8], a
-	ldh a, [$FF00+$C0]
+	ldh a, [hMarioSpriteY]
 	ld [$A2B9], a
 	ldh a, [$FF00+$C3]
 	ld [$A2BA], a
-	ldh a, [$FF00+$C2]
+	ldh a, [hMarioSpriteX]
 	ld [$A2BB], a
 	ret
 
 UnknownCall_0x3753:
-	ldh a, [$FF00+$97]
+	ldh a, [hFrameCounter]
 	and $7F
 	ret nz
 	ld a, [$A2B6]
@@ -6451,13 +6451,13 @@ UnknownCall_0x3753:
 	ld [$A2B6], a
 	xor a
 	ld [$A2B7], a
-	ldh a, [$FF00+$C0]
+	ldh a, [hMarioSpriteY]
 	ld [$A2B9], a
 	ldh a, [$FF00+$C1]
 	ld [$A2B8], a
 	ldh a, [$FF00+$C3]
 	ld [$A2BA], a
-	ldh a, [$FF00+$C2]
+	ldh a, [hMarioSpriteX]
 	ld [$A2BB], a
 	ret
 

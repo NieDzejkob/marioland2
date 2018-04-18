@@ -1,12 +1,14 @@
 SECTION "Save Data", SRAM[$A000], BANK[0]
 savefile: MACRO
-\1::          ds $45
-\1_Checksum:: db
-\1_Magic12::  db
-\1_Magic34::  db
-\1_Magic56::  db
-\1_Magic78::  db
-              ds 6
+\1::                 ds $42
+\1_CompletedLevels:: db
+                     ds 2
+\1_Checksum::        db
+\1_Magic12::         db
+\1_Magic34::         db
+\1_Magic56::         db
+\1_Magic78::         db
+                     ds 6
 ENDM
 
 	savefile sSavefile1
@@ -22,8 +24,11 @@ sOAMBuffer::
 sOAMBufferEnd::
 
 SECTION "Variables", SRAM[$A200], BANK[0]
-	ds $2C
+	ds $27
 
+sMarioX:: dw
+sMarioY:: dw
+sMarioDirection:: db
 sLifeCount:: db ; BCD
 
 	ds $1B
@@ -56,7 +61,11 @@ sCurLevel:: db
 
 sOAMCleared:: db
 
-	ds 15
+	ds 8
+
+sSavefileSelectState:: db
+
+	ds 6
 
 sBGP::  db
 sOBP0:: db
@@ -130,11 +139,6 @@ sMarioOnGround = $A214
 sMarioInAir = $A215
 sCurPowerup = $A216
 sPipeTravelDirection = $A221
-sMarioX = $A227
-sMarioXU = $A228
-sMarioY = $A229
-sMarioYU = $A22A
-sMarioDirection = $A22B
 sMarioScreenY = $A23B
 sMarioScreenX = $A23C
 sMoonPhysics = $A287
@@ -146,14 +150,19 @@ hKeysHeld = $FF80
 hKeysPressed = $FF81
 hVBlankOccured = $FF82
 hOAMUsed = $FF8D
-hTemp = $FF99
+hFrameCounter = $FF97
+hTemp = $FF98
+hTemp2 = $FF99
 hGameMode = $FF9B
 hOAMDMA = $FFA0
 hVBlankCopySrc = $FFB1
 hVBlankCopyDst = $FFB3
 hVBlankCopyLen = $FFB5
 
-hSpritePriority = $FFBB
+hMarioSpriteY = $FFC0
+hMarioSpriteX = $FFC2
+
+hSpriteOnTop = $FFBB
 hSpriteY = $FFC4
 hSpriteX = $FFC5
 hSpriteID = $FFC6

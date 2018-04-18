@@ -1153,7 +1153,7 @@ Sprite_Unk_0x4E29::
 
 Sprite_Unk_0x4E42::
 	db -12, -4,  $1F, 0
-Sprite_Unk_0x4E46::
+Sprite_BigMario_Piping::
 	db -12, -8,  $1A, 0
 	db -12,  0,  $1A, OAM_ATTR_X_FLIP
 	db -4,  -8,  $1B, 0
@@ -1400,7 +1400,7 @@ Sprite_Unk_0x50CB::
 
 Sprite_Unk_0x50F0::
 	db -12, -4,  $1E, OAM_ATTR_X_FLIP
-Sprite_Unk_0x50F4::
+SpriteBigMario_Falling_FacingRight::
 	db -12, -8,  $01, OAM_ATTR_X_FLIP
 	db -12,  0,  $00, OAM_ATTR_X_FLIP
 	db -4,  -8,  $11, OAM_ATTR_X_FLIP

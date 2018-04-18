@@ -8,35 +8,40 @@ SECTION "bank01", ROMX, BANK[$01]
 INCLUDE "gfx/spritepointers.asm"
 INCLUDE "gfx/sprites1.asm"
 
-UnknownCall_0x5267:
+_ShowHexByte:
 	ldh a, [hSpriteID]
 	swap a
 	and $0F
 	add 128
-	call UnknownCall_0x527C
+	call ShowHexDigit.show_digit
 
-UnknownCall_0x5272:
+ShowHexDigit:
 	ldh a, [hSpriteID]
 	and $0F
 	add 128
-	call UnknownCall_0x527C
+	call .show_digit ; could just fall through
 	ret
 
-UnknownCall_0x527C:
-	ldh [$FF00+$98], a
+.show_digit:
+	ldh [hTemp], a
 	ld h, HIGH(sOAMBuffer)
 	ldh a, [hOAMUsed]
 	ld l, a
+
 	ldh a, [hSpriteY]
 	ld [hli], a
+
 	ldh a, [hSpriteX]
 	ld [hli], a
 	add 8
 	ldh [hSpriteX], a
-	ldh a, [$FF00+$98]
+
+	ldh a, [hTemp]
 	ld [hli], a
+
 	ldh a, [hUseOBP1]
 	ld [hli], a
+
 	ld a, l
 	ldh [hOAMUsed], a
 	ret
@@ -95,7 +100,7 @@ _LoadSprite:
 .got_attr:
 	ld [hl], a ; Attr
 
-	ldh a, [hSpritePriority]
+	ldh a, [hSpriteOnTop]
 	and a
 	jr nz, .skip_priority
 	ld a, [hl]
@@ -139,18 +144,18 @@ _ClearOAM:
 	xor a
 	ld [hli], a
 	ld a, l
-	cp $A0
+	cp sOAMBufferEnd - sOAMBuffer
 	jr c, .loop
 	ret
 
 UnknownJump_0x530D:
 	ld a, 1
-	ldh [hSpritePriority], a
+	ldh [hSpriteOnTop], a
 	ld a, [sPipeTravelDirection]
 	cp $10
 	jr c, UnknownRJump_0x532D
 	xor a
-	ldh [hSpritePriority], a
+	ldh [hSpriteOnTop], a
 	ld a, 16
 	ldh [hSpriteID], a
 	ld a, [sPipeTravelDirection]
@@ -164,7 +169,7 @@ UnknownRJump_0x532D:
 	and a
 	jr z, UnknownRJump_0x534C
 	ld hl, $5348
-	ldh a, [$FF00+$97]
+	ldh a, [hFrameCounter]
 	and $0C
 	srl a
 	srl a
@@ -375,7 +380,7 @@ UnknownRJump_0x548A:
 UnknownRJump_0x54A7:
 	ldh a, [$FF00+$CA]
 	ld b, a
-	ldh a, [$FF00+$C2]
+	ldh a, [hMarioSpriteX]
 	sub b
 	add 96
 	ldh [hSpriteX], a
@@ -396,7 +401,7 @@ UnknownJump_0x54C8:
 UnknownRJump_0x54C8:
 	ldh a, [$FF00+$C8]
 	ld b, a
-	ldh a, [$FF00+$C0]
+	ldh a, [hMarioSpriteY]
 	sub b
 	add 98
 	ldh [hSpriteY], a
@@ -428,20 +433,20 @@ UnknownRJump_0x54FB:
 	call _LoadSprite
 	xor a
 	ldh [hUseOBP1], a
-	ldh [hSpritePriority], a
+	ldh [hSpriteOnTop], a
 	ld a, [sMoonPhysics]
 	bit 2, a
 	jr z, UnknownRJump_0x551E
 	ld a, 1
-	ldh [hSpritePriority], a
-	ldh a, [$FF00+$97]
+	ldh [hSpriteOnTop], a
+	ldh a, [hFrameCounter]
 	and $10
 	swap a
 	add 220
 	ldh [hSpriteID], a
 	call _LoadSprite
 	xor a
-	ldh [hSpritePriority], a
+	ldh [hSpriteOnTop], a
 
 UnknownRJump_0x551E:
 	ld a, [$A27A]
@@ -459,12 +464,12 @@ UnknownRJump_0x551E:
 	sub 4
 	ldh [hSpriteX], a
 	ld a, 1
-	ldh [hSpritePriority], a
+	ldh [hSpriteOnTop], a
 	ld a, [$A279]
 	cp $05
 	jr nc, UnknownRJump_0x5548
 	ldh [hSpriteID], a
-	call UnknownCall_0x5272
+	call ShowHexDigit
 	ret
 
 UnknownRJump_0x5548:
@@ -476,7 +481,7 @@ UnknownRJump_0x5548:
 UnknownJump_0x5550:
 	ldh a, [$FF00+$C8]
 	ld b, a
-	ldh a, [$FF00+$C0]
+	ldh a, [hMarioSpriteY]
 	sub b
 	add 98
 	ldh [hSpriteY], a
@@ -486,7 +491,7 @@ UnknownJump_0x5550:
 	ret z
 	ldh a, [$FF00+$CA]
 	ld b, a
-	ldh a, [$FF00+$C2]
+	ldh a, [hMarioSpriteX]
 	sub b
 	add 96
 	ldh [hSpriteX], a
@@ -574,7 +579,7 @@ INCBIN "baserom.gb", $5933, $593D - $5933
 
 
 UnknownRJump_0x593D:
-	ldh a, [$FF00+$C2]
+	ldh a, [hMarioSpriteX]
 	add 16
 	ldh [$FF00+$B9], a
 	ldh a, [$FF00+$C3]
@@ -589,7 +594,7 @@ UnknownRJump_0x593D:
 	ld c, a
 
 UnknownRJump_0x5955:
-	ldh a, [$FF00+$C0]
+	ldh a, [hMarioSpriteY]
 	add c
 	ldh [$FF00+$B7], a
 	ldh a, [$FF00+$C1]
@@ -728,7 +733,7 @@ UnknownRJump_0x5A07:
 	ld a, 101
 	ldh [hSpriteID], a
 	ld a, 1
-	ldh [hSpritePriority], a
+	ldh [hSpriteOnTop], a
 	call _LoadSprite
 	ld a, [$A23F]
 	ld c, a
@@ -810,7 +815,7 @@ UnknownJump_0x5A9E:
 	ld a, [hl]
 	ldh [hSpriteID], a
 	ld a, 1
-	ldh [hSpritePriority], a
+	ldh [hSpriteOnTop], a
 	call _LoadSprite
 	jp UnknownJump_0x59DF
 
@@ -852,7 +857,7 @@ UnknownJump_0x5B06:
 	ld a, 66
 	ldh [hSpriteID], a
 	ld a, 1
-	ldh [hSpritePriority], a
+	ldh [hSpriteOnTop], a
 	call _LoadSprite
 	jp UnknownJump_0x59DF
 
@@ -925,7 +930,7 @@ UnknownRJump_0x5B8A:
 	ld a, 66
 	ldh [hSpriteID], a
 	ld a, 1
-	ldh [hSpritePriority], a
+	ldh [hSpriteOnTop], a
 	call _LoadSprite
 	jp UnknownJump_0x59DF
 
@@ -1207,7 +1212,7 @@ UnknownRJump_0x5E12:
 	ldh [hKeysPressed], a
 	ld a, 18
 	ldh [hKeysHeld], a
-	ldh a, [$FF00+$C2]
+	ldh a, [hMarioSpriteX]
 	and $FE
 	cp $A0
 	ret c
@@ -1223,7 +1228,7 @@ UnknownRJump_0x5E31:
 	ldh [hKeysPressed], a
 	ld a, 17
 	ldh [hKeysHeld], a
-	ldh a, [$FF00+$C0]
+	ldh a, [hMarioSpriteY]
 	cp $E0
 	ret c
 	ld a, 35
@@ -1245,7 +1250,7 @@ UnknownJump_0x6485:
 	ret z
 	cp $01
 	jr z, UnknownRJump_0x64F9
-	ldh a, [$FF00+$97]
+	ldh a, [hFrameCounter]
 	and $01
 	jr nz, UnknownRJump_0x64CB
 	ld a, [$A2B9]
@@ -1290,7 +1295,7 @@ UnknownRJump_0x64CB:
 	xor a
 	ldh [hUseOBP1], a
 	ld a, 1
-	ldh [hSpritePriority], a
+	ldh [hSpriteOnTop], a
 	ld a, 200
 	ldh [hSpriteID], a
 	call _LoadSprite
@@ -1322,7 +1327,7 @@ UnknownRJump_0x64F9:
 	xor a
 	ldh [hUseOBP1], a
 	ld a, 1
-	ldh [hSpritePriority], a
+	ldh [hSpriteOnTop], a
 	ld a, 199
 	ldh [hSpriteID], a
 	call _LoadSprite
@@ -1476,13 +1481,13 @@ UnknownRJump_0x80F7:
 	ld [$AF16], a
 	ld a, l
 	ld [$AF17], a
-	ld a, [$FF00+$C2]
+	ld a, [hMarioSpriteX]
 	add 8
 	ld [$AF30], a
 	ld a, [$FF00+$C3]
 	adc 0
 	ld [$AF31], a
-	ld a, [$FF00+$C0]
+	ld a, [hMarioSpriteY]
 	add 32
 	ld [$AF32], a
 	ld a, [$FF00+$C1]
@@ -2225,7 +2230,7 @@ UnknownRJump_0x8611:
 	jr nz, UnknownRJump_0x868A
 	cp $06
 	ret nz
-	ld a, [$FF00+$80]
+	ld a, [hKeysHeld]
 	bit 1, a
 	jr z, UnknownRJump_0x864A
 	ld a, [$AF3A]
@@ -7482,7 +7487,7 @@ _HandleTitlescreen:
 	
 	xor a
 	ld [sDemoIndex], a
-	ld [$FF00+$97], a
+	ld [hFrameCounter], a
 
 	ld hl, DemoLevelIDs
 	ld a, [sDemoNumber]
@@ -7520,7 +7525,7 @@ _HandleTitlescreen:
 
 	xor a
 	ld [sDemoIndex], a
-	ld [$FF00+$97], a
+	ld [hFrameCounter], a
 
 	ld hl, DemoLevelIDs
 	ld a, [sDemoNumber]
@@ -7844,13 +7849,13 @@ _LoadSavefileSelect:
 	ld [rOBP1], a
 
 	ld a, 40
-	ldh [$FF00+$C2], a
+	ldh [hMarioSpriteX], a
 	ld a, 16
-	ldh [$FF00+$C0], a
+	ldh [hMarioSpriteY], a
 	call ValidateSavefiles
 
 	xor a
-	ld [$A277], a
+	ld [sSavefileSelectState], a
 	ld [sSCY], a
 	ld [sSCX], a
 	ld [$A2C6], a
@@ -7862,7 +7867,7 @@ _LoadSavefileSelect:
 	ld a, 13
 	ld [$A468], a
 
-	xor a
+	xor a ; SAVEFILE_SELECT_STATE_FALLING_MARIO
 	ld [sEasyMode], a
 
 	ld a, [hGameMode]
@@ -7872,47 +7877,47 @@ _LoadSavefileSelect:
 
 _HandleSavefileSelect:
 	ld a, 1
-	ldh [hSpritePriority], a
+	ldh [hSpriteOnTop], a
 
 	xor a
 	ld [$A2C7], a
 
 	ld a, [sEasyMode]
 	cp $01
-	jr nz, UnknownRJump_0x3007D
+	jr nz, .no_easymode_text
 
 	ld a, 68
 	ldh [hSpriteX], a
 	ld a, 48
 	ldh [hSpriteY], a
-	ld a, 241
+	ld a, SPRITE_EASYMODE_TEXT
 	ldh [hSpriteID], a
 	call LoadSprite_Bank0C
+.no_easymode_text:
+	call HandleSavefileSelectState
 
-UnknownRJump_0x3007D:
-	call UnknownCall_0x3012E
 	ld a, [$A2C7]
 	and a
 	jr nz, UnknownRJump_0x300E6
-	ldh a, [$FF00+$C0]
+	ldh a, [hMarioSpriteY]
 	ldh [hSpriteY], a
-	ldh a, [$FF00+$C2]
+	ldh a, [hMarioSpriteX]
 	ldh [hSpriteX], a
 	ld a, [sEasyMode]
 	cp $01
-	jr nz, UnknownRJump_0x3009B
+	jr nz, .no_easymode_mario
 	ldh a, [hSpriteID]
 	add 32
 	ldh [hSpriteID], a
-
-UnknownRJump_0x3009B:
+.no_easymode_mario:
 	ld a, [$A2C6]
 	and a
 	jr z, UnknownRJump_0x300E1
-	ld a, [$A277]
+
+	ld a, [sSavefileSelectState]
 	cp $04
 	jr z, UnknownRJump_0x300B4
-	ld a, [$FF00+$97]
+	ld a, [hFrameCounter]
 	and $01
 	jr nz, UnknownRJump_0x300B4
 	ld a, 4
@@ -7920,7 +7925,7 @@ UnknownRJump_0x3009B:
 
 UnknownRJump_0x300B4:
 	ld hl, $412A
-	ld a, [$FF00+$97]
+	ld a, [hFrameCounter]
 	and $0C
 	srl a
 	srl a
@@ -7951,11 +7956,11 @@ UnknownRJump_0x300E1:
 	jr UnknownRJump_0x300FE
 
 UnknownRJump_0x300E6:
-	ldh a, [$FF00+$C0]
+	ldh a, [hMarioSpriteY]
 	ldh [hSpriteY], a
-	ldh a, [$FF00+$C2]
+	ldh a, [hMarioSpriteX]
 	ldh [hSpriteX], a
-	ld a, [$FF00+$97]
+	ld a, [hFrameCounter]
 	and $0C
 	srl a
 	srl a
@@ -7968,19 +7973,22 @@ UnknownRJump_0x300FE:
 	ldh [hSpriteY], a
 	ld a, 32
 	ldh [hSpriteX], a
-	ld a, [$A042]
+	ld a, [sSavefile1_CompletedLevels]
 	ldh [hSpriteID], a
-	call UnknownCall_0x2B3B
+	call ShowHexByte
+
 	ld a, 64
 	ldh [hSpriteX], a
-	ld a, [$A092]
+	ld a, [sSavefile2_CompletedLevels]
 	ldh [hSpriteID], a
-	call UnknownCall_0x2B3B
+	call ShowHexByte
+
 	ld a, 96
 	ldh [hSpriteX], a
-	ld a, [$A0E2]
+	ld a, [sSavefile3_CompletedLevels]
 	ldh [hSpriteID], a
-	call UnknownCall_0x2B3B
+	call ShowHexByte
+
 	call ClearFreedOAM_Bank0C
 	ret
 
@@ -7988,12 +7996,16 @@ UnknownData_0x3012A:
 INCBIN "baserom.gb", $3012A, $3012E - $3012A
 
 
-UnknownCall_0x3012E:
-	ld a, [$A277]
+HandleSavefileSelectState:
+	ld a, [sSavefileSelectState]
 	jumptable
-
-UnknownData_0x30132:
-INCBIN "baserom.gb", $30132, $30140 - $30132
+	dw SavefileSelect_HandleFallingMario ; SAVEFILE_SELECT_STATE_FALLING_MARIO
+	dw SavefileSelect_HandleIdle         ; SAVEFILE_SELECT_STATE_IDLE
+	dw $42f1
+	dw $42c8
+	dw $426d
+	dw $41c6
+	dw $4140
 
 	ld a, [$A278]
 	dec a
@@ -8002,12 +8014,12 @@ INCBIN "baserom.gb", $30132, $30140 - $30132
 
 UnknownRJump_0x30149:
 	ld a, 124
-	ldh [$FF00+$C0], a
+	ldh [hMarioSpriteY], a
 	ld a, 1
-	ld [$A277], a
+	ld [sSavefileSelectState], a
 	xor a
 	ld [$A2C6], a
-	ldh [hSpritePriority], a
+	ldh [hSpriteOnTop], a
 	ret
 
 UnknownRJump_0x30159:
@@ -8016,10 +8028,10 @@ UnknownRJump_0x30159:
 	swap a
 	add 211
 	ldh [hSpriteID], a
-	ldh a, [$FF00+$C2]
+	ldh a, [hMarioSpriteX]
 	ldh [hSpriteX], a
 	xor a
-	ldh [hSpritePriority], a
+	ldh [hSpriteOnTop], a
 	ld a, [$A278]
 	cp $40
 	jr c, UnknownRJump_0x3017C
@@ -8070,19 +8082,19 @@ UnknownData_0x301C2:
 INCBIN "baserom.gb", $301C2, $301C6 - $301C2
 
 	xor a
-	ldh [hSpritePriority], a
+	ldh [hSpriteOnTop], a
 	ld a, 16
 	ldh [hSpriteID], a
-	ldh a, [$FF00+$C0]
+	ldh a, [hMarioSpriteY]
 	add 1
-	ldh [$FF00+$C0], a
+	ldh [hMarioSpriteY], a
 	ld a, [$A278]
 	dec a
 	ld [$A278], a
 	ret nz
 	ld a, 21
 	ld [$A224], a
-	ldh a, [$FF00+$C2]
+	ldh a, [hMarioSpriteX]
 	and $60
 	srl a
 	swap a
@@ -8161,7 +8173,7 @@ UnknownRJump_0x30238:
 	ld a, 128
 	ld [$A278], a
 	ld a, 6
-	ld [$A277], a
+	ld [sSavefileSelectState], a
 	xor a
 	ld [$A2C6], a
 	ld a, 144
@@ -8184,10 +8196,10 @@ UnknownRJump_0x30238:
 	jr UnknownRJump_0x302AD
 
 UnknownRJump_0x3028A:
-	ldh a, [$FF00+$C0]
+	ldh a, [hMarioSpriteY]
 	dec a
 	dec a
-	ldh [$FF00+$C0], a
+	ldh [hMarioSpriteY], a
 	ret
 
 UnknownCall_0x30291:
@@ -8206,17 +8218,17 @@ UnknownCall_0x30291:
 	ret
 
 UnknownRJump_0x302AD:
-	ldh a, [$FF00+$C0]
+	ldh a, [hMarioSpriteY]
 	inc a
 	inc a
-	ldh [$FF00+$C0], a
+	ldh [hMarioSpriteY], a
 	ld a, [$A278]
 	and a
 	ret nz
 	ld a, 1
-	ld [$A277], a
+	ld [sSavefileSelectState], a
 	ld a, 124
-	ldh [$FF00+$C0], a
+	ldh [hMarioSpriteY], a
 	ret
 
 UnknownRJump_0x302C2:
@@ -8232,15 +8244,15 @@ UnknownRJump_0x302C2:
 	srl a
 	add 5
 	ldh [hSpriteID], a
-	ldh a, [$FF00+$C2]
+	ldh a, [hMarioSpriteX]
 	sub 1
-	ldh [$FF00+$C2], a
+	ldh [hMarioSpriteX], a
 	ld a, [$A278]
 	dec a
 	ld [$A278], a
 	ret nz
 	ld a, 1
-	ld [$A277], a
+	ld [sSavefileSelectState], a
 	ret
 	ld a, 1
 	ld [sMarioDirection], a
@@ -8251,15 +8263,15 @@ UnknownRJump_0x302C2:
 	srl a
 	add 1
 	ldh [hSpriteID], a
-	ldh a, [$FF00+$C2]
+	ldh a, [hMarioSpriteX]
 	add 1
-	ldh [$FF00+$C2], a
+	ldh [hMarioSpriteX], a
 	ld a, [$A278]
 	dec a
 	ld [$A278], a
 	ret nz
 	ld a, 1
-	ld [$A277], a
+	ld [sSavefileSelectState], a
 	ret
 
 UnknownJump_0x3031A:
@@ -8270,31 +8282,33 @@ UnknownRJump_0x3031A:
 	sla a
 	ldh [hSpriteID], a
 	ret
-	ld a, [$FF00+$81]
+
+SavefileSelect_HandleIdle::
+	ld a, [hKeysPressed]
 	cp $04
 	jp z, UnknownJump_0x3037D
-	ld a, [$FF00+$80]
+	ld a, [hKeysHeld]
 	and $30
 	jr z, UnknownRJump_0x30342
-	ld a, [$FF00+$80]
+	ld a, [hKeysHeld]
 	cp $10
 	jp z, UnknownJump_0x30398
 	cp $20
 	jp z, UnknownJump_0x303B7
 
 UnknownRJump_0x30342:
-	ld a, [$FF00+$81]
+	ld a, [hKeysPressed]
 	cp $80
 	jr z, UnknownRJump_0x30367
 	cp $08
 	jr z, UnknownRJump_0x30367
 	cp $01
 	jr nz, UnknownRJump_0x3031A
-	ldh a, [$FF00+$C2]
+	ldh a, [hMarioSpriteX]
 	cp $88
 	jr nz, UnknownRJump_0x3031A
 	ld a, 4
-	ld [$A277], a
+	ld [sSavefileSelectState], a
 	ld a, 55
 	ld [$A278], a
 	ld a, 1
@@ -8302,11 +8316,11 @@ UnknownRJump_0x30342:
 	ret
 
 UnknownRJump_0x30367:
-	ldh a, [$FF00+$C2]
+	ldh a, [hMarioSpriteX]
 	cp $80
 	jr nc, UnknownRJump_0x3031A
 	ld a, 5
-	ld [$A277], a
+	ld [sSavefileSelectState], a
 	ld a, 64
 	ld [$A278], a
 	ld a, 5
@@ -8329,11 +8343,11 @@ UnknownJump_0x3037D:
 	ret
 
 UnknownJump_0x30398:
-	ldh a, [$FF00+$C2]
+	ldh a, [hMarioSpriteX]
 	cp $88
 	jp nc, UnknownJump_0x3031A
 	ld a, 2
-	ld [$A277], a
+	ld [sSavefileSelectState], a
 	ld a, 32
 	ld [$A278], a
 	ld a, [$A222]
@@ -8345,11 +8359,11 @@ UnknownJump_0x30398:
 	ret
 
 UnknownJump_0x303B7:
-	ldh a, [$FF00+$C2]
+	ldh a, [hMarioSpriteX]
 	cp $30
 	jp c, UnknownJump_0x3031A
 	ld a, 3
-	ld [$A277], a
+	ld [sSavefileSelectState], a
 	ld a, 32
 	ld [$A278], a
 	ld a, [$A222]
@@ -8359,39 +8373,41 @@ UnknownJump_0x303B7:
 	add 5
 	ldh [hSpriteID], a
 	ret
-	ld a, 16
+
+SavefileSelect_HandleFallingMario::
+	ld a, SPRITE_BIG_MARIO_PIPING
 	ldh [hSpriteID], a
+
 	xor a
-	ldh [hSpritePriority], a
-	ldh a, [$FF00+$C0]
+	ldh [hSpriteOnTop], a
+
+	ldh a, [hMarioSpriteY]
 	cp $30
-	jr c, UnknownRJump_0x303EB
-	ld a, 10
+	jr c, .in_pipe
+	ld a, SPRITE_BIG_MARIO_FALLING_FACING_RIGHT
 	ldh [hSpriteID], a
 	ld a, 1
-	ldh [hSpritePriority], a
-
-UnknownRJump_0x303EB:
-	ldh a, [$FF00+$C0]
+	ldh [hSpriteOnTop], a
+.in_pipe:
+	ldh a, [hMarioSpriteY]
 	cp $7C
-	jr nc, UnknownRJump_0x30400
+	jr nc, .done_falling
 	add 2
-	ldh [$FF00+$C0], a
+	ldh [hMarioSpriteY], a
 	cp $40
-	jr c, UnknownRJump_0x303FF
-	ldh a, [$FF00+$C0]
-	add 1
-	ldh [$FF00+$C0], a
-
-UnknownRJump_0x303FF:
+	jr c, .skip_faster_speed
+	ldh a, [hMarioSpriteY]
+	add 1 ; why not inc a?
+	ldh [hMarioSpriteY], a
+.skip_faster_speed:
 	ret
 
-UnknownRJump_0x30400:
-	ld a, 1
-	ld [$A277], a
+.done_falling:
+	ld a, SAVEFILE_SELECT_STATE_IDLE ; = MARIO_DIRECTION_RIGHT
+	ld [sSavefileSelectState], a
 	ld [sMarioDirection], a
-	ld a, 124
-	ldh [$FF00+$C0], a
+	ld a, $7C
+	ldh [hMarioSpriteY], a
 	ret
 
 UnknownCall_0x3040D:
@@ -8417,16 +8433,16 @@ UnknownRJump_0x3042D:
 	xor a
 	ld [sAnimatedTilesCtl], a
 	ld a, 192
-	ldh [$FF00+$C0], a
+	ldh [hMarioSpriteY], a
 	ld hl, $4985
 	ld a, [sCurLevel]
 	ld e, a
 	ld d, 0
 	add de
 	ld a, [hl]
-	ldh [$FF00+$C2], a
+	ldh [hMarioSpriteX], a
 	xor a
-	ld [$A277], a
+	ld [sSavefileSelectState], a
 	ld [$A222], a
 	ld a, [$FF00+$9B]
 	inc a
@@ -8440,17 +8456,17 @@ UnknownJump_0x30451:
 	ret
 
 UnknownJump_0x3045B:
-	ldh a, [$FF00+$C0]
+	ldh a, [hMarioSpriteY]
 	ldh [hSpriteY], a
-	ldh a, [$FF00+$C2]
+	ldh a, [hMarioSpriteX]
 	ldh [hSpriteX], a
 	ld a, 1
-	ldh [hSpritePriority], a
+	ldh [hSpriteOnTop], a
 	call LoadSprite_Bank0C
 	ret
 
 UnknownCall_0x3046B:
-	ld a, [$A277]
+	ld a, [sSavefileSelectState]
 	jumptable
 
 UnknownData_0x3046F:
@@ -8472,9 +8488,9 @@ INCBIN "baserom.gb", $3046F, $30477 - $3046F
 	ret
 
 UnknownRJump_0x30494:
-	ld a, [$A277]
+	ld a, [sSavefileSelectState]
 	inc a
-	ld [$A277], a
+	ld [sSavefileSelectState], a
 	ld a, 255
 	ld [sFrameCounter], a
 	ret
@@ -8511,9 +8527,9 @@ UnknownRJump_0x30494:
 	ret
 
 UnknownRJump_0x304DD:
-	ld a, [$A277]
+	ld a, [sSavefileSelectState]
 	inc a
-	ld [$A277], a
+	ld [sSavefileSelectState], a
 	ld a, 64
 	ld [sFrameCounter], a
 	ld a, 5
@@ -8531,7 +8547,7 @@ UnknownRJump_0x3050A:
 	ld d, 0
 	add de
 	ld a, [hl]
-	ldh [$FF00+$C0], a
+	ldh [hMarioSpriteY], a
 	ld hl, $49B5
 	ld a, [sCurLevel]
 	ld e, a
@@ -8541,20 +8557,20 @@ UnknownRJump_0x3050A:
 	ldh [hSpriteID], a
 	ld a, 208
 	ld [sOBP0], a
-	ld a, [$FF00+$97]
+	ld a, [hFrameCounter]
 	and $1F
 	cp $04
 	jp nc, UnknownJump_0x3045B
 	ld a, 0
 	ld [sOBP0], a
 	jp UnknownJump_0x3045B
-	ldh a, [$FF00+$C0]
+	ldh a, [hMarioSpriteY]
 	ldh [hSpriteY], a
-	ldh a, [$FF00+$C2]
+	ldh a, [hMarioSpriteX]
 	ldh [hSpriteX], a
 	ld a, 1
-	ldh [hSpritePriority], a
-	ld a, [$FF00+$97]
+	ldh [hSpriteOnTop], a
+	ld a, [hFrameCounter]
 	and $04
 	srl a
 	srl a
@@ -8582,15 +8598,15 @@ UnknownRJump_0x30567:
 	add de
 	ld a, [hl]
 	ld b, a
-	ldh a, [$FF00+$C0]
+	ldh a, [hMarioSpriteY]
 	cp b
 	jr z, UnknownRJump_0x30593
-	ld a, [$FF00+$97]
+	ld a, [hFrameCounter]
 	bit 0, a
 	jp nz, UnknownJump_0x3045B
-	ldh a, [$FF00+$C0]
+	ldh a, [hMarioSpriteY]
 	inc a
-	ldh [$FF00+$C0], a
+	ldh [hMarioSpriteY], a
 	jp UnknownJump_0x3045B
 
 UnknownRJump_0x30593:
@@ -8604,7 +8620,7 @@ UnknownRJump_0x30593:
 
 UnknownRJump_0x305A4:
 	ld a, 1
-	ld [$A277], a
+	ld [sSavefileSelectState], a
 	ld a, 1
 	ld [sFrameCounter+1], a
 	ld a, 255
@@ -8694,9 +8710,9 @@ UnknownRJump_0x30629:
 	ld a, 64
 	ld [$A278], a
 	xor a
-	ld [$A277], a
+	ld [sSavefileSelectState], a
 	ld a, 88
-	ldh [$FF00+$C2], a
+	ldh [hMarioSpriteX], a
 	ld a, [$FF00+$9B]
 	cp $1D
 	jr z, UnknownRJump_0x3066A
@@ -8714,19 +8730,19 @@ UnknownRJump_0x3066A:
 
 UnknownJump_0x3067A:
 	call UnknownCall_0x30693
-	ldh a, [$FF00+$C0]
+	ldh a, [hMarioSpriteY]
 	ldh [hSpriteY], a
-	ldh a, [$FF00+$C2]
+	ldh a, [hMarioSpriteX]
 	ldh [hSpriteX], a
 	ld a, 1
-	ldh [hSpritePriority], a
+	ldh [hSpriteOnTop], a
 	call LoadSprite_Bank0C
 	call UnknownCall_0x307BC
 	call ClearFreedOAM_Bank0C
 	ret
 
 UnknownCall_0x30693:
-	ld a, [$A277]
+	ld a, [sSavefileSelectState]
 	jumptable
 
 UnknownData_0x30697:
@@ -8766,26 +8782,26 @@ INCBIN "baserom.gb", $306D1, $306E1 - $306D1
 	ld a, [$A2CB]
 	cp $06
 	jr nz, UnknownRJump_0x30700
-	ld a, [$FF00+$81]
+	ld a, [hKeysPressed]
 	and $49
 	jr z, UnknownRJump_0x30700
-	ld a, [$A277]
+	ld a, [sSavefileSelectState]
 	inc a
-	ld [$A277], a
+	ld [sSavefileSelectState], a
 	ld a, 64
 	ld [sFrameCounter], a
 	ret
 
 UnknownRJump_0x30700:
-	ld a, [$FF00+$81]
+	ld a, [hKeysPressed]
 	cp $80
 	ret nz
 	ld a, 1
-	ld [$A277], a
+	ld [sSavefileSelectState], a
 	ld a, 64
 	ld [$A278], a
 	ret
-	ld a, [$FF00+$97]
+	ld a, [hFrameCounter]
 	and $0C
 	srl a
 	srl a
@@ -8803,7 +8819,7 @@ UnknownRJump_0x30700:
 	ld b, a
 	ld a, 168
 	sub b
-	ldh [$FF00+$C0], a
+	ldh [hMarioSpriteY], a
 	ret
 
 UnknownRJump_0x30736:
@@ -8819,7 +8835,7 @@ UnknownRJump_0x30736:
 UnknownData_0x30748:
 INCBIN "baserom.gb", $30748, $3074C - $30748
 
-	ld a, [$FF00+$97]
+	ld a, [hFrameCounter]
 	and $0C
 	srl a
 	srl a
@@ -8837,12 +8853,12 @@ INCBIN "baserom.gb", $30748, $3074C - $30748
 	ld b, a
 	ld a, 136
 	add b
-	ldh [$FF00+$C0], a
+	ldh [hMarioSpriteY], a
 	ret
 
 UnknownRJump_0x30771:
 	ld a, 2
-	ld [$A277], a
+	ld [sSavefileSelectState], a
 	ret
 
 UnknownData_0x30777:
@@ -8853,7 +8869,7 @@ UnknownCall_0x307BC:
 	xor a
 	ld [$A2CB], a
 	ld a, 1
-	ldh [hSpritePriority], a
+	ldh [hSpriteOnTop], a
 	ld a, [$A84D]
 	bit 7, a
 	jr z, UnknownRJump_0x307E4
@@ -8958,7 +8974,7 @@ UnknownCall_0x30884:
 
 UnknownRJump_0x3089A:
 	ld a, 1
-	ldh [hSpritePriority], a
+	ldh [hSpriteOnTop], a
 	ld a, [$A2B5]
 	bit 5, a
 	jr z, UnknownRJump_0x308C3
@@ -9364,7 +9380,7 @@ UnknownJump_0x3C0DF:
 	jr c, UnknownRJump_0x3C101
 	cp $07
 	jr nc, UnknownRJump_0x3C101
-	ld a, [$FF00+$80]
+	ld a, [hKeysHeld]
 	and $20
 	jr z, UnknownRJump_0x3C101
 
@@ -9388,7 +9404,7 @@ UnknownJump_0x3C10E:
 	ld a, [$A7A6]
 	cp $05
 	jr nz, UnknownRJump_0x3C131
-	ld a, [$FF00+$80]
+	ld a, [hKeysHeld]
 	and $20
 	jr z, UnknownRJump_0x3C131
 
@@ -9433,7 +9449,7 @@ UnknownJump_0x3C169:
 	ld a, [$A690]
 	or a
 	ret nz
-	ld a, [$FF00+$81]
+	ld a, [hKeysPressed]
 	and $09
 	ret z
 	ld a, [$A7A0]
@@ -9518,7 +9534,7 @@ UnknownRJump_0x3C1EC:
 	ret
 
 UnknownRJump_0x3C201:
-	ld a, [$FF00+$81]
+	ld a, [hKeysPressed]
 	and $01
 	ret z
 	ld a, 16
@@ -9536,31 +9552,31 @@ INCBIN "baserom.gb", $3C218, $3C29A - $3C218
 
 UnknownCall_0x3C29A:
 	ld a, 16
-	ld [$FF00+$81], a
+	ld [hKeysPressed], a
 	ret
 
 UnknownCall_0x3C2A0:
 	ld a, 32
-	ld [$FF00+$81], a
+	ld [hKeysPressed], a
 	ret
 
 UnknownCall_0x3C2A6:
 	ld a, 128
-	ld [$FF00+$81], a
+	ld [hKeysPressed], a
 	ret
 
 UnknownCall_0x3C2AC:
 	ld a, 64
-	ld [$FF00+$81], a
+	ld [hKeysPressed], a
 	ret
 
 UnknownCall_0x3C2B2:
 	ld a, 8
-	ld [$FF00+$81], a
+	ld [hKeysPressed], a
 	ret
 
 UnknownCall_0x3C2B8:
-	ld a, [$FF00+$81]
+	ld a, [hKeysPressed]
 	bit 4, a
 	jr z, UnknownRJump_0x3C2D0
 	ld a, [$A855]
@@ -9569,11 +9585,11 @@ UnknownCall_0x3C2B8:
 	ld a, 54
 	ld [$A840], a
 	ld a, 16
-	ld [$FF00+$81], a
+	ld [hKeysPressed], a
 	ret
 
 UnknownRJump_0x3C2D0:
-	ld a, [$FF00+$81]
+	ld a, [hKeysPressed]
 	bit 5, a
 	ret z
 	ld a, [$A86B]
@@ -9582,11 +9598,11 @@ UnknownRJump_0x3C2D0:
 	ld a, 55
 	ld [$A840], a
 	ld a, 32
-	ld [$FF00+$81], a
+	ld [hKeysPressed], a
 	ret
 
 UnknownCall_0x3C2E7:
-	ld a, [$FF00+$81]
+	ld a, [hKeysPressed]
 	bit 6, a
 	ret z
 	ld a, [$A853]
@@ -9595,11 +9611,11 @@ UnknownCall_0x3C2E7:
 	ld a, 57
 	ld [$A840], a
 	ld a, 64
-	ld [$FF00+$81], a
+	ld [hKeysPressed], a
 	ret
 
 UnknownCall_0x3C2FE:
-	ld a, [$FF00+$81]
+	ld a, [hKeysPressed]
 	bit 4, a
 	ret z
 	ld a, [$A86B]
@@ -9608,7 +9624,7 @@ UnknownCall_0x3C2FE:
 	ld a, 108
 	ld [$A840], a
 	ld a, 16
-	ld [$FF00+$81], a
+	ld [hKeysPressed], a
 	ret
 
 UnknownData_0x3C315:
@@ -9659,7 +9675,7 @@ UnknownCall_0x3C32D:
 	ld hl, $6591
 	add de
 	ld a, [hl]
-	ld [$FF00+$81], a
+	ld [hKeysPressed], a
 	ret
 
 UnknownData_0x3C364:
@@ -9804,10 +9820,10 @@ UnknownJump_0x3C4CC:
 	jr UnknownRJump_0x3C505
 
 UnknownRJump_0x3C4E7:
-	ld a, [$FF00+$81]
+	ld a, [hKeysPressed]
 	and $F6
 	jr nz, UnknownRJump_0x3C505
-	ld a, [$FF00+$81]
+	ld a, [hKeysPressed]
 	and $09
 	jr z, UnknownRJump_0x3C505
 	ld a, 1
@@ -9821,7 +9837,7 @@ UnknownRJump_0x3C505:
 	ld a, [$A68B]
 	or a
 	jr nz, UnknownRJump_0x3C52B
-	ld a, [$FF00+$80]
+	ld a, [hKeysHeld]
 	bit 1, a
 	jp nz, UnknownJump_0x3C5B2
 	ld a, [$A7A0]
@@ -9837,10 +9853,10 @@ UnknownRJump_0x3C505:
 UnknownRJump_0x3C52B:
 	xor a
 	ld [$A7A0], a
-	ld a, [$FF00+$81]
+	ld a, [hKeysPressed]
 	and $F0
 	jp z, UnknownJump_0x3C5DA
-	ld a, [$FF00+$81]
+	ld a, [hKeysPressed]
 	and $F0
 	swap a
 	ld d, a
@@ -9916,16 +9932,16 @@ UnknownJump_0x3C588:
 UnknownJump_0x3C5B2:
 	ld a, 255
 	ld [$A7A0], a
-	ld a, [$FF00+$80]
+	ld a, [hKeysHeld]
 	bit 4, a
 	call nz, UnknownCall_0x3CA37
-	ld a, [$FF00+$80]
+	ld a, [hKeysHeld]
 	bit 5, a
 	call nz, UnknownCall_0x3CA63
-	ld a, [$FF00+$80]
+	ld a, [hKeysHeld]
 	bit 6, a
 	call nz, UnknownCall_0x3CA8A
-	ld a, [$FF00+$80]
+	ld a, [hKeysHeld]
 	bit 7, a
 	call nz, UnknownCall_0x3CAB1
 	jp UnknownJump_0x3C9F4
@@ -9945,7 +9961,7 @@ UnknownRJump_0x3C5DA:
 	jr UnknownRJump_0x3C60B
 
 UnknownRJump_0x3C5F4:
-	ld a, [$FF00+$81]
+	ld a, [hKeysPressed]
 	and $09
 	jp z, UnknownJump_0x3C66C
 	ld a, [$A68B]
@@ -10028,7 +10044,7 @@ UnknownRJump_0x3C66C:
 	jp UnknownJump_0x3C7D9
 
 UnknownJump_0x3C6B0:
-	ld a, [$FF00+$81]
+	ld a, [hKeysPressed]
 	cp $80
 	jp nz, UnknownJump_0x3C7D9
 	ld a, 8
@@ -10042,7 +10058,7 @@ UnknownJump_0x3C6BD:
 	jp UnknownJump_0x3C7BD
 
 UnknownJump_0x3C6CA:
-	ld a, [$FF00+$81]
+	ld a, [hKeysPressed]
 	cp $80
 	jp nz, UnknownJump_0x3C7D9
 	ld a, 8
@@ -10074,7 +10090,7 @@ UnknownJump_0x3C6F6:
 	jp UnknownJump_0x3C7BD
 
 UnknownJump_0x3C708:
-	ld a, [$FF00+$81]
+	ld a, [hKeysPressed]
 	cp $20
 	jp nz, UnknownJump_0x3C7D9
 	ld a, 34
@@ -10105,7 +10121,7 @@ UnknownJump_0x3C736:
 	jp UnknownJump_0x3C7BD
 
 UnknownJump_0x3C743:
-	ld a, [$FF00+$81]
+	ld a, [hKeysPressed]
 	cp $40
 	jp nz, UnknownJump_0x3C7D9
 	ld a, 4
@@ -10128,7 +10144,7 @@ UnknownJump_0x3C75D:
 	jp UnknownJump_0x3C7BD
 
 UnknownJump_0x3C76F:
-	ld a, [$FF00+$81]
+	ld a, [hKeysPressed]
 	cp $20
 	jp nz, UnknownJump_0x3C7D9
 	ld a, 2
@@ -10142,7 +10158,7 @@ UnknownJump_0x3C77C:
 	jp UnknownJump_0x3C7BD
 
 UnknownJump_0x3C789:
-	ld a, [$FF00+$81]
+	ld a, [hKeysPressed]
 	and $90
 	jp z, UnknownJump_0x3C7D9
 	ld a, 1
@@ -10154,7 +10170,7 @@ UnknownJump_0x3C789:
 	jp UnknownJump_0x3C7BD
 
 UnknownJump_0x3C7A3:
-	ld a, [$FF00+$81]
+	ld a, [hKeysPressed]
 	cp $20
 	jp nz, UnknownJump_0x3C7D9
 	ld a, 2
@@ -10514,7 +10530,7 @@ UnknownRJump_0x3C9CA:
 	ret
 
 UnknownJump_0x3C9F4:
-	ld a, [$FF00+$97]
+	ld a, [hFrameCounter]
 	swap a
 	and $01
 	jr nz, UnknownRJump_0x3CA02
@@ -11193,7 +11209,7 @@ UnknownRJump_0x3D151:
 	ld a, 195
 	ld [$FF00+$40], a
 	xor a
-	ld [$FF00+$81], a
+	ld [hKeysPressed], a
 	ld [$A69A], a
 	ld [$A6B0], a
 	ld [$A6B1], a
@@ -11323,7 +11339,7 @@ UnknownRJump_0x3D25A:
 	ld a, 195
 	ld [$FF00+$40], a
 	xor a
-	ld [$FF00+$81], a
+	ld [hKeysPressed], a
 	ld [$A69A], a
 	ld a, 30
 	ld [$A468], a
@@ -11487,7 +11503,7 @@ UnknownCall_0x3D371:
 	ld a, 195
 	ld [$FF00+$40], a
 	xor a
-	ld [$FF00+$81], a
+	ld [hKeysPressed], a
 	ld [$A69A], a
 	ld [$A6B0], a
 	ld [$A6B1], a
@@ -11618,7 +11634,7 @@ UnknownRJump_0x3D4D3:
 	ld a, 195
 	ld [$FF00+$40], a
 	xor a
-	ld [$FF00+$81], a
+	ld [hKeysPressed], a
 	ld [$A69A], a
 	ld [$A6B0], a
 	ld [$A6B1], a
@@ -11779,7 +11795,7 @@ UnknownCall_0x3D61F:
 	ld a, 195
 	ld [$FF00+$40], a
 	xor a
-	ld [$FF00+$81], a
+	ld [hKeysPressed], a
 	ld [$A69A], a
 	ld [$A6B0], a
 	ld [$A6B1], a
@@ -11866,7 +11882,7 @@ UnknownCall_0x3D6EB:
 	ld a, 195
 	ld [$FF00+$40], a
 	xor a
-	ld [$FF00+$81], a
+	ld [hKeysPressed], a
 	ld [$A69A], a
 	ld [$A79E], a
 	ld [$A79D], a
@@ -11969,7 +11985,7 @@ UnknownCall_0x3D79A:
 	ld a, 195
 	ld [$FF00+$40], a
 	xor a
-	ld [$FF00+$81], a
+	ld [hKeysPressed], a
 	ld [$A69A], a
 	ld [$A6B0], a
 	ld [$A6B1], a
@@ -12032,7 +12048,7 @@ UnknownCall_0x3D880:
 	ld a, 195
 	ld [$FF00+$40], a
 	xor a
-	ld [$FF00+$81], a
+	ld [hKeysPressed], a
 	ld [$A69A], a
 	ld [$A7AA], a
 	ld a, 13
@@ -12424,7 +12440,7 @@ UnknownCall_0x3DB40:
 	ld a, [$A7B7]
 	add b
 	ld b, a
-	ld a, [$FF00+$97]
+	ld a, [hFrameCounter]
 	add b
 	ld [$A7B7], a
 	pop bc
@@ -12800,7 +12816,7 @@ UnknownRJump_0x3DE25:
 	ld a, [$A7B7]
 	add b
 	ld b, a
-	ld a, [$FF00+$97]
+	ld a, [hFrameCounter]
 	add b
 	ld [$A7B7], a
 	pop bc
@@ -13283,7 +13299,7 @@ UnknownCall_0x3E1D7:
 	ld a, [$A68B]
 	or a
 	jr z, UnknownRJump_0x3E210
-	ld a, [$FF00+$80]
+	ld a, [hKeysHeld]
 	and $F0
 	ld e, a
 	ld hl, $4218
@@ -14304,7 +14320,7 @@ UnknownRJump_0x3EB1A:
 	ld a, [$A68B]
 	or a
 	jp nz, FinishVBlank
-	ld a, [$FF00+$97]
+	ld a, [hFrameCounter]
 	and $03
 	cp $01
 	jr nz, UnknownRJump_0x3EB48
@@ -15436,7 +15452,7 @@ UnknownCall_0x3F307:
 	ld [sSCX], a
 	ld [sSCY], a
 	ld [$A690], a
-	ld [$FF00+$81], a
+	ld [hKeysPressed], a
 	ld [$A69A], a
 	ld [$A795], a
 	ld [$A796], a
@@ -15632,7 +15648,7 @@ UnknownCall_0x3F4B1:
 	ld [sSCX], a
 	ld [sSCY], a
 	ld [$A690], a
-	ld [$FF00+$81], a
+	ld [hKeysPressed], a
 	ld [$A69A], a
 	ld [$A795], a
 	ld [$A796], a
@@ -15748,7 +15764,7 @@ UnknownCall_0x3F5A4:
 	ld [sSCX], a
 	ld [sSCY], a
 	ld [$A690], a
-	ld [$FF00+$81], a
+	ld [hKeysPressed], a
 	ld [$A69A], a
 	ld [$A795], a
 	ld [$A796], a
@@ -16513,7 +16529,7 @@ INCBIN "baserom.gb", $58461, $58463 - $58461
 	ld a, [$AF2F]
 	bit 2, a
 	jr nz, UnknownRJump_0x584C3
-	ld a, [$FF00+$80]
+	ld a, [hKeysHeld]
 	bit 1, a
 	ret nz
 	xor a
@@ -23580,7 +23596,7 @@ UnknownRJump_0x60088:
 
 UnknownRJump_0x60097:
 	call UnknownCall_0x6046A
-	ld a, [$FF00+$80]
+	ld a, [hKeysHeld]
 	bit 0, a
 	jr nz, UnknownRJump_0x600AC
 	bit 5, a
@@ -24134,7 +24150,7 @@ UnknownRJump_0x60481:
 	ld a, [$A7B7]
 	add b
 	ld b, a
-	ld a, [$FF00+$97]
+	ld a, [hFrameCounter]
 	add b
 	ld [$A7B7], a
 	pop bc
@@ -24174,7 +24190,7 @@ UnknownRJump_0x604C1:
 	ld a, [$A7B7]
 	add b
 	ld b, a
-	ld a, [$FF00+$97]
+	ld a, [hFrameCounter]
 	add b
 	ld [$A7B7], a
 	pop bc
@@ -24268,7 +24284,7 @@ UnknownRJump_0x60573:
 	jp UnknownJump_0x607AA
 
 UnknownRJump_0x60582:
-	ld a, [$FF00+$81]
+	ld a, [hKeysPressed]
 	and $01
 	jr z, UnknownRJump_0x6059A
 	ld a, 2
@@ -24943,7 +24959,7 @@ INCBIN "baserom.gb", $60A1A, $60A81 - $60A1A
 	ld a, [$A6BD]
 	cp $07
 	jr nz, UnknownRJump_0x60AA7
-	ld a, [$FF00+$81]
+	ld a, [hKeysPressed]
 	bit 0, a
 	jr z, UnknownRJump_0x60AA7
 	ld a, 5
@@ -26090,7 +26106,7 @@ UnknownRJump_0x680D0:
 	ld a, [$FF00+$41]
 	and $03
 	jr nz, UnknownRJump_0x680D0
-	ld a, [$FF00+$97]
+	ld a, [hFrameCounter]
 	and $3C
 	srl a
 	srl a
@@ -26345,7 +26361,7 @@ UnknownData_0x6830F:
 INCBIN "baserom.gb", $6830F, $68398 - $6830F
 
 	call UnknownCall_0x68400
-	ld a, [$FF00+$97]
+	ld a, [hFrameCounter]
 	and $01
 	ld b, a
 	ld a, [$A2DF]
@@ -26362,7 +26378,7 @@ INCBIN "baserom.gb", $6830F, $68398 - $6830F
 	ld [$A2DD], a
 	ret
 	call UnknownCall_0x68400
-	ld a, [$FF00+$97]
+	ld a, [hFrameCounter]
 	and $01
 	ld b, a
 	ld a, [$A2DF]
@@ -26408,7 +26424,7 @@ UnknownRJump_0x68416:
 	ld a, [$FF00+$41]
 	and $03
 	jr nz, UnknownRJump_0x68416
-	ld a, [$FF00+$97]
+	ld a, [hFrameCounter]
 	and $3C
 	srl a
 	srl a
@@ -26505,7 +26521,7 @@ UnknownCall_0x684C5:
 	ret
 
 UnknownCall_0x684E0:
-	ld a, [$FF00+$97]
+	ld a, [hFrameCounter]
 	bit 0, a
 	jr z, UnknownRJump_0x684EC
 	ld a, 24
@@ -26520,7 +26536,7 @@ UnknownRJump_0x684EC:
 	ld [$FF00+$C4], a
 	ld a, 79
 	ld [$FF00+$C5], a
-	ld a, [$FF00+$97]
+	ld a, [hFrameCounter]
 	and $1C
 	srl a
 	srl a
