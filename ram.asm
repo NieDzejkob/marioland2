@@ -1,8 +1,19 @@
 SECTION "Save Data", SRAM[$A000], BANK[0]
-; only this section is not cleared during boot
-	ds $F0
+savefile: MACRO
+\1::          ds $45
+\1_Checksum:: db
+\1_Magic12::  db
+\1_Magic34::  db
+\1_Magic56::  db
+\1_Magic78::  db
+              ds 6
+ENDM
 
-sDemoNumber: db
+	savefile sSavefile1
+	savefile sSavefile2
+	savefile sSavefile3
+
+sDemoNumber:: db
 
 	ds $0F
 SECTION "OAM Buffer", SRAM[$A100], BANK[0]

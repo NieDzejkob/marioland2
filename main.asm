@@ -5,10 +5,8 @@ INCLUDE "home.asm"
 
 SECTION "bank01", ROMX, BANK[$01]
 
-SpritePointers:
-INCBIN "baserom.gb", $4000, $41E4 - $4000
-
-INCLUDE "gfx/spritemappings.asm"
+INCLUDE "gfx/spritepointers.asm"
+INCLUDE "gfx/sprites1.asm"
 
 UnknownCall_0x5267:
 	ldh a, [hSpriteID]
@@ -43,7 +41,7 @@ UnknownCall_0x527C:
 	ldh [hOAMUsed], a
 	ret
 
-LoadSprite:
+_LoadSprite:
 	ld a, BANK(SpritePointers)
 	ld [sRomBank], a
 	ld [MBC1RomBank], a
@@ -101,7 +99,7 @@ LoadSprite:
 	and a
 	jr nz, .skip_priority
 	ld a, [hl]
-	set 7, a
+	set OAM_ATTR_PRIORITY_BIT, a
 	ld [hl], a
 .skip_priority:
 	inc hl
@@ -118,7 +116,7 @@ _ClearFreedOAM:
 	ld a, [sOAMCleared]
 	ld c, a
 	cp b
-	jr c, .nothing_to_clear
+	jr c, .end
 	ld h, HIGH(sOAMBuffer)
 	ldh a, [hOAMUsed]
 	ld l, a
@@ -130,21 +128,19 @@ _ClearFreedOAM:
 	cp c
 	jr c, .loop
 
-.nothing_to_clear:
+.end:
 	ldh a, [hOAMUsed]
 	ld [sOAMCleared], a
 	ret
 
-UnknownJump_0x5302:
-UnknownCall_0x5302:
+_ClearOAM:
 	ld hl, sOAMBuffer
-
-UnknownRJump_0x5305:
+.loop:
 	xor a
 	ld [hli], a
 	ld a, l
 	cp $A0
-	jr c, UnknownRJump_0x5305
+	jr c, .loop
 	ret
 
 UnknownJump_0x530D:
@@ -429,7 +425,7 @@ UnknownRJump_0x54E9:
 	ldh [hSpriteY], a
 
 UnknownRJump_0x54FB:
-	call LoadSprite
+	call _LoadSprite
 	xor a
 	ldh [hUseOBP1], a
 	ldh [hSpritePriority], a
@@ -443,7 +439,7 @@ UnknownRJump_0x54FB:
 	swap a
 	add 220
 	ldh [hSpriteID], a
-	call LoadSprite
+	call _LoadSprite
 	xor a
 	ldh [hSpritePriority], a
 
@@ -474,7 +470,7 @@ UnknownRJump_0x551E:
 UnknownRJump_0x5548:
 	ld a, 190
 	ldh [hSpriteID], a
-	call LoadSprite
+	call _LoadSprite
 	ret
 
 UnknownJump_0x5550:
@@ -733,7 +729,7 @@ UnknownRJump_0x5A07:
 	ldh [hSpriteID], a
 	ld a, 1
 	ldh [hSpritePriority], a
-	call LoadSprite
+	call _LoadSprite
 	ld a, [$A23F]
 	ld c, a
 	ld a, [sSCX]
@@ -744,7 +740,7 @@ UnknownRJump_0x5A07:
 	ldh [hSpriteX], a
 	ld a, 102
 	ldh [hSpriteID], a
-	call LoadSprite
+	call _LoadSprite
 	jr UnknownRJump_0x59DF
 
 UnknownData_0x5A4A:
@@ -815,7 +811,7 @@ UnknownJump_0x5A9E:
 	ldh [hSpriteID], a
 	ld a, 1
 	ldh [hSpritePriority], a
-	call LoadSprite
+	call _LoadSprite
 	jp UnknownJump_0x59DF
 
 UnknownData_0x5AE0:
@@ -857,7 +853,7 @@ UnknownJump_0x5B06:
 	ldh [hSpriteID], a
 	ld a, 1
 	ldh [hSpritePriority], a
-	call LoadSprite
+	call _LoadSprite
 	jp UnknownJump_0x59DF
 
 UnknownRJump_0x5B3C:
@@ -930,7 +926,7 @@ UnknownRJump_0x5B8A:
 	ldh [hSpriteID], a
 	ld a, 1
 	ldh [hSpritePriority], a
-	call LoadSprite
+	call _LoadSprite
 	jp UnknownJump_0x59DF
 
 UnknownData_0x5BB4:
@@ -1297,7 +1293,7 @@ UnknownRJump_0x64CB:
 	ldh [hSpritePriority], a
 	ld a, 200
 	ldh [hSpriteID], a
-	call LoadSprite
+	call _LoadSprite
 	ret
 
 UnknownRJump_0x64F4:
@@ -1329,7 +1325,7 @@ UnknownRJump_0x64F9:
 	ldh [hSpritePriority], a
 	ld a, 199
 	ldh [hSpriteID], a
-	call LoadSprite
+	call _LoadSprite
 	ret
 
 UnknownData_0x6529:
@@ -7256,11 +7252,11 @@ UnknownCall_0xC090:
 UnknownData_0xC0B1:
 INCBIN "baserom.gb", $C0B1, $C201 - $C0B1
 
-INCLUDE "gfx/spritemappings2.asm"
+INCLUDE "gfx/sprites2.asm"
 
 INCBIN "baserom.gb", $CF11, $D0D9 - $CF11
 
-INCLUDE "gfx/spritemappings3.asm"
+INCLUDE "gfx/sprites3.asm"
 
 INCBIN "baserom.gb", $E037, $EBB6 - $E037
 
@@ -7412,7 +7408,7 @@ INCBIN "baserom.gb", $14000, $14043 - $14000
 _LoadTitlescreen:
 	call LoadTitleScreenTiles
 	ld de, SCREEN1
-	ld hl, GFX_TitleScreen_Tilemap
+	ld hl, Tilemap_TitleScreen
 
 .copy_tilemap:
 	ld a, [hli]
@@ -7452,7 +7448,7 @@ _HandleTitlescreen:
 	ld a, %11010000
 	ld [sOBP0], a
 
-	call ClearOAM
+	call Titlescreen_ClearOAM
 	ld a, [sFrameCounter+1]
 	cp $05
 	ret nc ; don't react to buttons in the first second
@@ -7540,7 +7536,7 @@ _HandleTitlescreen:
 	ld [$FF00+$9B], a
 	ret
 
-ClearOAM:
+Titlescreen_ClearOAM:
 	ld h, HIGH(sOAMBuffer)
 	ld a, [hOAMUsed]
 	ld l, a
@@ -7564,24 +7560,26 @@ GFX_TitleScreen::
 INCBIN "gfx/titlescreen.2bpp"
 GFX_TitleScreen_End:
 
-GFX_TitleScreen_Tilemap::
+Tilemap_TitleScreen::
+INCBIN "tilemaps/titlescreen.bin"
 
-INCBIN "baserom.gb", $159E5, $17c00 - $159E5
+INCBIN "baserom.gb", $15C23, $17c00 - $15C23
 
-DemoData4:
+DemoData4::
 	INCBIN "data/demos/macro_zone.bin"
-DemoData3:
+DemoData3::
 	INCBIN "data/demos/turtle_zone.bin"
-DemoData2:
+DemoData2::
 	INCBIN "data/demos/hippo.bin"
-DemoData1:
+DemoData1::
 	INCBIN "data/demos/intro.bin"
 
 SECTION "bank06", ROMX, BANK[$06]
 
 
-GFX_Mario: ;$18000
+GFX_Mario::
 INCBIN "gfx/mario.2bpp"
+GFX_Mario_End:
 
 GFX_MarioDark: ;$18800
 INCBIN "gfx/mariodark.2bpp"
@@ -7614,30 +7612,33 @@ INCBIN "baserom.gb", $1AD00, $1C000 - $1AD00
 SECTION "bank07", ROMX, BANK[$07]
 
 
-GFX_TilesetLevel1: ;$1C000
+GFX_TilesetLevel1:
 INCBIN "gfx/tilesets/level1.2bpp"
 
-GFX_TilesetTreeZone1: ;$1C600
+GFX_TilesetTreeZone1:
 INCBIN "gfx/tilesets/treezone1.2bpp"
 
-GFX_TilesetTreeZone2: ;$1CC00
+GFX_TilesetTreeZone2:
 INCBIN "gfx/tilesets/treezone2.2bpp"
 
-GFX_TilesetTreeZone3: ;$1D200
+GFX_TilesetTreeZone3:
 INCBIN "gfx/tilesets/treezone3.2bpp"
 
-GFX_TilesetTreeZone4: ;$1D800
+GFX_TilesetTreeZone4:
 INCBIN "gfx/tilesets/treezone4.2bpp"
 
-GFX_TilesetTreeZone5: ;$1DE00
+GFX_TilesetTreeZone5:
 INCBIN "gfx/tilesets/treezone5.2bpp"
+GFX_TilesetTreeZone5_End:
 
-GFX_TilesetTreeZoneBoss: ;$1E400
+GFX_TilesetTreeZoneBoss:
 INCBIN "gfx/tilesets/treezoneboss.2bpp"
 
-INCBIN "baserom.gb", $1EA00, $20000 - $1EA00
+GFX_TilesetUnk1:
+INCBIN "gfx/tilesets/unk1.2bpp"
+GFX_TilesetUnk1_End:
 
-
+INCBIN "baserom.gb", $1ED80, $20000 - $1ED80
 
 SECTION "bank08", ROMX, BANK[$08]
 
@@ -7818,67 +7819,75 @@ INCBIN "baserom.gb", $2E6AA, $30000 - $2E6AA
 
 SECTION "bank0C", ROMX, BANK[$0C]
 
-
-UnknownJump_0x30000:
+_LoadSavefileSelect:
 	call DisableLCD
-	call UnknownCall_0x2B8B
-	ld de, $9800
-	ld hl, $4A52
+	call LoadSavefileSelectTiles
 
-UnknownRJump_0x3000C:
+	ld de, $9800
+	ld hl, Tilemap_SavefileSelect
+.copy_tilemap:
 	ld a, [hli]
 	ld [de], a
 	inc de
 	ld a, d
-	cp $9C
-	jr nz, UnknownRJump_0x3000C
-	ld a, 228
+	cp HIGH(SCREEN2)
+	jr nz, .copy_tilemap
+
+	ld a, %11100100
 	ld [sBGP], a
-	ld [$FF00+$47], a
-	ld a, 208
+	ld [rBGP], a
+	ld a, %11010000
 	ld [sOBP0], a
-	ld [$FF00+$48], a
-	ld a, 56
+	ld [rOBP0], a
+	ld a, %00111000
 	ld [sOBP1], a
-	ld [$FF00+$49], a
+	ld [rOBP1], a
+
 	ld a, 40
 	ldh [$FF00+$C2], a
 	ld a, 16
 	ldh [$FF00+$C0], a
-	call UnknownCall_0x28D9
+	call ValidateSavefiles
+
 	xor a
 	ld [$A277], a
 	ld [sSCY], a
 	ld [sSCX], a
 	ld [$A2C6], a
-	ld a, 131
-	ld [$FF00+$40], a
+	ld a, LCDCF_ON | LCDCF_WINOFF | LCDCF_BG8800 | LCDCF_BG9800 | LCDCF_BGON | LCDCF_OBJ8 | LCDCF_OBJON
+	ld [rLCDC], a
+
 	ld a, 5
 	ld [$A460], a
 	ld a, 13
 	ld [$A468], a
+
 	xor a
 	ld [sEasyMode], a
-	ld a, [$FF00+$9B]
+
+	ld a, [hGameMode]
 	inc a
-	ld [$FF00+$9B], a
+	ld [hGameMode], a ; MODE_SAVEFILE_SELECT
 	ret
 
-UnknownJump_0x3005F:
+_HandleSavefileSelect:
 	ld a, 1
 	ldh [hSpritePriority], a
+
 	xor a
 	ld [$A2C7], a
+
 	ld a, [sEasyMode]
 	cp $01
 	jr nz, UnknownRJump_0x3007D
+
 	ld a, 68
 	ldh [hSpriteX], a
 	ld a, 48
 	ldh [hSpriteY], a
 	ld a, 241
 	ldh [hSpriteID], a
-	call UnknownCall_0x2B13
+	call LoadSprite_Bank0C
 
 UnknownRJump_0x3007D:
 	call UnknownCall_0x3012E
@@ -7938,7 +7947,7 @@ UnknownRJump_0x300B4:
 	ldh [hSpriteID], a
 
 UnknownRJump_0x300E1:
-	call UnknownCall_0x2B13
+	call LoadSprite_Bank0C
 	jr UnknownRJump_0x300FE
 
 UnknownRJump_0x300E6:
@@ -7952,7 +7961,7 @@ UnknownRJump_0x300E6:
 	srl a
 	add 207
 	ldh [hSpriteID], a
-	call UnknownCall_0x2B13
+	call LoadSprite_Bank0C
 
 UnknownRJump_0x300FE:
 	ld a, 88
@@ -7972,7 +7981,7 @@ UnknownRJump_0x300FE:
 	ld a, [$A0E2]
 	ldh [hSpriteID], a
 	call UnknownCall_0x2B3B
-	call UnknownCall_0x2B63
+	call ClearFreedOAM_Bank0C
 	ret
 
 UnknownData_0x3012A:
@@ -8018,7 +8027,7 @@ UnknownRJump_0x30159:
 	srl a
 	add 112
 	ldh [hSpriteY], a
-	call UnknownCall_0x2B13
+	call LoadSprite_Bank0C
 
 UnknownRJump_0x3017C:
 	ld a, [$A278]
@@ -8054,7 +8063,7 @@ UnknownRJump_0x301A6:
 	add de
 	ld a, [hl]
 	ldh [hSpriteID], a
-	call UnknownCall_0x2B13
+	call LoadSprite_Bank0C
 	ret
 
 UnknownData_0x301C2:
@@ -8427,7 +8436,7 @@ UnknownRJump_0x3042D:
 UnknownJump_0x30451:
 	call UnknownCall_0x3046B
 	call UnknownCall_0x307BC
-	call UnknownCall_0x2B63
+	call ClearFreedOAM_Bank0C
 	ret
 
 UnknownJump_0x3045B:
@@ -8437,7 +8446,7 @@ UnknownJump_0x3045B:
 	ldh [hSpriteX], a
 	ld a, 1
 	ldh [hSpritePriority], a
-	call UnknownCall_0x2B13
+	call LoadSprite_Bank0C
 	ret
 
 UnknownCall_0x3046B:
@@ -8551,7 +8560,7 @@ UnknownRJump_0x3050A:
 	srl a
 	add 197
 	ldh [hSpriteID], a
-	call UnknownCall_0x2B13
+	call LoadSprite_Bank0C
 	ld a, [$A222]
 	add 8
 	ld [$A222], a
@@ -8695,7 +8704,7 @@ UnknownRJump_0x30629:
 	ld [$A468], a
 
 UnknownRJump_0x3066A:
-	call UnknownCall_0x2B77
+	call ClearOAM_Bank0C
 	ld a, 195
 	ld [$FF00+$40], a
 	ld a, [$FF00+$9B]
@@ -8711,9 +8720,9 @@ UnknownJump_0x3067A:
 	ldh [hSpriteX], a
 	ld a, 1
 	ldh [hSpritePriority], a
-	call UnknownCall_0x2B13
+	call LoadSprite_Bank0C
 	call UnknownCall_0x307BC
-	call UnknownCall_0x2B63
+	call ClearFreedOAM_Bank0C
 	ret
 
 UnknownCall_0x30693:
@@ -8854,7 +8863,7 @@ UnknownCall_0x307BC:
 	ldh [hSpriteY], a
 	ld a, [$49BA]
 	ldh [hSpriteID], a
-	call UnknownCall_0x2B13
+	call LoadSprite_Bank0C
 	ld a, [$A2CB]
 	inc a
 	ld [$A2CB], a
@@ -8869,7 +8878,7 @@ UnknownRJump_0x307E4:
 	ldh [hSpriteY], a
 	ld a, [$49BE]
 	ldh [hSpriteID], a
-	call UnknownCall_0x2B13
+	call LoadSprite_Bank0C
 	ld a, [$A2CB]
 	inc a
 	ld [$A2CB], a
@@ -8884,7 +8893,7 @@ UnknownRJump_0x30804:
 	ldh [hSpriteY], a
 	ld a, [$49C2]
 	ldh [hSpriteID], a
-	call UnknownCall_0x2B13
+	call LoadSprite_Bank0C
 	ld a, [$A2CB]
 	inc a
 	ld [$A2CB], a
@@ -8899,7 +8908,7 @@ UnknownRJump_0x30824:
 	ldh [hSpriteY], a
 	ld a, [$49C5]
 	ldh [hSpriteID], a
-	call UnknownCall_0x2B13
+	call LoadSprite_Bank0C
 	ld a, [$A2CB]
 	inc a
 	ld [$A2CB], a
@@ -8914,7 +8923,7 @@ UnknownRJump_0x30844:
 	ldh [hSpriteY], a
 	ld a, [$49C8]
 	ldh [hSpriteID], a
-	call UnknownCall_0x2B13
+	call LoadSprite_Bank0C
 	ld a, [$A2CB]
 	inc a
 	ld [$A2CB], a
@@ -8929,7 +8938,7 @@ UnknownRJump_0x30864:
 	ldh [hSpriteY], a
 	ld a, [$49CC]
 	ldh [hSpriteID], a
-	call UnknownCall_0x2B13
+	call LoadSprite_Bank0C
 	ld a, [$A2CB]
 	inc a
 	ld [$A2CB], a
@@ -8968,7 +8977,7 @@ UnknownRJump_0x3089A:
 	call UnknownCall_0x3097C
 
 UnknownRJump_0x308C0:
-	call UnknownCall_0x2B13
+	call LoadSprite_Bank0C
 
 UnknownRJump_0x308C3:
 	ld a, [$A2B5]
@@ -8989,7 +8998,7 @@ UnknownRJump_0x308C3:
 	call UnknownCall_0x3097C
 
 UnknownRJump_0x308E5:
-	call UnknownCall_0x2B13
+	call LoadSprite_Bank0C
 
 UnknownRJump_0x308E8:
 	ld a, [$A2B5]
@@ -9010,7 +9019,7 @@ UnknownRJump_0x308E8:
 	call UnknownCall_0x3097C
 
 UnknownRJump_0x3090A:
-	call UnknownCall_0x2B13
+	call LoadSprite_Bank0C
 
 UnknownRJump_0x3090D:
 	ld a, [$A2B5]
@@ -9031,7 +9040,7 @@ UnknownRJump_0x3090D:
 	call UnknownCall_0x3097C
 
 UnknownRJump_0x3092F:
-	call UnknownCall_0x2B13
+	call LoadSprite_Bank0C
 
 UnknownRJump_0x30932:
 	ld a, [$A2B5]
@@ -9052,7 +9061,7 @@ UnknownRJump_0x30932:
 	call UnknownCall_0x3097C
 
 UnknownRJump_0x30954:
-	call UnknownCall_0x2B13
+	call LoadSprite_Bank0C
 
 UnknownRJump_0x30957:
 	ld a, [$A2B5]
@@ -9073,7 +9082,7 @@ UnknownRJump_0x30957:
 	call UnknownCall_0x3097C
 
 UnknownRJump_0x30978:
-	call UnknownCall_0x2B13
+	call LoadSprite_Bank0C
 	ret
 
 UnknownCall_0x3097C:
@@ -9155,9 +9164,18 @@ UnknownRJump_0x30A0D:
 	reti
 
 UnknownData_0x30A2A:
-INCBIN "baserom.gb", $30A2A, $34000 - $30A2A
+INCBIN "baserom.gb", $30A2A, $30A52 - $30A2A
 
+Tilemap_SavefileSelect::
+INCBIN "tilemaps/savefile_select.bin"
 
+INCBIN "baserom.gb", $30C94, $32ACA - $30C94
+
+GFX_TilesetSavefileSelect::
+INCBIN "gfx/tilesets/savefile_select.2bpp"
+GFX_TilesetSavefileSelect_End:
+
+INCBIN "baserom.gb", $32E4A, $34000 - $32E4A
 
 SECTION "bank0D", ROMX, BANK[$0D]
 
@@ -25991,7 +26009,7 @@ UnknownJump_0x68000:
 
 UnknownJump_0x6800F:
 	call UnknownCall_0x68016
-	call UnknownCall_0x2B4F
+	call ClearFreedOAM_Bank1A
 	ret
 
 UnknownCall_0x68016:
@@ -26445,7 +26463,7 @@ UnknownRJump_0x68477:
 	swap a
 	add 229
 	ld [$FF00+$C6], a
-	call UnknownCall_0x2B27
+	call LoadSprite_Bank1A
 	ret
 
 UnknownCall_0x68492:
@@ -26471,7 +26489,7 @@ UnknownRJump_0x684AB:
 	swap a
 	add 232
 	ld [$FF00+$C6], a
-	call UnknownCall_0x2B27
+	call LoadSprite_Bank1A
 
 UnknownCall_0x684C5:
 	ld a, 0
@@ -26483,7 +26501,7 @@ UnknownCall_0x684C5:
 	ld [$FF00+$C5], a
 	ld a, 235
 	ld [$FF00+$C6], a
-	call UnknownCall_0x2B27
+	call LoadSprite_Bank1A
 	ret
 
 UnknownCall_0x684E0:
@@ -26512,7 +26530,7 @@ UnknownRJump_0x684EC:
 	add de
 	ld a, [hl]
 	ld [$FF00+$C6], a
-	call UnknownCall_0x2B27
+	call LoadSprite_Bank1A
 	ret
 
 UnknownData_0x68518:
@@ -26677,8 +26695,13 @@ INCBIN "gfx/enemies/mariozone4.2bpp"
 GFX_EnemiesMarioZoneBoss: ;$6EC00
 INCBIN "gfx/enemies/mariozoneboss.2bpp"
 
-INCBIN "baserom.gb", $6EF80, $70000 - $6EF80
+INCBIN "baserom.gb", $6EF80, $6F000 - $6EF80
 
+GFX_TilesetUnk2:
+INCBIN "gfx/tilesets/unk2.2bpp"
+GFX_TilesetUnk2_End:
+
+INCBIN "baserom.gb", $6F300, $70000 - $6F300
 
 SECTION "bank1C", ROMX, BANK[$1C]
 

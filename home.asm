@@ -201,7 +201,13 @@ CallGameModeHandler:
 	dw $2cae		; MODE_LOAD_CREDITS
 	dw $2cb9		; MODE_CREDITS
 	dw $2c23		; 14
-INCBIN "baserom.gb", $02DA, $02FE - $02DA
+	dw $353e		; 15
+	dw $3573		; 16
+	dw $35cd		; 17
+	dw $3547		; 18
+	dw LoadSavefileSelect	; MODE_LOAD_SAVEFILE_SELECT
+	dw HandleSavefileSelect ; MODE_SAVEFILE_SELECT
+INCBIN "baserom.gb", $02E6, $02FE - $02E6
 
 GenericDummyFunction:
 	ret
@@ -4768,76 +4774,88 @@ UnknownCall_0x28A7:
 	ldh [hSpriteY], a
 
 UnknownRJump_0x28CD:
-	callba LoadSprite
+	callba _LoadSprite
 	ret
 
-UnknownCall_0x28D9:
-	ld hl, $A000
-	call UnknownCall_0x28EC
-	ld hl, $A050
-	call UnknownCall_0x28EC
-	ld hl, $A0A0
-	call UnknownCall_0x28EC
+ValidateSavefiles:
+	ld hl, sSavefile1
+	call ValidateSavefile
+	ld hl, sSavefile2
+	call ValidateSavefile
+	ld hl, sSavefile3
+	call ValidateSavefile
 	ret
 
-UnknownCall_0x28EC:
+ValidateSavefile:
 	push hl
 	ld e, l
 	ld d, h
 	ld b, 69
 	ld c, 0
 
-UnknownRJump_0x28F3:
+.checksum_loop:
 	ld a, [hli]
 	add c
 	ld c, a
 	dec b
-	jr nz, UnknownRJump_0x28F3
-	ld a, [hli]
+	jr nz, .checksum_loop
+
+	ld a, [hli] ; Checksum
 	cp c
-	jr nz, UnknownRJump_0x2913
-	ld a, [hli]
+	jr nz, .initialize_savefile
+
+	ld a, [hli] ; Magic12
 	cp $12
-	jr nz, UnknownRJump_0x2913
-	ld a, [hli]
+	jr nz, .initialize_savefile
+
+	ld a, [hli] ; Magic34
 	cp $34
-	jr nz, UnknownRJump_0x2913
-	ld a, [hli]
+	jr nz, .initialize_savefile
+
+	ld a, [hli] ; Magic56
 	cp $56
-	jr nz, UnknownRJump_0x2913
-	ld a, [hl]
+	jr nz, .initialize_savefile
+
+	ld a, [hl]  ; Magic78
 	cp $78
-	jr nz, UnknownRJump_0x2913
+	jr nz, .initialize_savefile
+
 	pop hl
 	ret
 
-UnknownRJump_0x2913:
+.initialize_savefile:
 	pop hl
-	ld b, 64
+	ld b, $40
 	xor a
-
-UnknownRJump_0x2917:
+.init_loop:
 	ld [hli], a
 	dec b
-	jr nz, UnknownRJump_0x2917
-	xor a
+	jr nz, .init_loop
+
+	xor a       ; why is this not cleared in that loop
 	ld [hli], a
 	ld [hli], a
 	ld [hli], a
+
 	ld a, 5
 	ld [hli], a
 	xor a
 	ld [hli], a
+
 	ld a, 2
-	ld [hli], a
-	ld a, 18
-	ld [hli], a
-	ld a, 52
-	ld [hli], a
-	ld a, 86
-	ld [hli], a
-	ld a, 120
-	ld [hl], a
+	ld [hli], a ; Checksum
+
+	ld a, $12
+	ld [hli], a ; Magic12
+
+	ld a, $34
+	ld [hli], a ; Magic34
+
+	ld a, $56
+	ld [hli], a ; Magic56
+
+	ld a, $78
+	ld [hl], a  ; Magic78
 	ret
 
 UnknownCall_0x2934:
@@ -5009,104 +5027,92 @@ UnknownData_0x2AFF:
 INCBIN "baserom.gb", $2AFF, $2B13 - $2AFF
 
 
-UnknownCall_0x2B13:
-	ld a, 1
-	ld [sRomBank], a
-	ld [MBC1RomBank], a
-	call LoadSprite
-	ld a, 12
+LoadSprite_Bank0C:
+	callba _LoadSprite
+	ld a, $0C
 	ld [sRomBank], a
 	ld [MBC1RomBank], a
 	ret
 
-UnknownCall_0x2B27:
-	ld a, 1
-	ld [sRomBank], a
-	ld [MBC1RomBank], a
-	call LoadSprite
-	ld a, 26
+LoadSprite_Bank1A:
+	callba _LoadSprite
+	ld a, $1A
 	ld [sRomBank], a
 	ld [MBC1RomBank], a
 	ret
 
 UnknownCall_0x2B3B:
-	ld a, 1
-	ld [sRomBank], a
-	ld [MBC1RomBank], a
-	call UnknownCall_0x5267
-	ld a, 12
+	callba UnknownCall_0x5267
+	ld a, $0C
 	ld [sRomBank], a
 	ld [MBC1RomBank], a
 	ret
 
-UnknownCall_0x2B4F:
-	ld a, 1
-	ld [sRomBank], a
-	ld [MBC1RomBank], a
-	call _ClearFreedOAM
-	ld a, 26
+ClearFreedOAM_Bank1A:
+	callba _ClearFreedOAM
+	ld a, $1A
 	ld [sRomBank], a
 	ld [MBC1RomBank], a
 	ret
 
-UnknownCall_0x2B63:
-	ld a, 1
-	ld [sRomBank], a
-	ld [MBC1RomBank], a
-	call _ClearFreedOAM
-	ld a, 12
+ClearFreedOAM_Bank0C:
+	callba _ClearFreedOAM
+	ld a, $0C
 	ld [sRomBank], a
 	ld [MBC1RomBank], a
 	ret
 
-UnknownCall_0x2B77:
-	ld a, 1
-	ld [sRomBank], a
-	ld [MBC1RomBank], a
-	call UnknownCall_0x5302
-	ld a, 12
+ClearOAM_Bank0C:
+	callba _ClearOAM
+	ld a, $0C
 	ld [sRomBank], a
 	ld [MBC1RomBank], a
 	ret
 
-UnknownCall_0x2B8B:
-	ld a, 7
+LoadSavefileSelectTiles:
+	ld a, BANK(GFX_TilesetTreeZone5)
 	ld [sRomBank], a
 	ld [MBC1RomBank], a
-	ld bc, $0600
-	ld hl, $5E00
+
+	ld bc, GFX_TilesetTreeZone5_End - GFX_TilesetTreeZone5
+	ld hl, GFX_TilesetTreeZone5
 	ld de, $9200
 	call CopyData
-	ld bc, $0380
-	ld hl, $6A00
+
+	ld bc, GFX_TilesetUnk1_End - GFX_TilesetUnk1
+	ld hl, GFX_TilesetUnk1
 	ld de, $8E80
 	call CopyData
 
 	ld a, BANK(GFX_Mario)
 	ld [sRomBank], a
 	ld [MBC1RomBank], a
-	ld bc, $0800
+	ld bc, GFX_Mario_End - GFX_Mario
 	ld hl, GFX_Mario
 	ld de, $8000
 	call CopyData
 
-	ld a, 27
+	ld a, BANK(GFX_TilesetUnk2)
 	ld [sRomBank], a
 	ld [MBC1RomBank], a
-	ld hl, $7000
-	ld bc, $0300
+	ld hl, GFX_TilesetUnk2
+	ld bc, GFX_TilesetUnk2_End - GFX_TilesetUnk2
 	ld de, $8800
 	call CopyData
-	ld a, 12
+
+	ld a, BANK(GFX_TilesetSavefileSelect)
 	ld [MBC1RomBank], a
-	ld bc, $0380
-	ld hl, $6ACA
+	ld bc, GFX_TilesetSavefileSelect_End - GFX_TilesetSavefileSelect
+	ld hl, GFX_TilesetSavefileSelect
 	ld de, $8B00
 	call CopyData
 	ret
 
-	jpba UnknownJump_0x30000
-	jpba UnknownJump_0x3005F
+LoadSavefileSelect::
+	jpba _LoadSavefileSelect
+
+HandleSavefileSelect::
+	jpba _HandleSavefileSelect
 
 FarCopyData:
 	ld [sRomBank], a
@@ -5174,7 +5180,7 @@ UnknownNothing_0x2CE9::
 	jpba UnknownJump_0x5579
 
 UnknownCall_0x2CF4:
-	jpba LoadSprite
+	jpba _LoadSprite
 
 ClearFreedOAM:
 	jpba _ClearFreedOAM
@@ -5189,7 +5195,7 @@ UnknownData_0x2D20:
 INCBIN "baserom.gb", $2D20, $2D41 - $2D20
 
 UnknownCall_0x2D41:
-	jpba UnknownJump_0x5302
+	jpba _ClearOAM
 
 UnknownData_0x2D4C:
 INCBIN "baserom.gb", $2D4C, $2D7D - $2D4C
@@ -7173,7 +7179,7 @@ UnknownCall_0x3F30:
 	ld a, 1
 	ld [sRomBank], a
 	ld [MBC1RomBank], a
-	call LoadSprite
+	call _LoadSprite
 	ld a, 15
 	ld [sRomBank], a
 	ld [MBC1RomBank], a
@@ -7183,7 +7189,7 @@ UnknownCall_0x3F44:
 	ld a, 1
 	ld [sRomBank], a
 	ld [MBC1RomBank], a
-	call LoadSprite
+	call _LoadSprite
 	ld a, 24
 	ld [sRomBank], a
 	ld [MBC1RomBank], a
