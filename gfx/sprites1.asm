@@ -263,7 +263,7 @@ Sprite_Unk_0x4497::
 	db -8,   0,  $BC, 0
 	db SPRITEDEF_END
 
-Sprite_Unk_0x44A8::
+Sprite_Stars1::
 	db -8,  -8,  $C1, 0
 	db -8,   0,  $C2, 0
 	db -8,   8,  $C5, 0
@@ -272,7 +272,7 @@ Sprite_Unk_0x44A8::
 	db  8,   0,  $C5, 0
 	db SPRITEDEF_END
 
-Sprite_Unk_0x44C1::
+Sprite_Stars2::
 	db -8,  -16, $C5, 0
 	db  0,  -8,  $C1, 0
 	db  0,   0,  $C2, 0
@@ -281,7 +281,7 @@ Sprite_Unk_0x44C1::
 	db  8,   0,  $C4, 0
 	db SPRITEDEF_END
 
-Sprite_Unk_0x44DA::
+Sprite_Stars3::
 	db -8,  -8,  $C5, 0
 	db -8,   0,  $C1, 0
 	db -8,   8,  $C2, 0
@@ -294,7 +294,7 @@ Sprite_Unk_0x44DA::
 	db  8,   8,  $C5, 0
 	db SPRITEDEF_END
 
-Sprite_Unk_0x4503::
+Sprite_Stars4::
 	db -8,   0,  $C5, 0
 	db  0,  -8,  $C1, 0
 	db  0,   0,  $C2, 0
@@ -304,7 +304,7 @@ Sprite_Unk_0x4503::
 	db  16,  8,  $C5, 0
 	db SPRITEDEF_END
 
-Sprite_Unk_0x4520::
+Sprite_BombMario_Left1::
 	db  4,  -8,  $C7, 0
 	db  4,   0,  $C8, 0
 	db  12, -8,  $CB, 0
@@ -312,7 +312,7 @@ Sprite_Unk_0x4520::
 	db  8,   8,  $D0, 0
 	db SPRITEDEF_END
 
-Sprite_Unk_0x4535::
+Sprite_BombMario_Left2::
 	db  4,  -8,  $C7, 0
 	db  4,   0,  $C8, 0
 	db  12, -8,  $C9, 0
@@ -320,7 +320,7 @@ Sprite_Unk_0x4535::
 	db  8,   8,  $CF, 0
 	db SPRITEDEF_END
 
-Sprite_Unk_0x454A::
+Sprite_BombMario_Left3::
 	db  4,  -8,  $C7, 0
 	db  4,   0,  $C8, 0
 	db  12, -8,  $CC, 0
@@ -328,7 +328,7 @@ Sprite_Unk_0x454A::
 	db  8,   8,  $CF, 0
 	db SPRITEDEF_END
 
-Sprite_Unk_0x455F::
+Sprite_BombMario_Right1::
 	db  4,  -8,  $C8, OAM_ATTR_X_FLIP
 	db  4,   0,  $C7, OAM_ATTR_X_FLIP
 	db  12, -8,  $CA, OAM_ATTR_X_FLIP
@@ -336,7 +336,7 @@ Sprite_Unk_0x455F::
 	db  8,  -16, $D0, OAM_ATTR_X_FLIP
 	db SPRITEDEF_END
 
-Sprite_Unk_0x4574::
+Sprite_BombMario_Right2::
 	db  4,  -8,  $C8, OAM_ATTR_X_FLIP
 	db  4,   0,  $C7, OAM_ATTR_X_FLIP
 	db  12, -8,  $CA, OAM_ATTR_X_FLIP
@@ -344,7 +344,7 @@ Sprite_Unk_0x4574::
 	db  8,  -16, $CF, OAM_ATTR_X_FLIP
 	db SPRITEDEF_END
 
-Sprite_Unk_0x4589::
+Sprite_BombMario_Right3::
 	db  4,  -8,  $C8, OAM_ATTR_X_FLIP
 	db  4,   0,  $C7, OAM_ATTR_X_FLIP
 	db  12, -8,  $CD, OAM_ATTR_X_FLIP

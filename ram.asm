@@ -95,17 +95,23 @@ sSCX:: db
 	ds $14
 
 sSavefileSelectBombMario:: db
+sSavefileSelectStars:: db
 
-	ds 6
+	ds 5
 
 sAnimatedTilesState:: db
 sDemoMode:: db
 sDemoIndex:: db
+sPreviousKeysHeld:: db
 
-	ds $30
+	ds 19
+
+sEasyMode:: db
+
+	ds $1B
 SECTION "Demo Data", SRAM[$A300], BANK[0]
 ; RLE-encoded demo inputs are copied here
-sDemoData:
+sDemoData::
 	ds $100
 sDemoDataEnd:
 
@@ -151,8 +157,6 @@ sMarioScreenY = $A23B
 sMarioScreenX = $A23C
 sMoonPhysics = $A287
 sAutoScroll = $A2C8
-sPreviousKeysHeld = $A2D0
-sEasyMode = $A2E4
 
 hKeysHeld = $FF80
 hKeysPressed = $FF81

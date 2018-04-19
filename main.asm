@@ -7824,7 +7824,7 @@ INCBIN "baserom.gb", $2E6AA, $30000 - $2E6AA
 
 SECTION "bank0C", ROMX, BANK[$0C]
 
-_LoadSavefileSelect:
+_LoadSavefileSelect::
 	call DisableLCD
 	call LoadSavefileSelectTiles
 
@@ -7875,12 +7875,12 @@ _LoadSavefileSelect:
 	ld [hGameMode], a ; MODE_SAVEFILE_SELECT
 	ret
 
-_HandleSavefileSelect:
+_HandleSavefileSelect::
 	ld a, 1
 	ldh [hSpriteOnTop], a
 
 	xor a
-	ld [$A2C7], a
+	ld [sSavefileSelectStars], a
 
 	ld a, [sEasyMode]
 	cp $01
@@ -7896,9 +7896,9 @@ _HandleSavefileSelect:
 .no_easymode_text:
 	call HandleSavefileSelectState
 
-	ld a, [$A2C7]
+	ld a, [sSavefileSelectStars]
 	and a
-	jr nz, .load_unknown_sprite
+	jr nz, .load_stars
 
 	ldh a, [hMarioSpriteY]
 	ldh [hSpriteY], a
@@ -7924,9 +7924,8 @@ _HandleSavefileSelect:
 	jr nz, .skip_unk
 	ld a, 4
 	ld [$A478], a ; do this every other frame
-
 .skip_unk:
-	ld hl, UnknownData_0x3012A
+	ld hl, .bomb_mario_animation_indices
 	ld a, [hFrameCounter]
 	and $0C
 	srl a
@@ -7960,7 +7959,7 @@ _HandleSavefileSelect:
 	call LoadSprite_Bank0C
 	jr .done_loading_player_sprite
 
-.load_unknown_sprite:
+.load_stars:
 	ldh a, [hMarioSpriteY]
 	ldh [hSpriteY], a
 	ldh a, [hMarioSpriteX]
@@ -7969,7 +7968,7 @@ _HandleSavefileSelect:
 	and $0C
 	srl a
 	srl a
-	add 207
+	add SPRITE_STARS_1
 	ldh [hSpriteID], a
 	call LoadSprite_Bank0C
 
@@ -7997,7 +7996,7 @@ _HandleSavefileSelect:
 	call ClearFreedOAM_Bank0C ; why no TCO?
 	ret
 
-UnknownData_0x3012A:
+.bomb_mario_animation_indices:
 	db 0, 1, 2, 1
 
 HandleSavefileSelectState:
@@ -8237,7 +8236,7 @@ UnknownRJump_0x302AD:
 
 UnknownRJump_0x302C2:
 	ld a, 255
-	ld [$A2C7], a
+	ld [sSavefileSelectStars], a
 	ret
 	ld a, 255
 	ld [sMarioDirection], a

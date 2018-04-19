@@ -200,16 +200,16 @@ SpritePointers::
 	dw Sprite_Unk_0x475D
 	dw Sprite_Unk_0x459E
 	dw Sprite_Unk_0x45A7
-	dw Sprite_Unk_0x455F
-	dw Sprite_Unk_0x4574
-	dw Sprite_Unk_0x4589
-	dw Sprite_Unk_0x4520
-	dw Sprite_Unk_0x4535
-	dw Sprite_Unk_0x454A
-	dw Sprite_Unk_0x44A8
-	dw Sprite_Unk_0x44C1
-	dw Sprite_Unk_0x44DA
-	dw Sprite_Unk_0x4503
+	dw Sprite_BombMario_Right1
+	dw Sprite_BombMario_Right2
+	dw Sprite_BombMario_Right3
+	dw Sprite_BombMario_Left1
+	dw Sprite_BombMario_Left2
+	dw Sprite_BombMario_Left3
+	dw Sprite_Stars1
+	dw Sprite_Stars2
+	dw Sprite_Stars3
+	dw Sprite_Stars4
 	dw Sprite_Unk_0x4497
 	dw Sprite_Unk_0x4486
 	dw Sprite_Unk_0x4475
