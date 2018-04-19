@@ -1,15 +1,15 @@
 SpritePointers::
-	dw Sprite_Unk_0x4F79
-	dw Sprite_Unk_0x4FC3
-	dw Sprite_Unk_0x4FE8
-	dw Sprite_Unk_0x500E
-	dw Sprite_Unk_0x4F9E
-	dw Sprite_Unk_0x5033
-	dw Sprite_Unk_0x5058
-	dw Sprite_Unk_0x507D
+	dw Sprite_BigMario_FacingRight
+	dw Sprite_BigMario_WalkingRight1
+	dw Sprite_BigMario_WalkingRight2
+	dw Sprite_BigMario_WalkingRight3
+	dw Sprite_BigMario_FacingLeft
+	dw Sprite_BigMario_WalkingLeft1
+	dw Sprite_BigMario_WalkingLeft2
+	dw Sprite_BigMario_WalkingLeft3
 	dw Sprite_Unk_0x50A2
 	dw Sprite_Unk_0x50CB
-	dw SpriteBigMario_Falling_FacingRight
+	dw SpriteBigMario_FallingRight
 	dw Sprite_Unk_0x5119
 	dw Sprite_Unk_0x4ECA
 	dw Sprite_Unk_0x4EA1

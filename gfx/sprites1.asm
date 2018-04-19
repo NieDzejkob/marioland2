@@ -1266,7 +1266,7 @@ Sprite_Unk_0x4F64::
 
 Sprite_Unk_0x4F75::
 	db -12, -3,  $1E, OAM_ATTR_X_FLIP
-Sprite_Unk_0x4F79::
+Sprite_BigMario_FacingRight::
 	db -12, -7,  $01, OAM_ATTR_X_FLIP
 	db -12,  1,  $00, OAM_ATTR_X_FLIP
 	db -4,  -7,  $11, OAM_ATTR_X_FLIP
@@ -1279,7 +1279,7 @@ Sprite_Unk_0x4F79::
 
 Sprite_Unk_0x4F9A::
 	db -12, -5,  $1E, 0
-Sprite_Unk_0x4F9E::
+Sprite_BigMario_FacingLeft::
 	db -12, -9,  $00, 0
 	db -12, -1,  $01, 0
 	db -4,  -9,  $10, 0
@@ -1292,7 +1292,7 @@ Sprite_Unk_0x4F9E::
 
 Sprite_Unk_0x4FBF::
 	db -12, -4,  $1E, OAM_ATTR_X_FLIP
-Sprite_Unk_0x4FC3::
+Sprite_BigMario_WalkingRight1::
 	db -12, -8,  $01, OAM_ATTR_X_FLIP
 	db -12,  0,  $00, OAM_ATTR_X_FLIP
 	db -4,  -8,  $11, OAM_ATTR_X_FLIP
@@ -1305,7 +1305,7 @@ Sprite_Unk_0x4FC3::
 
 Sprite_Unk_0x4FE4::
 	db -12, -3,  $1E, OAM_ATTR_X_FLIP
-Sprite_Unk_0x4FE8::
+Sprite_BigMario_WalkingRight2::
 	db -12, -7,  $01, OAM_ATTR_X_FLIP
 	db -12,  1,  $00, OAM_ATTR_X_FLIP
 	db -4,  -7,  $11, OAM_ATTR_X_FLIP
@@ -1320,7 +1320,7 @@ Sprite_Unk_0x4FE8::
 
 Sprite_Unk_0x500A::
 	db -12, -3,  $1E, OAM_ATTR_X_FLIP
-Sprite_Unk_0x500E::
+Sprite_BigMario_WalkingRight3::
 	db -12, -7,  $01, OAM_ATTR_X_FLIP
 	db -12,  1,  $00, OAM_ATTR_X_FLIP
 	db -4,  -7,  $11, OAM_ATTR_X_FLIP
@@ -1333,7 +1333,7 @@ Sprite_Unk_0x500E::
 
 Sprite_Unk_0x502F::
 	db -12, -4,  $1E, 0
-Sprite_Unk_0x5033::
+Sprite_BigMario_WalkingLeft1::
 	db -12, -8,  $00, 0
 	db -12,  0,  $01, 0
 	db -4,  -8,  $10, 0
@@ -1346,7 +1346,7 @@ Sprite_Unk_0x5033::
 
 Sprite_Unk_0x5054::
 	db -12, -5,  $1E, 0
-Sprite_Unk_0x5058::
+Sprite_BigMario_WalkingLeft2::
 	db -12, -9,  $00, 0
 	db -12, -1,  $01, 0
 	db -4,  -9,  $10, 0
@@ -1359,7 +1359,7 @@ Sprite_Unk_0x5058::
 
 Sprite_Unk_0x5079::
 	db -12, -5,  $1E, 0
-Sprite_Unk_0x507D::
+Sprite_BigMario_WalkingLeft3::
 	db -12, -9,  $00, 0
 	db -12, -1,  $01, 0
 	db -4,  -9,  $10, 0
@@ -1400,7 +1400,7 @@ Sprite_Unk_0x50CB::
 
 Sprite_Unk_0x50F0::
 	db -12, -4,  $1E, OAM_ATTR_X_FLIP
-SpriteBigMario_Falling_FacingRight::
+SpriteBigMario_FallingRight::
 	db -12, -8,  $01, OAM_ATTR_X_FLIP
 	db -12,  0,  $00, OAM_ATTR_X_FLIP
 	db -4,  -8,  $11, OAM_ATTR_X_FLIP

@@ -2601,13 +2601,13 @@ UnknownRJump_0x14E9:
 	ld b, 1
 
 UnknownRJump_0x14EB:
-	ld a, [$A222]
+	ld a, [sSpriteAnimationCounter]
 	add b
-	ld [$A222], a
+	ld [sSpriteAnimationCounter], a
 	cp $0C
 	ret c
 	xor a
-	ld [$A222], a
+	ld [sSpriteAnimationCounter], a
 	ret
 
 UnknownCall_0x14FA:
@@ -5879,7 +5879,7 @@ UnknownRJump_0x31D1:
 	ld a, 255
 	ld [$A224], a
 	xor a
-	ld [$A222], a
+	ld [sSpriteAnimationCounter], a
 	ld a, 95
 	ld [sVVelocityIndex], a
 	ret

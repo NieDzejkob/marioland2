@@ -236,7 +236,7 @@ UnknownRJump_0x53A1:
 	jp z, UnknownJump_0x5447
 
 UnknownJump_0x53AD:
-	ld a, [$A222]
+	ld a, [sSpriteAnimationCounter]
 	and $0C
 	srl a
 	srl a
@@ -303,7 +303,7 @@ UnknownRJump_0x541A:
 	jp z, UnknownJump_0x5447
 
 UnknownJump_0x5426:
-	ld a, [$A222]
+	ld a, [sSpriteAnimationCounter]
 	and $0C
 	srl a
 	srl a
@@ -7858,7 +7858,7 @@ _LoadSavefileSelect:
 	ld [sSavefileSelectState], a
 	ld [sSCY], a
 	ld [sSCX], a
-	ld [$A2C6], a
+	ld [sSavefileSelectBombMario], a
 	ld a, LCDCF_ON | LCDCF_WINOFF | LCDCF_BG8800 | LCDCF_BG9800 | LCDCF_BGON | LCDCF_OBJ8 | LCDCF_OBJON
 	ld [rLCDC], a
 
@@ -7898,7 +7898,8 @@ _HandleSavefileSelect:
 
 	ld a, [$A2C7]
 	and a
-	jr nz, UnknownRJump_0x300E6
+	jr nz, .load_unknown_sprite
+
 	ldh a, [hMarioSpriteY]
 	ldh [hSpriteY], a
 	ldh a, [hMarioSpriteX]
@@ -7910,21 +7911,22 @@ _HandleSavefileSelect:
 	add 32
 	ldh [hSpriteID], a
 .no_easymode_mario:
-	ld a, [$A2C6]
+	ld a, [sSavefileSelectBombMario]
 	and a
-	jr z, UnknownRJump_0x300E1
+	jr z, .load_sprite
 
 	ld a, [sSavefileSelectState]
-	cp $04
-	jr z, UnknownRJump_0x300B4
+	cp SAVEFILE_SELECT_STATE_TOGGLE_CLEAR
+	jr z, .skip_unk
+
 	ld a, [hFrameCounter]
 	and $01
-	jr nz, UnknownRJump_0x300B4
+	jr nz, .skip_unk
 	ld a, 4
-	ld [$A478], a
+	ld [$A478], a ; do this every other frame
 
-UnknownRJump_0x300B4:
-	ld hl, $412A
+.skip_unk:
+	ld hl, UnknownData_0x3012A
 	ld a, [hFrameCounter]
 	and $0C
 	srl a
@@ -7932,30 +7934,33 @@ UnknownRJump_0x300B4:
 	ld e, a
 	ld d, 0
 	add de
+
 	ld a, [hl]
 	ld b, a
-	ld a, 201
+	ld a, SPRITE_BOMB_MARIO_RIGHT_1
 	add b
 	ldh [hSpriteID], a
+
 	ld a, b
 	and $01
 	ld c, a
-	ldh a, [hSpriteY]
-	inc a
-	sub c
-	ldh [hSpriteY], a
+	ldh a, [hSpriteY] ; move a pixel down on frames 0 and 2 of the animation
+	inc a             ; this could be done in the sprite data instead, while
+	sub c             ; still reusing the tiles, since the deltas have pixel
+	ldh [hSpriteY], a ; granularity
+
 	ld a, [sMarioDirection]
-	cp $01
-	jr z, UnknownRJump_0x300E1
-	ld a, 204
+	cp MARIO_DIRECTION_RIGHT
+	jr z, .load_sprite
+	ld a, SPRITE_BOMB_MARIO_LEFT_1
 	add b
 	ldh [hSpriteID], a
 
-UnknownRJump_0x300E1:
+.load_sprite:
 	call LoadSprite_Bank0C
-	jr UnknownRJump_0x300FE
+	jr .done_loading_player_sprite
 
-UnknownRJump_0x300E6:
+.load_unknown_sprite:
 	ldh a, [hMarioSpriteY]
 	ldh [hSpriteY], a
 	ldh a, [hMarioSpriteX]
@@ -7968,7 +7973,7 @@ UnknownRJump_0x300E6:
 	ldh [hSpriteID], a
 	call LoadSprite_Bank0C
 
-UnknownRJump_0x300FE:
+.done_loading_player_sprite:
 	ld a, 88
 	ldh [hSpriteY], a
 	ld a, 32
@@ -7989,12 +7994,11 @@ UnknownRJump_0x300FE:
 	ldh [hSpriteID], a
 	call ShowHexByte
 
-	call ClearFreedOAM_Bank0C
+	call ClearFreedOAM_Bank0C ; why no TCO?
 	ret
 
 UnknownData_0x3012A:
-INCBIN "baserom.gb", $3012A, $3012E - $3012A
-
+	db 0, 1, 2, 1
 
 HandleSavefileSelectState:
 	ld a, [sSavefileSelectState]
@@ -8018,7 +8022,7 @@ UnknownRJump_0x30149:
 	ld a, 1
 	ld [sSavefileSelectState], a
 	xor a
-	ld [$A2C6], a
+	ld [sSavefileSelectBombMario], a
 	ldh [hSpriteOnTop], a
 	ret
 
@@ -8100,7 +8104,7 @@ INCBIN "baserom.gb", $301C2, $301C6 - $301C2
 	swap a
 	dec a
 	ld [$A2A3], a
-	ld a, [$A2C6]
+	ld a, [sSavefileSelectBombMario]
 	and a
 	jr nz, UnknownRJump_0x30227
 	ld a, 21
@@ -8175,7 +8179,7 @@ UnknownRJump_0x30238:
 	ld a, 6
 	ld [sSavefileSelectState], a
 	xor a
-	ld [$A2C6], a
+	ld [sSavefileSelectBombMario], a
 	ld a, 144
 	ld [$A2D1], a
 	ld a, 5
@@ -8203,14 +8207,14 @@ UnknownRJump_0x3028A:
 	ret
 
 UnknownCall_0x30291:
-	ld a, [$A2C6]
+	ld a, [sSavefileSelectBombMario]
 	xor $FF
-	ld [$A2C6], a
+	ld [sSavefileSelectBombMario], a
 	ld a, 255
 	ld [sMarioDirection], a
 	ld a, 8
 	ld [$A460], a
-	ld a, [$A2C6]
+	ld a, [sSavefileSelectBombMario]
 	and a
 	ret z
 	xor a
@@ -8238,7 +8242,7 @@ UnknownRJump_0x302C2:
 	ld a, 255
 	ld [sMarioDirection], a
 	call UnknownCall_0x3040D
-	ld a, [$A222]
+	ld a, [sSpriteAnimationCounter]
 	and $0C
 	srl a
 	srl a
@@ -8257,7 +8261,7 @@ UnknownRJump_0x302C2:
 	ld a, 1
 	ld [sMarioDirection], a
 	call UnknownCall_0x3040D
-	ld a, [$A222]
+	ld a, [sSpriteAnimationCounter]
 	and $0C
 	srl a
 	srl a
@@ -8274,40 +8278,41 @@ UnknownRJump_0x302C2:
 	ld [sSavefileSelectState], a
 	ret
 
-UnknownJump_0x3031A:
-UnknownRJump_0x3031A:
-	ld a, [sMarioDirection]
-	xor $FF
-	add 2
-	sla a
+SavefileSelect_Idle_End:
+	ld a, [sMarioDirection] ; LEFT -> FF, RIGHT -> 01
+	xor $FF                 ; LEFT -> 00, RIGHT -> FE
+	add 2                   ; LEFT -> 02, RIGHT -> 00
+	sla a                   ; LEFT -> 04, RIGHT -> 00, but why not add a?
 	ldh [hSpriteID], a
 	ret
 
 SavefileSelect_HandleIdle::
 	ld a, [hKeysPressed]
-	cp $04
-	jp z, UnknownJump_0x3037D
-	ld a, [hKeysHeld]
-	and $30
-	jr z, UnknownRJump_0x30342
-	ld a, [hKeysHeld]
-	cp $10
-	jp z, UnknownJump_0x30398
-	cp $20
-	jp z, UnknownJump_0x303B7
+	cp SELECT
+	jp z, .toggle_easymode
 
-UnknownRJump_0x30342:
+	ld a, [hKeysHeld]
+	and D_LEFT | D_RIGHT
+	jr z, .no_directions_pressed
+
+	ld a, [hKeysHeld]
+	cp D_RIGHT
+	jp z, .start_walking_right
+	cp D_LEFT
+	jp z, .start_walking_left
+
+.no_directions_pressed:
 	ld a, [hKeysPressed]
-	cp $80
-	jr z, UnknownRJump_0x30367
-	cp $08
-	jr z, UnknownRJump_0x30367
-	cp $01
-	jr nz, UnknownRJump_0x3031A
+	cp D_DOWN
+	jr z, .enter_pipe
+	cp START
+	jr z, .enter_pipe
+	cp A_BUTTON
+	jr nz, SavefileSelect_Idle_End
 	ldh a, [hMarioSpriteX]
 	cp $88
-	jr nz, UnknownRJump_0x3031A
-	ld a, 4
+	jr nz, SavefileSelect_Idle_End
+	ld a, SAVEFILE_SELECT_STATE_TOGGLE_CLEAR
 	ld [sSavefileSelectState], a
 	ld a, 55
 	ld [$A278], a
@@ -8315,10 +8320,10 @@ UnknownRJump_0x30342:
 	ld [$A460], a
 	ret
 
-UnknownRJump_0x30367:
+.enter_pipe:
 	ldh a, [hMarioSpriteX]
 	cp $80
-	jr nc, UnknownRJump_0x3031A
+	jr nc, SavefileSelect_Idle_End
 	ld a, 5
 	ld [sSavefileSelectState], a
 	ld a, 64
@@ -8327,50 +8332,52 @@ UnknownRJump_0x30367:
 	ld [$A460], a
 	ret
 
-UnknownJump_0x3037D:
-	ld a, [$A2C6]
+.toggle_easymode:
+	ld a, [sSavefileSelectBombMario]
 	and a
 	ret nz
+
 	ld a, [sEasyMode]
-	xor $FF
+	xor $FF ; just xor $01. Also, if you're going to do it like this, there's cpl
 	and $01
 	ld [sEasyMode], a
-	ld a, [sMarioDirection]
+
+	ld a, [sMarioDirection] ; why don't you just jump to SavefileSelect_Idle_End?
 	xor $FF
 	add 2
 	sla a
 	ldh [hSpriteID], a
 	ret
 
-UnknownJump_0x30398:
+.start_walking_right:
 	ldh a, [hMarioSpriteX]
 	cp $88
-	jp nc, UnknownJump_0x3031A
-	ld a, 2
+	jp nc, SavefileSelect_Idle_End
+	ld a, SAVEFILE_SELECT_STATE_WALKING_RIGHT
 	ld [sSavefileSelectState], a
 	ld a, 32
 	ld [$A278], a
-	ld a, [$A222]
-	and $0C
+	ld a, [sSpriteAnimationCounter]
+	and $0C ; unnecessary, since the bottom two bits will be shifted out anyway
 	srl a
 	srl a
-	add 1
+	add SPRITE_BIG_MARIO_WALKING_RIGHT_1 ; since it's equal to 1, you could just inc a
 	ldh [hSpriteID], a
 	ret
 
-UnknownJump_0x303B7:
+.start_walking_left:
 	ldh a, [hMarioSpriteX]
 	cp $30
-	jp c, UnknownJump_0x3031A
-	ld a, 3
+	jp c, SavefileSelect_Idle_End
+	ld a, SAVEFILE_SELECT_STATE_WALKING_LEFT
 	ld [sSavefileSelectState], a
 	ld a, 32
 	ld [$A278], a
-	ld a, [$A222]
-	and $0C
+	ld a, [sSpriteAnimationCounter]
+	and $0C ; unnecessary, since the bottom two bits will be shifted out anyway
 	srl a
 	srl a
-	add 5
+	add SPRITE_BIG_MARIO_WALKING_LEFT_1
 	ldh [hSpriteID], a
 	ret
 
@@ -8384,7 +8391,7 @@ SavefileSelect_HandleFallingMario::
 	ldh a, [hMarioSpriteY]
 	cp $30
 	jr c, .in_pipe
-	ld a, SPRITE_BIG_MARIO_FALLING_FACING_RIGHT
+	ld a, SPRITE_BIG_MARIO_FALLING_RIGHT
 	ldh [hSpriteID], a
 	ld a, 1
 	ldh [hSpriteOnTop], a
@@ -8411,13 +8418,13 @@ SavefileSelect_HandleFallingMario::
 	ret
 
 UnknownCall_0x3040D:
-	ld a, [$A222]
+	ld a, [sSpriteAnimationCounter]
 	add 1
-	ld [$A222], a
+	ld [sSpriteAnimationCounter], a
 	cp $0C
 	ret c
 	xor a
-	ld [$A222], a
+	ld [sSpriteAnimationCounter], a
 	ret
 
 UnknownJump_0x3041D:
@@ -8443,7 +8450,7 @@ UnknownRJump_0x3042D:
 	ldh [hMarioSpriteX], a
 	xor a
 	ld [sSavefileSelectState], a
-	ld [$A222], a
+	ld [sSpriteAnimationCounter], a
 	ld a, [$FF00+$9B]
 	inc a
 	ld [$FF00+$9B], a
@@ -8577,16 +8584,16 @@ UnknownRJump_0x3050A:
 	add 197
 	ldh [hSpriteID], a
 	call LoadSprite_Bank0C
-	ld a, [$A222]
+	ld a, [sSpriteAnimationCounter]
 	add 8
-	ld [$A222], a
+	ld [sSpriteAnimationCounter], a
 	cp $50
 	jr c, UnknownRJump_0x30567
 	xor a
-	ld [$A222], a
+	ld [sSpriteAnimationCounter], a
 
 UnknownRJump_0x30567:
-	ld a, [$A222]
+	ld a, [sSpriteAnimationCounter]
 	and $F0
 	swap a
 	add 191
@@ -26461,20 +26468,20 @@ UnknownCall_0x6845F:
 	ld [$FF00+$BB], a
 	ld a, 1
 	ld [$FF00+$C7], a
-	ld a, [$A222]
+	ld a, [sSpriteAnimationCounter]
 	inc a
-	ld [$A222], a
+	ld [sSpriteAnimationCounter], a
 	cp $30
 	jr c, UnknownRJump_0x68477
 	xor a
-	ld [$A222], a
+	ld [sSpriteAnimationCounter], a
 
 UnknownRJump_0x68477:
 	ld a, 84
 	ld [$FF00+$C5], a
 	ld a, [$A2E1]
 	ld [$FF00+$C4], a
-	ld a, [$A222]
+	ld a, [sSpriteAnimationCounter]
 	and $F0
 	swap a
 	add 229
@@ -26487,20 +26494,20 @@ UnknownCall_0x68492:
 	ld [$FF00+$BB], a
 	ld a, 0
 	ld [$FF00+$C7], a
-	ld a, [$A222]
+	ld a, [sSpriteAnimationCounter]
 	inc a
-	ld [$A222], a
+	ld [sSpriteAnimationCounter], a
 	cp $30
 	jr c, UnknownRJump_0x684AB
 	xor a
-	ld [$A222], a
+	ld [sSpriteAnimationCounter], a
 
 UnknownRJump_0x684AB:
 	ld a, 84
 	ld [$FF00+$C5], a
 	ld a, [$A2E1]
 	ld [$FF00+$C4], a
-	ld a, [$A222]
+	ld a, [sSpriteAnimationCounter]
 	and $F0
 	swap a
 	add 232

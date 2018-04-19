@@ -24,7 +24,11 @@ sOAMBuffer::
 sOAMBufferEnd::
 
 SECTION "Variables", SRAM[$A200], BANK[0]
-	ds $27
+	ds $22
+
+sSpriteAnimationCounter:: db
+
+	ds 4
 
 sMarioX:: dw
 sMarioY:: dw
@@ -88,7 +92,11 @@ sAnimatedTilesCtl:: db
 sSCY:: db
 sSCX:: db
 
-	ds $1B
+	ds $14
+
+sSavefileSelectBombMario:: db
+
+	ds 6
 
 sAnimatedTilesState:: db
 sDemoMode:: db
