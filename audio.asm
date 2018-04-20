@@ -1657,10 +1657,10 @@ UnknownRJump_0x11228:
 	ret
 
 SongPointers:
-	dw $605c ; SONG_OVERWORLD_LEVEL
-	dw $601f ; SONG_LOST_LEVEL
-	dw $5e88 ; SONG_FINISHED_LEVEL
-	dw $69eb
+	dw Song_OverworldLevel ; SONG_OVERWORLD_LEVEL
+	dw Song_LostLevel      ; SONG_LOST_LEVEL
+	dw Song_FinishedLevel  ; SONG_FINISHED_LEVEL
+	dw Song_Invincible     ; SONG_INVINCIBLE
 	dw $779b
 INCBIN "baserom.gb", $1124E, $11298 - $1124E
 
@@ -2922,7 +2922,19 @@ UnknownRJump_0x11AC7:
 	jr UnknownRJump_0x11A9F
 
 UnknownData_0x11ACC:
-INCBIN "baserom.gb", $11ACC, $13F5E - $11ACC
+INCBIN "baserom.gb", $11ACC, $11E88 - $11ACC
+
+Song_FinishedLevel::
+INCBIN "baserom.gb", $11E88, $1201F - $11E88
+
+Song_LostLevel::
+INCBIN "baserom.gb", $1201F, $1205C - $1201F
+
+Song_OverworldLevel::
+INCBIN "baserom.gb", $1205C, $129EB - $1205C
+
+Song_Invincible::
+INCBIN "baserom.gb", $129EB, $13F5E - $129EB
 
 
 _PartialAudioReset:
