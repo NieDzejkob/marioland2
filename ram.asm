@@ -137,7 +137,18 @@ sCurSFX:: db
 sPlaySong:: db
 sCurSong:: db
 
-	ds $96
+	ds 6
+
+sPlaySampleSFX:: db
+sCurSampleSFX:: db
+
+	ds 6
+
+sPlayDrumSFX:: db
+sCurDrumSFX:: db
+
+	ds $86
+
 sAudio1End::
 
 sAudio2::

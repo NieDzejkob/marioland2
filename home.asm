@@ -2091,7 +2091,7 @@ UnknownRJump_0x10DC:
 	ld a, 24
 	ld [sVVelocityIndex], a
 	ld a, 6
-	ld [$A470], a
+	ld [sPlaySampleSFX], a
 
 UnknownRJump_0x10EB:
 	ret
@@ -3141,7 +3141,7 @@ UnknownRJump_0x19B0:
 	and a
 	jr z, UnknownRJump_0x19F1
 	ld a, 1
-	ld [$A478], a
+	ld [sPlayDrumSFX], a
 	ld b, 1
 	jr UnknownRJump_0x19F1
 
@@ -3151,7 +3151,7 @@ UnknownRJump_0x19C1:
 	and a
 	jr z, UnknownRJump_0x19F1
 	ld a, 1
-	ld [$A478], a
+	ld [sPlayDrumSFX], a
 	ld b, 5
 	jr UnknownRJump_0x19F1
 
@@ -3334,8 +3334,8 @@ UnknownRJump_0x1CD7:
 	ld [sPlaySong], a
 	xor a
 	ld [sPlaySFX], a
-	ld [$A478], a
-	ld [$A470], a
+	ld [sPlayDrumSFX], a
+	ld [sPlaySampleSFX], a
 	ld a, 24
 	ldh [hGameMode], a
 	ld a, 192
@@ -6178,7 +6178,7 @@ UnknownJump_0x3415:
 
 UnknownRJump_0x341C:
 	ld a, 1
-	ld [$A478], a
+	ld [sPlayDrumSFX], a
 	ld b, 1
 	ld a, 2
 	ld [sPlaySFX], a
@@ -6207,7 +6207,7 @@ UnknownCall_0x3451:
 	ld a, 1
 	ld [sCurPowerup], a
 	ld a, 20
-	ld [$A470], a
+	ld [sPlaySampleSFX], a
 	jp UnknownJump_0x3534
 
 UnknownRJump_0x3467:
@@ -6216,7 +6216,7 @@ UnknownRJump_0x3467:
 	ld a, 3
 	ld [sCurPowerup], a
 	ld a, 20
-	ld [$A470], a
+	ld [sPlaySampleSFX], a
 	jp UnknownJump_0x3534
 
 UnknownRJump_0x3478:
@@ -6225,7 +6225,7 @@ UnknownRJump_0x3478:
 	ld a, 2
 	ld [sCurPowerup], a
 	ld a, 20
-	ld [$A470], a
+	ld [sPlaySampleSFX], a
 	jp UnknownJump_0x3534
 
 UnknownRJump_0x3489:
@@ -6277,7 +6277,7 @@ UnknownRJump_0x34D9:
 	cp $08
 	jr nz, UnknownRJump_0x34EC
 	ld a, 20
-	ld [$A470], a
+	ld [sPlaySampleSFX], a
 	ld a, [sMoonPhysics]
 	set 2, a
 	ld [sMoonPhysics], a

@@ -71,8 +71,8 @@ FinishSoundUpdate:
 	xor a
 	ld [sPlaySFX], a
 	ld [sPlaySong], a
-	ld [$A470], a
-	ld [$A478], a
+	ld [sPlaySampleSFX], a
+	ld [sPlayDrumSFX], a
 	ld [sMuteControl], a
 	ret
 
@@ -652,7 +652,7 @@ UnknownJump_0x106CC:
 	jp CopyToAudioRegs
 
 UnknownCall_0x106D3:
-	ld hl, $A470
+	ld hl, sPlaySampleSFX
 	ld a, [hl]
 	and a
 	jr z, UnknownRJump_0x106E9
@@ -825,7 +825,7 @@ UnknownRJump_0x10957:
 UnknownData_0x10968:
 INCBIN "baserom.gb", $10968, $10994 - $10968
 
-	ld a, [$A471]
+	ld a, [sCurSampleSFX]
 	cp $06
 	ret z
 	call UnknownCall_0x10E58
@@ -1180,7 +1180,7 @@ UnknownRJump_0x10DD6:
 UnknownData_0x10DE1:
 INCBIN "baserom.gb", $10DE1, $10DEB - $10DE1
 
-	ld a, [$A471]
+	ld a, [sCurSampleSFX]
 	and a
 	ret nz
 	jp UnknownJump_0x10D38
@@ -1190,8 +1190,8 @@ UnknownJump_0x10DF3:
 	ld [$A538], a
 
 UnknownJump_0x10DF8:
-	ld a, [$A470]
-	ld [$A471], a
+	ld a, [sPlaySampleSFX]
+	ld [sCurSampleSFX], a
 	push hl
 	ld hl, $A43F
 	set 7, [hl]
@@ -1214,7 +1214,7 @@ UnknownJump_0x10E1D:
 	xor a
 	ld [$A502], a
 	ld [$A506], a
-	ld [$A471], a
+	ld [sCurSampleSFX], a
 	ldh [$FF00+$1A], a
 	ld [$A538], a
 	ld hl, $A43F
@@ -1261,7 +1261,7 @@ INCBIN "baserom.gb", $10E64, $10E90 - $10E64
 
 
 UnknownCall_0x10E90:
-	ld hl, $A478
+	ld hl, sPlayDrumSFX
 	ld a, [hl]
 	and a
 	jr z, UnknownRJump_0x10EA2
@@ -1329,18 +1329,18 @@ UnknownData_0x10F1E:
 INCBIN "baserom.gb", $10F1E, $10F4B - $10F1E
 
 	ld a, 3
-	ld [$A479], a
+	ld [sCurDrumSFX], a
 	ld hl, $4F60
 	jp CopyToChannel4
 	xor a
-	ld [$A479], a
+	ld [sCurDrumSFX], a
 	ld hl, $4F65
 	jp CopyToChannel4
 
 UnknownData_0x10F60:
 INCBIN "baserom.gb", $10F60, $10F6A - $10F60
 
-	ld a, [$A479]
+	ld a, [sCurDrumSFX]
 	cp $04
 	ret z
 	ld hl, $4F7D
@@ -1380,7 +1380,7 @@ INCBIN "baserom.gb", $10F9D, $10FC5 - $10F9D
 UnknownData_0x10FE0:
 INCBIN "baserom.gb", $10FE0, $11008 - $10FE0
 
-	ld a, [$A479]
+	ld a, [sCurDrumSFX]
 	cp $07
 	ret z
 	ld hl, $5026
@@ -1471,8 +1471,8 @@ INCBIN "baserom.gb", $11137, $11163 - $11137
 
 
 UnknownJump_0x11163:
-	ld a, [$A478]
-	ld [$A479], a
+	ld a, [sPlayDrumSFX]
+	ld [sCurDrumSFX], a
 	xor a
 	ld [$A503], a
 	ld [$A508], a
@@ -1487,7 +1487,7 @@ UnknownJump_0x1117B:
 
 UnknownJump_0x11181:
 	xor a
-	ld [$A479], a
+	ld [sCurDrumSFX], a
 	ld [$A503], a
 	ld [$A508], a
 	ld [$A530], a
@@ -1954,7 +1954,7 @@ UnknownRJump_0x114EB:
 
 UnknownRJump_0x114FE:
 	push hl
-	ld a, [$A471]
+	ld a, [sCurSampleSFX]
 	and a
 	jr nz, UnknownRJump_0x1150D
 	xor a
@@ -2435,7 +2435,7 @@ UnknownRJump_0x11788:
 	bit 7, a
 	jp nz, UnknownJump_0x117F2
 	ld a, 3
-	ld [$A478], a
+	ld [sPlayDrumSFX], a
 	call UnknownCall_0x10E90
 	jp UnknownJump_0x117F2
 
@@ -2685,8 +2685,8 @@ Mute:
 	call MuteSoundChannels
 	xor a
 	ld [sCurSFX], a
-	ld [$A471], a
-	ld [$A479], a
+	ld [sCurSampleSFX], a
+	ld [sCurDrumSFX], a
 	ld [$A505], a
 	ld a, 1
 	ld [sMuted], a
@@ -2995,8 +2995,8 @@ _PartialAudioReset:
 UnknownCall_0x13F6B:
 	xor a
 	ld [sCurSFX], a
-	ld [$A471], a
-	ld [$A479], a
+	ld [sCurSampleSFX], a
+	ld [sCurDrumSFX], a
 	ld [$A41F], a
 	ld [$A42F], a
 	ld [$A43F], a

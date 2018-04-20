@@ -1161,7 +1161,7 @@ UnknownRJump_0x5DB4:
 	cp $11
 	jr nc, UnknownRJump_0x5DCB
 	ld a, 14
-	ld [$A470], a
+	ld [sPlaySampleSFX], a
 	ld a, 1
 	ld [sVolume], a
 
@@ -3038,7 +3038,7 @@ UnknownCall_0x9443:
 	ld a, 4
 	ldh [$FF00+$DF], a
 	ld a, 2
-	ld [$A478], a
+	ld [sPlayDrumSFX], a
 	ret
 	call UnknownCall_0xB2FD
 	ldh a, [$FF00+$E0]
@@ -3080,7 +3080,7 @@ INCBIN "baserom.gb", $94AC, $94B6 - $94AC
 	ld a, 5
 	ldh [$FF00+$DB], a
 	ld a, 8
-	ld [$A470], a
+	ld [sPlaySampleSFX], a
 
 UnknownRJump_0x94CD:
 	call UnknownCall_0xB309
@@ -3113,7 +3113,7 @@ UnknownRJump_0x94E1:
 	xor $20
 	ldh [$FF00+$DD], a
 	ld a, 2
-	ld [$A478], a
+	ld [sPlayDrumSFX], a
 	ret
 	call UnknownCall_0xB2FD
 	ldh a, [$FF00+$E0]
@@ -3156,7 +3156,7 @@ UnknownRJump_0x9516:
 	ld a, 5
 	ldh [$FF00+$DB], a
 	ld a, 8
-	ld [$A470], a
+	ld [sPlaySampleSFX], a
 
 UnknownRJump_0x955A:
 	call UnknownCall_0xB309
@@ -3188,7 +3188,7 @@ UnknownRJump_0x9569:
 	xor $20
 	ldh [$FF00+$DD], a
 	ld a, 2
-	ld [$A478], a
+	ld [sPlayDrumSFX], a
 	ret
 
 UnknownData_0x9595:
@@ -3379,7 +3379,7 @@ UnknownRJump_0x972D:
 	ldh [$FF00+$EA], a
 	call UnknownCall_0x97FA
 	ld a, 2
-	ld [$A470], a
+	ld [sPlaySampleSFX], a
 	ret
 
 UnknownRJump_0x9752:
@@ -3434,7 +3434,7 @@ UnknownRJump_0x9770:
 	ld [$AF38], a
 	call UnknownCall_0xB224
 	ld a, 6
-	ld [$A478], a
+	ld [sPlayDrumSFX], a
 	ret
 	ldh a, [$FF00+$EC]
 	dec a
@@ -3559,7 +3559,7 @@ INCBIN "baserom.gb", $9864, $986C - $9864
 	ld a, 19
 	ldh [$FF00+$DB], a
 	ld a, 5
-	ld [$A478], a
+	ld [sPlayDrumSFX], a
 	ret
 	ld a, [$AF26]
 	and a
@@ -3871,7 +3871,7 @@ UnknownJump_0x9C8B:
 	ld a, 69
 	ldh [$FF00+$E2], a
 	ld a, 4
-	ld [$A470], a
+	ld [sPlaySampleSFX], a
 	ret
 
 UnknownRJump_0x9CA0:
@@ -3972,7 +3972,7 @@ UnknownRJump_0x9D3D:
 	xor $20
 	ldh [$FF00+$DD], a
 	ldh a, [$FF00+$D5]
-	ld [$A470], a
+	ld [sPlaySampleSFX], a
 	ret
 	call UnknownCall_0x9285
 	ld a, [$AF3E]
@@ -4059,7 +4059,7 @@ UnknownRJump_0x9DC7:
 	ld a, 8
 	ldh [$FF00+$EC], a
 	ldh a, [$FF00+$D5]
-	ld [$A470], a
+	ld [sPlaySampleSFX], a
 	ret
 	ldh a, [$FF00+$EC]
 	and a
@@ -4269,7 +4269,7 @@ INCBIN "baserom.gb", $9F38, $9F46 - $9F38
 	ld a, 46
 	ldh [$FF00+$DB], a
 	ld a, 7
-	ld [$A470], a
+	ld [sPlaySampleSFX], a
 	ret
 	ldh a, [$FF00+$F0]
 	and $01
@@ -4333,7 +4333,7 @@ UnknownRJump_0x9FDF:
 	bit 0, a
 	ret nz
 	ld a, 7
-	ld [$A470], a
+	ld [sPlaySampleSFX], a
 	ret
 
 UnknownRJump_0x9FF2:
@@ -4501,7 +4501,7 @@ INCBIN "baserom.gb", $A105, $A117 - $A105
 	ldh [$FF00+$EC], a
 	ret nz
 	ld a, 5
-	ld [$A470], a
+	ld [sPlaySampleSFX], a
 	ld a, 1
 	ldh [$FF00+$DF], a
 	ld a, [$AFCD]
@@ -4703,7 +4703,7 @@ UnknownRJump_0xA1C6:
 	ldh [$FF00+$E2], a
 	call UnknownCall_0x3CB1
 	ld a, 9
-	ld [$A478], a
+	ld [sPlayDrumSFX], a
 	ret
 
 UnknownRJump_0xA295:
@@ -4814,7 +4814,7 @@ UnknownRJump_0xA316:
 	ld a, 6
 	ldh [$FF00+$EC], a
 	ld a, 13
-	ld [$A470], a
+	ld [sPlaySampleSFX], a
 	ret
 	ldh a, [$FF00+$F0]
 	and $03
@@ -4895,12 +4895,12 @@ UnknownCall_0xA3FF:
 	and $01
 	ret nz
 	ld a, 7
-	ld [$A478], a
+	ld [sPlayDrumSFX], a
 	ld a, [$FF00+$04]
 	and $3F
 	ret nz
 	ld a, 3
-	ld [$A470], a
+	ld [sPlaySampleSFX], a
 	ret
 	call UnknownCall_0xB2FD
 	call UnknownCall_0x9443
@@ -5529,7 +5529,7 @@ UnknownRJump_0xA8D6:
 
 UnknownCall_0xA8FF:
 	ld a, 15
-	ld [$A470], a
+	ld [sPlaySampleSFX], a
 	ld a, 1
 	ld [$AFCF], a
 	ret
@@ -5950,7 +5950,7 @@ UnknownRJump_0xABB6:
 
 UnknownCall_0xABF5:
 	ld a, 1
-	ld [$A470], a
+	ld [sPlaySampleSFX], a
 	ld a, 1
 	ld [$AFCF], a
 	ret
@@ -6058,7 +6058,7 @@ UnknownRJump_0xACAC:
 	add 3
 	ldh [$FF00+$DF], a
 	ld a, 2
-	ld [$A478], a
+	ld [sPlayDrumSFX], a
 	ret
 	call UnknownCall_0xB2EF
 	ld b, 1
@@ -6076,7 +6076,7 @@ UnknownRJump_0xACDE:
 	xor $20
 	ldh [$FF00+$DD], a
 	ld a, 2
-	ld [$A478], a
+	ld [sPlayDrumSFX], a
 	ret
 	call UnknownCall_0xB2EF
 	ld b, 1
@@ -6351,7 +6351,7 @@ UnknownRJump_0xAEBF:
 	ld [$AF38], a
 	call UnknownCall_0xB224
 	ld a, 8
-	ld [$A478], a
+	ld [sPlayDrumSFX], a
 	ld a, 80
 	ldh [$FF00+$EC], a
 	ret
@@ -7923,7 +7923,7 @@ _HandleSavefileSelect::
 	and $01
 	jr nz, .skip_unk
 	ld a, 4
-	ld [$A478], a ; do this every other frame
+	ld [sPlayDrumSFX], a ; do this every other frame
 .skip_unk:
 	ld hl, .bomb_mario_animation_indices
 	ld a, [hFrameCounter]
@@ -8183,7 +8183,7 @@ UnknownRJump_0x30238:
 	ld a, 144
 	ld [$A2D1], a
 	ld a, 5
-	ld [$A478], a
+	ld [sPlayDrumSFX], a
 	ret
 	ld a, 9
 	ldh [hSpriteID], a
@@ -8494,7 +8494,7 @@ INCBIN "baserom.gb", $3046F, $30477 - $3046F
 	ld a, 64
 	ld [sFrameCounter], a
 	ld a, 10
-	ld [$A478], a
+	ld [sPlayDrumSFX], a
 	ret
 
 UnknownRJump_0x30494:
@@ -18433,7 +18433,7 @@ INCBIN "baserom.gb", $5918B, $5918F - $5918B
 	ld a, 98
 	ldh [$FF00+$DB], a
 	ld a, 22
-	ld [$A470], a
+	ld [sPlaySampleSFX], a
 	ret
 
 UnknownRJump_0x591CC:
@@ -18702,7 +18702,7 @@ UnknownJump_0x59369:
 	ld a, 1
 	ldh [$FF00+$DF], a
 	ld a, 1
-	ld [$A478], a
+	ld [sPlayDrumSFX], a
 	ret
 
 UnknownRJump_0x5938C:
@@ -18787,7 +18787,7 @@ UnknownRJump_0x5940D:
 	ld a, 2
 	ldh [$FF00+$DF], a
 	ld a, 10
-	ld [$A470], a
+	ld [sPlaySampleSFX], a
 	ret
 	call UnknownCall_0x5B51A
 	call UnknownCall_0x3B7C
@@ -18919,7 +18919,7 @@ INCBIN "baserom.gb", $5950E, $59512 - $5950E
 	ld a, 130
 	ldh [$FF00+$DB], a
 	ld a, 13
-	ld [$A470], a
+	ld [sPlaySampleSFX], a
 	ret
 	call UnknownCall_0x5B5A6
 	ldh a, [$FF00+$DB]
@@ -19009,7 +19009,7 @@ UnknownRJump_0x5959D:
 	ld a, 16
 	ldh [$FF00+$EC], a
 	ld a, 21
-	ld [$A470], a
+	ld [sPlaySampleSFX], a
 	ret
 
 UnknownRJump_0x595CF:
@@ -19174,7 +19174,7 @@ UnknownRJump_0x596F7:
 	ldh [$FF00+$E2], a
 	call UnknownCall_0x3CB1
 	ld a, 11
-	ld [$A478], a
+	ld [sPlayDrumSFX], a
 	ret
 
 UnknownRJump_0x5973D:
@@ -20342,7 +20342,7 @@ UnknownRJump_0x5A0D5:
 	xor a
 	ldh [$FF00+$EA], a
 	ld a, 17
-	ld [$A470], a
+	ld [sPlaySampleSFX], a
 	ret
 	ldh a, [$FF00+$EC]
 	dec a
@@ -20521,7 +20521,7 @@ INCBIN "baserom.gb", $5A206, $5A20C - $5A206
 	ret nc
 	call UnknownCall_0x5B3C6
 	ld a, 23
-	ld [$A470], a
+	ld [sPlaySampleSFX], a
 	ret
 	ld b, 3
 	call UnknownCall_0x3D32
@@ -21373,7 +21373,7 @@ UnknownRJump_0x5A7EB:
 	ld a, 32
 	ldh [$FF00+$EC], a
 	ld a, 17
-	ld [$A470], a
+	ld [sPlaySampleSFX], a
 	ret
 	ldh a, [$FF00+$EC]
 	dec a
@@ -21461,7 +21461,7 @@ INCBIN "baserom.gb", $5A85C, $5A8D2 - $5A85C
 	ld b, 16
 	call UnknownCall_0x3D2D
 	ld a, 18
-	ld [$A470], a
+	ld [sPlaySampleSFX], a
 	ret
 
 UnknownRJump_0x5A913:
@@ -21655,7 +21655,7 @@ UnknownRJump_0x5AA3E:
 	add 2
 	ldh [$FF00+$DF], a
 	ld a, 16
-	ld [$A470], a
+	ld [sPlaySampleSFX], a
 	ret
 	ld b, 3
 	call UnknownCall_0x3D22
@@ -21798,7 +21798,7 @@ UnknownRJump_0x5AB31:
 
 UnknownCall_0x5AB45:
 	ld a, 10
-	ld [$A470], a
+	ld [sPlaySampleSFX], a
 	ret
 	ldh a, [$FF00+$DF]
 	jumptable
@@ -22021,7 +22021,7 @@ UnknownRJump_0x5ACAF:
 
 UnknownRJump_0x5ACC9:
 	ld a, 1
-	ld [$A478], a
+	ld [sPlayDrumSFX], a
 	ret
 	ldh a, [$FF00+$F0]
 	and $07
@@ -22060,7 +22060,7 @@ UnknownRJump_0x5ACED:
 	ld a, 80
 	ldh [$FF00+$E2], a
 	ld a, 6
-	ld [$A478], a
+	ld [sPlayDrumSFX], a
 	ret
 
 UnknownCall_0x5AD11:
@@ -23812,7 +23812,7 @@ UnknownJump_0x6022A:
 	and $01
 	jp z, UnknownJump_0x60461
 	ld a, 4
-	ld [$A478], a
+	ld [sPlayDrumSFX], a
 	ld a, [$A69A]
 	and $02
 	jr z, UnknownRJump_0x6024B
@@ -24825,7 +24825,7 @@ UnknownCall_0x60917:
 	ld a, [hl]
 	ld [$A7AC], a
 	ld a, 20
-	ld [$A470], a
+	ld [sPlaySampleSFX], a
 	ret
 
 UnknownJump_0x60939:
@@ -25526,7 +25526,7 @@ UnknownRJump_0x60E7D:
 	ld a, [hl]
 	cp $14
 	jr nz, UnknownRJump_0x60E97
-	ld [$A470], a
+	ld [sPlaySampleSFX], a
 	jr UnknownRJump_0x60E9A
 
 UnknownRJump_0x60E97:
@@ -26535,7 +26535,7 @@ UnknownCall_0x684E0:
 	bit 0, a
 	jr z, UnknownRJump_0x684EC
 	ld a, 24
-	ld [$A470], a
+	ld [sPlaySampleSFX], a
 
 UnknownRJump_0x684EC:
 	ld a, 0
