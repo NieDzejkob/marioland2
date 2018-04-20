@@ -31,20 +31,21 @@ PartialAudioReset:
 	jp _PartialAudioReset
 
 _UpdateSound:
-	ld a, [$A45E]
-	cp $01
-	jp z, UnknownJump_0x118F7
-	cp $02
-	jp z, UnknownJump_0x11926
-	ld a, [$A45D]
+	ld a, [sMuteControl]
+	cp MUTECTL_PAUSE
+	jp z, Mute
+	cp MUTECTL_UNPAUSE
+	jp z, Unmute
+
+	ld a, [sMuted]
 	and a
-	jp nz, UnknownJump_0x11936
+	jp nz, MutedSoundUpdate
 
 UnknownJump_0x10044:
-	ld hl, $A468
+	ld hl, sPlaySong
 	ld a, [hli]
 	and a
-	jr nz, UnknownRJump_0x10078
+	jr nz, PlayNewSong
 
 	ld a, [sVolume]
 	and a
@@ -66,18 +67,18 @@ UnknownJump_0x10044:
 UnknownRJump_0x10064:
 	call UnknownCall_0x11638
 
-UnknownJump_0x10067:
+FinishSoundUpdate:
 	xor a
-	ld [$A460], a
-	ld [$A468], a
+	ld [sPlaySFX], a
+	ld [sPlaySong], a
 	ld [$A470], a
 	ld [$A478], a
-	ld [$A45E], a
+	ld [sMuteControl], a
 	ret
 
-UnknownRJump_0x10078:
-	ld [hl], a
-	call UnknownCall_0x112E0
+PlayNewSong:
+	ld [hl], a ; HL = sCurSong
+	call PlaySong
 	jr UnknownRJump_0x10064
 
 UnknownData_0x1007E:
@@ -85,7 +86,7 @@ INCBIN "baserom.gb", $1007E, $100DE - $1007E
 
 
 UnknownCall_0x100DE:
-	ld hl, $A460
+	ld hl, sPlaySFX
 	ld a, [hl]
 	and a
 	jr z, UnknownRJump_0x10116
@@ -146,12 +147,12 @@ INCBIN "baserom.gb", $10134, $1013A - $10134
 	cp $02
 	jp z, UnknownJump_0x106A8
 	ld hl, $4158
-	jp UnknownJump_0x111BB
+	jp CopyToChannel1
 
 UnknownData_0x10152:
 INCBIN "baserom.gb", $10152, $1015E - $10152
 
-	ld a, [$A461]
+	ld a, [sCurSFX]
 	cp $03
 	ret z
 	ld hl, $417C
@@ -162,7 +163,7 @@ INCBIN "baserom.gb", $10152, $1015E - $10152
 	cp $02
 	jp z, UnknownJump_0x106A8
 	ld hl, $4182
-	jp UnknownJump_0x111BB
+	jp CopyToChannel1
 
 UnknownData_0x1017C:
 INCBIN "baserom.gb", $1017C, $10188 - $1017C
@@ -176,7 +177,7 @@ INCBIN "baserom.gb", $1017C, $10188 - $1017C
 	call UnknownCall_0x111DC
 	jp z, UnknownJump_0x106A8
 	ld hl, $41A3
-	jp UnknownJump_0x111BB
+	jp CopyToChannel1
 
 UnknownData_0x101A3:
 INCBIN "baserom.gb", $101A3, $101A9 - $101A3
@@ -194,7 +195,7 @@ INCBIN "baserom.gb", $101A3, $101A9 - $101A3
 UnknownRJump_0x101BF:
 	ld hl, $41D3
 	call UnknownCall_0x111A6
-	jp UnknownJump_0x111BB
+	jp CopyToChannel1
 
 UnknownRJump_0x101C8:
 	call UnknownCall_0x111DC
@@ -214,7 +215,7 @@ INCBIN "baserom.gb", $101D3, $101F3 - $101D3
 	cp $02
 	jp z, UnknownJump_0x106A8
 	ld hl, $4211
-	jp UnknownJump_0x111BB
+	jp CopyToChannel1
 
 UnknownData_0x1020B:
 INCBIN "baserom.gb", $1020B, $10217 - $1020B
@@ -241,7 +242,7 @@ INCBIN "baserom.gb", $1022F, $10238 - $1022F
 	jp z, UnknownJump_0x106A8
 	ld hl, $4253
 	call UnknownCall_0x111A6
-	jp UnknownJump_0x111BB
+	jp CopyToChannel1
 
 UnknownData_0x10253:
 INCBIN "baserom.gb", $10253, $10271 - $10253
@@ -306,7 +307,7 @@ UnknownRJump_0x102FF:
 	ld a, [$A535]
 	cp $01
 	jr z, UnknownRJump_0x1032E
-	call UnknownCall_0x111BB
+	call CopyToChannel1
 
 UnknownRJump_0x1030F:
 	ld bc, $A504
@@ -327,7 +328,7 @@ UnknownRJump_0x10321:
 	jr UnknownRJump_0x102FF
 
 UnknownRJump_0x1032E:
-	call UnknownCall_0x111C1
+	call CopyToChannel2
 	jr UnknownRJump_0x1030F
 
 UnknownData_0x10333:
@@ -371,7 +372,7 @@ INCBIN "baserom.gb", $10374, $1038E - $10374
 UnknownJump_0x103A9:
 	ld hl, $43C0
 	call UnknownCall_0x111A6
-	jp UnknownJump_0x111BB
+	jp CopyToChannel1
 
 UnknownRJump_0x103B2:
 	call UnknownCall_0x111DC
@@ -394,7 +395,7 @@ INCBIN "baserom.gb", $103C0, $103DC - $103C0
 	jp z, UnknownJump_0x106A8
 	ld hl, $43FA
 	call UnknownCall_0x111A6
-	jp UnknownJump_0x111BB
+	jp CopyToChannel1
 
 UnknownData_0x103FA:
 INCBIN "baserom.gb", $103FA, $10408 - $103FA
@@ -431,7 +432,7 @@ INCBIN "baserom.gb", $10431, $10465 - $10431
 	jp z, UnknownJump_0x106A8
 	ld hl, $4486
 	call UnknownCall_0x111A6
-	jp UnknownJump_0x111BB
+	jp CopyToChannel1
 
 UnknownData_0x10486:
 INCBIN "baserom.gb", $10486, $1049C - $10486
@@ -536,7 +537,7 @@ INCBIN "baserom.gb", $1058D, $1059B - $1058D
 	call UnknownCall_0x111A6
 	ld a, [$A504]
 	cp $08
-	jp z, UnknownJump_0x111BB
+	jp z, CopyToChannel1
 	and $01
 	jr z, UnknownRJump_0x105C6
 	ld a, 48
@@ -613,23 +614,23 @@ UnknownJump_0x10685:
 	ld [$A536], a
 
 UnknownJump_0x1068A:
-	ld a, [$A460]
-	ld [$A461], a
+	ld a, [sPlaySFX]
+	ld [sCurSFX], a
 	xor a
 	ld [$A500], a
 	ld [$A504], a
 	ld a, [$A41F]
 	set 7, a
 	ld [$A41F], a
-	jp UnknownJump_0x111BB
+	jp CopyToChannel1
 
 UnknownJump_0x106A2:
 	ld hl, $46C6
-	call UnknownCall_0x111BB
+	call CopyToChannel1
 
 UnknownJump_0x106A8:
 	xor a
-	ld [$A461], a
+	ld [sCurSFX], a
 	ld [$A500], a
 	ldh [$FF00+$10], a
 	ld [$A504], a
@@ -648,7 +649,7 @@ INCBIN "baserom.gb", $106C6, $106CC - $106C6
 UnknownJump_0x106CC:
 	ld b, 2
 	ld c, 19
-	jp UnknownJump_0x111D3
+	jp CopyToAudioRegs
 
 UnknownCall_0x106D3:
 	ld hl, $A470
@@ -698,15 +699,15 @@ UnknownRJump_0x10773:
 	call UnknownCall_0x111A6
 	ld a, [$A506]
 	cp $04
-	jp z, UnknownJump_0x111C7
+	jp z, CopyToChannel3
 	cp $08
-	jp z, UnknownJump_0x111C7
+	jp z, CopyToChannel3
 	cp $0C
-	jp z, UnknownJump_0x111C7
+	jp z, CopyToChannel3
 	cp $10
-	jp z, UnknownJump_0x111C7
+	jp z, CopyToChannel3
 	cp $14
-	jp z, UnknownJump_0x111C7
+	jp z, CopyToChannel3
 	jp UnknownJump_0x10E5D
 
 UnknownRJump_0x10798:
@@ -731,15 +732,15 @@ INCBIN "baserom.gb", $107A3, $1080A - $107A3
 	call UnknownCall_0x111A6
 	ld a, [$A506]
 	cp $03
-	jp z, UnknownJump_0x111C7
+	jp z, CopyToChannel3
 	cp $06
-	jp z, UnknownJump_0x111C7
+	jp z, CopyToChannel3
 	cp $09
-	jp z, UnknownJump_0x111C7
+	jp z, CopyToChannel3
 	cp $0C
-	jp z, UnknownJump_0x111C7
+	jp z, CopyToChannel3
 	cp $0F
-	jp z, UnknownJump_0x111C7
+	jp z, CopyToChannel3
 	jp UnknownJump_0x10E5D
 
 UnknownData_0x10844:
@@ -759,7 +760,7 @@ INCBIN "baserom.gb", $10844, $1089C - $10844
 	call UnknownCall_0x111A6
 	ld a, [$A506]
 	cp $04
-	jp z, UnknownJump_0x111C7
+	jp z, CopyToChannel3
 	jp UnknownJump_0x10E5D
 
 UnknownRJump_0x108C6:
@@ -768,7 +769,7 @@ UnknownRJump_0x108C6:
 	xor a
 	ld [bc], a
 	ld hl, $48E2
-	jp UnknownJump_0x111C7
+	jp CopyToChannel3
 
 UnknownData_0x108D4:
 INCBIN "baserom.gb", $108D4, $108F7 - $108D4
@@ -791,7 +792,7 @@ INCBIN "baserom.gb", $108D4, $108F7 - $108D4
 UnknownRJump_0x1091B:
 	ld hl, $492C
 	call UnknownCall_0x111FF
-	jp UnknownJump_0x111C7
+	jp CopyToChannel3
 
 UnknownData_0x10924:
 INCBIN "baserom.gb", $10924, $10932 - $10924
@@ -819,7 +820,7 @@ UnknownRJump_0x10957:
 	ld [bc], a
 	ld hl, $498E
 	call UnknownCall_0x111FF
-	jp UnknownJump_0x111C7
+	jp CopyToChannel3
 
 UnknownData_0x10968:
 INCBIN "baserom.gb", $10968, $10994 - $10968
@@ -851,12 +852,12 @@ UnknownRJump_0x109AB:
 	jr z, UnknownRJump_0x109D0
 	ld hl, $49DD
 	call UnknownCall_0x111A6
-	jp UnknownJump_0x111C7
+	jp CopyToChannel3
 
 UnknownRJump_0x109D0:
 	ld hl, $49D9
 	call UnknownCall_0x111A6
-	jp UnknownJump_0x111C7
+	jp CopyToChannel3
 
 UnknownData_0x109D9:
 INCBIN "baserom.gb", $109D9, $109F9 - $109D9
@@ -879,7 +880,7 @@ INCBIN "baserom.gb", $109D9, $109F9 - $109D9
 UnknownRJump_0x10A1D:
 	ld hl, $4A2E
 	call UnknownCall_0x111FF
-	jp UnknownJump_0x111C7
+	jp CopyToChannel3
 
 UnknownData_0x10A26:
 INCBIN "baserom.gb", $10A26, $10A34 - $10A26
@@ -908,7 +909,7 @@ UnknownRJump_0x10A5A:
 	ld [bc], a
 	ld hl, $4AA9
 	call UnknownCall_0x111FF
-	jp UnknownJump_0x111C7
+	jp CopyToChannel3
 
 UnknownData_0x10A6B:
 INCBIN "baserom.gb", $10A6B, $10AEA - $10A6B
@@ -955,7 +956,7 @@ UnknownRJump_0x10B4D:
 	ld a, 4
 	ld [bc], a
 	call UnknownCall_0x111FF
-	jp UnknownJump_0x111C7
+	jp CopyToChannel3
 
 UnknownJump_0x10B56:
 	ld hl, $4B8F
@@ -980,7 +981,7 @@ UnknownJump_0x10BAB:
 	ld [bc], a
 	ld hl, $4BBC
 	call UnknownCall_0x111FF
-	jp UnknownJump_0x111C7
+	jp CopyToChannel3
 
 UnknownData_0x10BBC:
 INCBIN "baserom.gb", $10BBC, $10BC2 - $10BBC
@@ -1009,7 +1010,7 @@ UnknownRJump_0x10BEA:
 	ld [bc], a
 	ld hl, $4C19
 	call UnknownCall_0x111FF
-	jp UnknownJump_0x111C7
+	jp CopyToChannel3
 
 UnknownData_0x10BFB:
 INCBIN "baserom.gb", $10BFB, $10C2F - $10BFB
@@ -1068,7 +1069,7 @@ INCBIN "baserom.gb", $10C87, $10C8F - $10C87
 	jp z, UnknownJump_0x10E1D
 	ld hl, $4CAD
 	call UnknownCall_0x111A6
-	jp UnknownJump_0x111C7
+	jp CopyToChannel3
 
 UnknownData_0x10CAD:
 INCBIN "baserom.gb", $10CAD, $10CE1 - $10CAD
@@ -1112,7 +1113,7 @@ UnknownJump_0x10D38:
 	jp z, UnknownJump_0x10E1D
 	ld hl, $4D56
 	call UnknownCall_0x111A6
-	jp UnknownJump_0x111C7
+	jp CopyToChannel3
 
 UnknownData_0x10D56:
 INCBIN "baserom.gb", $10D56, $10D6C - $10D56
@@ -1145,7 +1146,7 @@ UnknownRJump_0x10D99:
 	ld [bc], a
 	ld hl, $4DA8
 	call UnknownCall_0x111FF
-	jp UnknownJump_0x111C7
+	jp CopyToChannel3
 
 UnknownData_0x10DA4:
 INCBIN "baserom.gb", $10DA4, $10DAE - $10DA4
@@ -1199,7 +1200,7 @@ UnknownJump_0x10DF8:
 	ld [$A502], a
 	ld [$A506], a
 	ldh [$FF00+$1A], a
-	jp UnknownJump_0x111C7
+	jp CopyToChannel3
 
 UnknownData_0x10E11:
 INCBIN "baserom.gb", $10E11, $10E17 - $10E11
@@ -1207,7 +1208,7 @@ INCBIN "baserom.gb", $10E11, $10E17 - $10E11
 
 UnknownJump_0x10E17:
 	ld hl, $4E3C
-	call UnknownCall_0x111C7
+	call CopyToChannel3
 
 UnknownJump_0x10E1D:
 	xor a
@@ -1253,7 +1254,7 @@ UnknownCall_0x10E58:
 UnknownJump_0x10E5D:
 	ld c, 29
 	ld b, 2
-	jp UnknownJump_0x111D3
+	jp CopyToAudioRegs
 
 UnknownData_0x10E64:
 INCBIN "baserom.gb", $10E64, $10E90 - $10E64
@@ -1292,7 +1293,7 @@ UnknownRJump_0x10EA9:
 	jp z, UnknownJump_0x11181
 	ld hl, $4ECE
 	call UnknownCall_0x111A6
-	jp UnknownJump_0x111CD
+	jp CopyToChannel4
 
 UnknownData_0x10ECE:
 INCBIN "baserom.gb", $10ECE, $10EEB - $10ECE
@@ -1317,7 +1318,7 @@ UnknownRJump_0x10F0A:
 	ld a, [bc]
 	ld hl, $4F1E
 	call UnknownCall_0x111A6
-	jp UnknownJump_0x1119F
+	jp CopyNoiseFrequency
 
 UnknownRJump_0x10F18:
 	ld a, 32
@@ -1330,11 +1331,11 @@ INCBIN "baserom.gb", $10F1E, $10F4B - $10F1E
 	ld a, 3
 	ld [$A479], a
 	ld hl, $4F60
-	jp UnknownJump_0x111CD
+	jp CopyToChannel4
 	xor a
 	ld [$A479], a
 	ld hl, $4F65
-	jp UnknownJump_0x111CD
+	jp CopyToChannel4
 
 UnknownData_0x10F60:
 INCBIN "baserom.gb", $10F60, $10F6A - $10F60
@@ -1360,7 +1361,7 @@ INCBIN "baserom.gb", $10F7D, $10F82 - $10F7D
 	jp z, UnknownJump_0x11181
 	ld hl, $4F9D
 	call UnknownCall_0x111A6
-	jp UnknownJump_0x1119F
+	jp CopyNoiseFrequency
 
 UnknownData_0x10F9D:
 INCBIN "baserom.gb", $10F9D, $10FC5 - $10F9D
@@ -1374,7 +1375,7 @@ INCBIN "baserom.gb", $10F9D, $10FC5 - $10F9D
 	jp z, UnknownJump_0x11181
 	ld hl, $4FE0
 	call UnknownCall_0x111A6
-	jp UnknownJump_0x111CD
+	jp CopyToChannel4
 
 UnknownData_0x10FE0:
 INCBIN "baserom.gb", $10FE0, $11008 - $10FE0
@@ -1390,7 +1391,7 @@ INCBIN "baserom.gb", $10FE0, $11008 - $10FE0
 	cp $02
 	jp z, UnknownJump_0x11181
 	ld hl, $502B
-	jp UnknownJump_0x111CD
+	jp CopyToChannel4
 
 UnknownData_0x11026:
 INCBIN "baserom.gb", $11026, $11030 - $11026
@@ -1407,14 +1408,14 @@ INCBIN "baserom.gb", $11026, $11030 - $11026
 	ld a, [$A508]
 	cp $05
 	jr nc, UnknownRJump_0x11052
-	jp UnknownJump_0x111CD
+	jp CopyToChannel4
 
 UnknownRJump_0x11052:
 	inc hl
 	inc hl
 	ld a, 32
 	ldh [$FF00+$21], a
-	jp UnknownJump_0x1119F
+	jp CopyNoiseFrequency
 
 UnknownData_0x1105B:
 INCBIN "baserom.gb", $1105B, $11086 - $1105B
@@ -1430,10 +1431,10 @@ INCBIN "baserom.gb", $1105B, $11086 - $1105B
 	call UnknownCall_0x111A6
 	ld a, [$A508]
 	cp $04
-	jp z, UnknownJump_0x111CD
+	jp z, CopyToChannel4
 	cp $08
-	jp z, UnknownJump_0x111CD
-	jp UnknownJump_0x1119F
+	jp z, CopyToChannel4
+	jp CopyNoiseFrequency
 
 UnknownData_0x110AE:
 INCBIN "baserom.gb", $110AE, $110DC - $110AE
@@ -1449,7 +1450,7 @@ INCBIN "baserom.gb", $110AE, $110DC - $110AE
 	jp z, UnknownJump_0x1117B
 	ld hl, $50FC
 	call UnknownCall_0x111A6
-	jp UnknownJump_0x1119F
+	jp CopyNoiseFrequency
 
 UnknownData_0x110FC:
 INCBIN "baserom.gb", $110FC, $1111C - $110FC
@@ -1463,7 +1464,7 @@ INCBIN "baserom.gb", $110FC, $1111C - $110FC
 	jp z, UnknownJump_0x11181
 	ld hl, $5137
 	call UnknownCall_0x111A6
-	jp UnknownJump_0x111CD
+	jp CopyToChannel4
 
 UnknownData_0x11137:
 INCBIN "baserom.gb", $11137, $11163 - $11137
@@ -1478,11 +1479,11 @@ UnknownJump_0x11163:
 	ld a, [$A44F]
 	set 7, a
 	ld [$A44F], a
-	jp UnknownJump_0x111CD
+	jp CopyToChannel4
 
 UnknownJump_0x1117B:
 	ld hl, $519A
-	call UnknownCall_0x111CD
+	call CopyToChannel4
 
 UnknownJump_0x11181:
 	xor a
@@ -1500,10 +1501,10 @@ UnknownData_0x1119A:
 INCBIN "baserom.gb", $1119A, $1119F - $1119A
 
 
-UnknownJump_0x1119F:
+CopyNoiseFrequency::
 	ld b, 2
-	ld c, 34
-	jp UnknownJump_0x111D3
+	ld c, LOW(rNR43)
+	jp CopyToAudioRegs
 
 UnknownCall_0x111A6:
 	dec a
@@ -1530,36 +1531,32 @@ UnknownCall_0x111B7:
 	ld [bc], a
 	ret
 
-UnknownJump_0x111BB:
-UnknownCall_0x111BB:
+CopyToChannel1::
 	ld b, 5
-	ld c, 16
-	jr UnknownRJump_0x111D3
+	ld c, LOW(rNR10)
+	jr CopyToAudioRegs
 
-UnknownCall_0x111C1:
+CopyToChannel2::
 	ld b, 4
-	ld c, 22
-	jr UnknownRJump_0x111D3
+	ld c, LOW(rNR21)
+	jr CopyToAudioRegs
 
-UnknownJump_0x111C7:
-UnknownCall_0x111C7:
+CopyToChannel3::
 	ld b, 5
-	ld c, 26
-	jr UnknownRJump_0x111D3
+	ld c, LOW(rNR30)
+	jr CopyToAudioRegs
 
-UnknownJump_0x111CD:
-UnknownCall_0x111CD:
+CopyToChannel4::
 	ld b, 4
-	ld c, 32
-	jr UnknownRJump_0x111D3
+	ld c, LOW(rNR41)
+	jr CopyToAudioRegs
 
-UnknownJump_0x111D3:
-UnknownRJump_0x111D3:
+CopyToAudioRegs:
 	ld a, [hli]
 	ld [$FF00+c], a
 	inc c
 	dec b
-	jr nz, UnknownRJump_0x111D3
+	jr nz, CopyToAudioRegs
 	ld a, [hl]
 
 UnknownJump_0x111DA:
@@ -1659,14 +1656,19 @@ UnknownRJump_0x11228:
 	pop de
 	ret
 
-UnknownData_0x11244:
-INCBIN "baserom.gb", $11244, $11298 - $11244
+SongPointers:
+	dw $605c ; SONG_OVERWORLD_LEVEL
+	dw $601f ; SONG_LOST_LEVEL
+	dw $5e88 ; SONG_FINISHED_LEVEL
+	dw $69eb
+	dw $779b
+INCBIN "baserom.gb", $1124E, $11298 - $1124E
 
-
-UnknownCall_0x11298:
+; HL = BC = [HL+2*(A-1)]
+Audio_PointerListLookup:
 	inc e
 	dec a
-	sla a
+	sla a ; why not add a?
 	ld c, a
 	ld b, 0
 	add bc
@@ -1697,42 +1699,42 @@ UnknownData_0x112B4:
 INCBIN "baserom.gb", $112B4, $112DD - $112B4
 
 
-UnknownRJump_0x112DD:
+PlaySong_Reset:
 	jp _PartialAudioReset
 
-UnknownCall_0x112E0:
+PlaySong:
 	cp $FF
-	jr z, UnknownRJump_0x112DD
-	cp $2B
+	jr z, PlaySong_Reset
+	cp NUM_SONGS
 	ret nc
-	ld [hl], a
+	ld [hl], a ; already done by the calling routine
 	ld b, a
-	ld hl, $5244
+	ld hl, SongPointers
 	and $3F
-	call UnknownCall_0x11298
+	call Audio_PointerListLookup
 	call StartMusic
 	jp UnknownJump_0x113F3
 
-UnknownData_0x112F7:
+SongParameterList:
 INCBIN "baserom.gb", $112F7, $113F3 - $112F7
 
 
 UnknownJump_0x113F3:
 	ld a, [sCurSong]
-	ld hl, $52F7
+	ld hl, SongParameterList
 
-UnknownRJump_0x113F9:
+.multiply_loop:
 	dec a
-	jr z, UnknownRJump_0x11404
+	jr z, .end_multiply
 	inc hl
 	inc hl
 	inc hl
 	inc hl
 	inc hl
 	inc hl
-	jr UnknownRJump_0x113F9
+	jr .multiply_loop
 
-UnknownRJump_0x11404:
+.end_multiply:
 	ld bc, $A455
 	ld a, [hli]
 	ld [bc], a
@@ -1762,13 +1764,37 @@ UnknownRJump_0x11404:
 
 UnknownCall_0x11421:
 	ld hl, $A455
-	ld a, [hli]
+	ld a, [hli] ; return if $A455 == $01
 	cp $01
 	ret z
 
-UnknownData_0x11428:
-INCBIN "baserom.gb", $11428, $11449 - $11428
+	inc [hl]    ; increment $A456
+	ld a, [hli] ; return if $A456 != $A457
+	cp [hl]
+	ret nz
 
+	dec l
+	ld [hl], 0
+	inc l
+	inc l
+	inc [hl]
+	ld a, [hli]
+	and $03
+	ld c, l      ; a really convoluted way to do ld a, [hl+a]...
+	ld b, h
+	and a
+	jr z, .skip
+	inc c
+	cp 1
+	jr z, .skip
+	inc c
+	cp 2
+	jr z, .skip
+	inc c
+.skip:
+	ld a, [bc]   ; ... ends here
+	ldh [rNR51], a
+	ret
 
 UnknownCall_0x11449:
 	ld a, [hli]
@@ -1783,7 +1809,7 @@ UnknownCall_0x11449:
 	ld [de], a
 	ret
 
-UnknownCall_0x11454:
+Audio_LoadTwoBytes:
 	ld a, [hli]
 	ld [de], a
 	inc e
@@ -1791,51 +1817,51 @@ UnknownCall_0x11454:
 	ld [de], a
 	ret
 
-StartMusic: ;$1145A
+StartMusic::
 	call UnknownCall_0x13F6B
-	ld a, [$A468]
-	cp $02
-	jr z, .SetNormalMusicSpeed
-	cp $03
-	jr z, .SetNormalMusicSpeed
-	cp $0C
-	jr z, .SetNormalMusicSpeed
-	cp $0F
-	jr z, .SetNormalMusicSpeed
-	cp $18
-	jr z, .SetNormalMusicSpeed
-	cp $09
-	jr nz, .StartMusic
+	ld a, [sPlaySong]
+	cp SONG_LOST_LEVEL
+	jr z, .zero_unka20d
+	cp SONG_FINISHED_LEVEL
+	jr z, .zero_unka20d
+	cp SONG_12
+	jr z, .zero_unka20d
+	cp SONG_15
+	jr z, .zero_unka20d
+	cp SONG_24
+	jr z, .zero_unka20d
+	cp SONG_9
+	jr nz, .got_unka20d
 	ld a, 1
-	ld [sFastMusic], a
-	jr .StartMusic
+	ld [sUnkA50D], a
+	jr .got_unka20d
 
-.SetNormalMusicSpeed ;$1147F
+.zero_unka20d: ; probably not tempo, temporary
 	xor a
-	ld [sFastMusic], a
+	ld [sUnkA50D], a
 
-.StartMusic ;$11483
+.got_unka20d:
 	ld de, $A400
-	ld b, 0
+	ld b, 0 ; dead write
 	ld a, [hli]
 	ld [de], a
-	ld a, [sFastMusic]
+	ld a, [sUnkA50D]
 	and a
-	jr z, .SkipFastMusic
+	jr z, .skip_unk
 	ld b, 4
 	ld a, [de]
-	add b
+	add b ; why not add imm8?
 	ld [de], a
-	ld b, 0
+	ld b, 0 ; dead write
 
-.SkipFastMusic ;$11497
+.skip_unk:
 	inc e
-	call UnknownCall_0x11454
-	ld a, [sFastMusic]
+	call Audio_LoadTwoBytes
+	ld a, [sUnkA50D]
 	and a
 	jr z, UnknownRJump_0x114A7
 	dec e
-	call UnknownCall_0x11454
+	call Audio_LoadTwoBytes
 	jr UnknownRJump_0x114A9
 
 UnknownRJump_0x114A7:
@@ -1844,13 +1870,13 @@ UnknownRJump_0x114A7:
 
 UnknownRJump_0x114A9:
 	ld de, $A410
-	call UnknownCall_0x11454
+	call Audio_LoadTwoBytes
 	ld de, $A420
-	call UnknownCall_0x11454
+	call Audio_LoadTwoBytes
 	ld de, $A430
-	call UnknownCall_0x11454
+	call Audio_LoadTwoBytes
 	ld de, $A440
-	call UnknownCall_0x11454
+	call Audio_LoadTwoBytes
 	ld hl, $A410
 	ld de, $A414
 	call UnknownCall_0x11449
@@ -2131,6 +2157,7 @@ UnknownCall_0x11638:
 	ld a, [hl]
 	and a
 	ret z
+
 	call UnknownCall_0x11421
 	ld a, 1
 	ld [$A450], a
@@ -2607,60 +2634,64 @@ UnknownCall_0x118E4:
 	ld [$FF00+c], a
 	ret
 
-UnknownJump_0x118F7:
+Mute:
 	call MuteSoundChannels
 	xor a
-	ld [$A461], a
+	ld [sCurSFX], a
 	ld [$A471], a
 	ld [$A479], a
 	ld [$A505], a
 	ld a, 1
-	ld [$A45D], a
+	ld [sMuted], a
 	ld b, 4
 	ld hl, $A41F
 	ld de, $0010
-
-UnknownRJump_0x11914:
+.loop:
 	res 7, [hl]
 	add de
 	dec b
-	jr nz, UnknownRJump_0x11914
-	ld hl, $5970
-	ld de, $A501
-	call UnknownCall_0x111C1
-	jp UnknownJump_0x10067
+	jr nz, .loop
 
-UnknownJump_0x11926:
+	ld hl, UnknownData_0x11970
+	ld de, $A501
+	call CopyToChannel2
+	jp FinishSoundUpdate
+
+Unmute:
 	xor a
-	ld [$A45D], a
+	ld [sMuted], a
 	ld [$A536], a
 	ld [$A538], a
 	ld [$A539], a
 	jp UnknownJump_0x10044
 
-UnknownJump_0x11936:
+MutedSoundUpdate:
 	ld de, $A501
 	call UnknownCall_0x111B3
-	jp nz, UnknownJump_0x10067
+	jp nz, FinishSoundUpdate
+
 	ld bc, $A505
 	call UnknownCall_0x111B7
 	cp $06
 	jp z, UnknownJump_0x11959
-	ld hl, $5966
+	ld hl, UnknownData_0x11966
 	call UnknownCall_0x111A6
 	ld de, $A501
-	call UnknownCall_0x111C1
-	jp UnknownJump_0x10067
+	call CopyToChannel2
+	jp FinishSoundUpdate
 
 UnknownJump_0x11959:
 	ld a, 240
 	ld [$A501], a
 	ld a, 5
 	ld [$A505], a
-	jp UnknownJump_0x10067
+	jp FinishSoundUpdate
 
-UnknownData_0x11966:
-INCBIN "baserom.gb", $11966, $11989 - $11966
+UnknownData_0x11966::
+INCBIN "baserom.gb", $11966, $11970 - $11966
+
+UnknownData_0x11970::
+INCBIN "baserom.gb", $11970, $11989 - $11970
 
 
 UnknownJump_0x11989:
@@ -2904,14 +2935,14 @@ _PartialAudioReset:
 
 UnknownCall_0x13F6B:
 	xor a
-	ld [$A461], a
+	ld [sCurSFX], a
 	ld [$A471], a
 	ld [$A479], a
 	ld [$A41F], a
 	ld [$A42F], a
 	ld [$A43F], a
 	ld [$A44F], a
-	ld [$A45E], a
+	ld [sMuteControl], a
 	ld [$A50E], a
 	ld [$A51F], a
 	ld [$A52C], a

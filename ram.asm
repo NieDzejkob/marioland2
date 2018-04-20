@@ -68,8 +68,9 @@ sOAMCleared:: db
 	ds 8
 
 sSavefileSelectState:: db
+sSavefileSelectAnimationCounter:: db
 
-	ds 6
+	ds 5
 
 sBGP::  db
 sOBP0:: db
@@ -117,8 +118,19 @@ sDemoDataEnd:
 
 SECTION "Audio SRAM", SRAM[$A400], BANK[0]
 sAudio1::
-	ds $69
+	ds $5D
 
+sMuted:: db
+sMuteControl:: db
+
+	ds 1
+
+sPlaySFX:: db
+sCurSFX:: db
+
+	ds 6
+
+sPlaySong:: db
 sCurSong:: db
 
 	ds $96
@@ -127,7 +139,7 @@ sAudio1End::
 sAudio2::
 	ds $D
 
-sFastMusic:: db
+sUnkA50D:: db
 
 	ds $31
 

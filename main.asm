@@ -168,7 +168,7 @@ UnknownRJump_0x532D:
 	ld a, [sSpinJump]
 	and a
 	jr z, UnknownRJump_0x534C
-	ld hl, $5348
+	ld hl, UnknownData_0x5348
 	ldh a, [hFrameCounter]
 	and $0C
 	srl a
@@ -225,7 +225,7 @@ UnknownRJump_0x5384:
 	ld a, 13
 	ldh [hSpriteID], a
 	ld a, 4
-	ld [$A460], a
+	ld [sPlaySFX], a
 	jp UnknownJump_0x5447
 
 UnknownRJump_0x53A1:
@@ -240,7 +240,7 @@ UnknownJump_0x53AD:
 	and $0C
 	srl a
 	srl a
-	add 1
+	add SPRITE_BIG_MARIO_WALKING_RIGHT_1
 	ldh [hSpriteID], a
 	jp UnknownJump_0x5447
 
@@ -250,7 +250,7 @@ UnknownRJump_0x53BD:
 	ld a, [sMarioInAir]
 	and a
 	jp nz, UnknownJump_0x5447
-	ld a, 10
+	ld a, SPRITE_BIG_MARIO_FALLING_RIGHT
 	ldh [hSpriteID], a
 	jp UnknownJump_0x5447
 
@@ -292,11 +292,11 @@ UnknownRJump_0x53FE:
 	ld a, 12
 	ldh [hSpriteID], a
 	ld a, 4
-	ld [$A460], a
+	ld [sPlaySFX], a
 	jr UnknownRJump_0x5447
 
 UnknownRJump_0x541A:
-	ld a, 4
+	ld a, SPRITE_BIG_MARIO_FACING_LEFT
 	ldh [hSpriteID], a
 	ld a, [sHVelocityIndex]
 	cp $80
@@ -307,7 +307,7 @@ UnknownJump_0x5426:
 	and $0C
 	srl a
 	srl a
-	add 5
+	add SPRITE_BIG_MARIO_WALKING_LEFT_1
 	ldh [hSpriteID], a
 	jp UnknownJump_0x5447
 
@@ -1116,7 +1116,7 @@ UnknownRJump_0x5D39:
 	cp $09
 	jr z, UnknownRJump_0x5D6A
 	ld a, [$A292]
-	ld [$A468], a
+	ld [sPlaySong], a
 
 UnknownRJump_0x5D6A:
 	ld a, [$A224]
@@ -1148,7 +1148,7 @@ UnknownRJump_0x5D6A:
 	ld [sTimer], a
 	ld [sTimer+1], a
 	ld a, 15
-	ld [$A460], a
+	ld [sPlaySFX], a
 	xor a
 	ld [sVolume], a
 	jr UnknownRJump_0x5E12
@@ -1180,7 +1180,7 @@ UnknownRJump_0x5DCB:
 	cp $20
 	jr z, UnknownRJump_0x5DF9
 	ld a, [$A292]
-	ld [$A468], a
+	ld [sPlaySong], a
 	ld a, [$A271]
 	and a
 	jr z, UnknownRJump_0x5E12
@@ -1201,7 +1201,7 @@ UnknownRJump_0x5E03:
 	and a
 	jr nz, UnknownRJump_0x5E12
 	ld a, 9
-	ld [$A468], a
+	ld [sPlaySong], a
 
 UnknownJump_0x5E12:
 UnknownRJump_0x5E12:
@@ -2188,7 +2188,7 @@ UnknownRJump_0x85C4:
 	bit 0, a
 	jr z, UnknownRJump_0x8633
 	ld a, 3
-	ld [$A460], a
+	ld [sPlaySFX], a
 
 UnknownCall_0x85DC:
 	ld hl, $FFD5
@@ -2196,20 +2196,20 @@ UnknownCall_0x85DC:
 	jr UnknownRJump_0x863C
 
 UnknownRJump_0x85E2:
-	ld a, [$A460]
+	ld a, [sPlaySFX]
 	cp $09
 	jr z, UnknownRJump_0x85FC
 	ld a, 16
-	ld [$A460], a
+	ld [sPlaySFX], a
 	jr UnknownRJump_0x85FC
 
 UnknownJump_0x85F0:
 UnknownRJump_0x85F0:
-	ld a, [$A460]
+	ld a, [sPlaySFX]
 	cp $09
 	jr z, UnknownRJump_0x85FC
 	ld a, 6
-	ld [$A460], a
+	ld [sPlaySFX], a
 
 UnknownRJump_0x85FC:
 UnknownCall_0x85FC:
@@ -2246,7 +2246,7 @@ UnknownRJump_0x8611:
 UnknownRJump_0x8633:
 UnknownCall_0x8633:
 	ld a, 3
-	ld [$A460], a
+	ld [sPlaySFX], a
 	ld hl, $FFD5
 	inc [hl]
 
@@ -2376,7 +2376,7 @@ UnknownRJump_0x8708:
 	ld b, 16
 	call UnknownCall_0x3A64
 	ld a, 8
-	ld [$A460], a
+	ld [sPlaySFX], a
 	ld a, 16
 	ldh [$FF00+$D2], a
 	ret
@@ -2815,7 +2815,7 @@ UnknownRJump_0x92A5:
 	and a
 	ret nz
 	ld a, 19
-	ld [$A460], a
+	ld [sPlaySFX], a
 	ld a, [$AFC5]
 	sub 2
 	ld [$AFC5], a
@@ -2861,12 +2861,12 @@ INCBIN "baserom.gb", $92E8, $9323 - $92E8
 	ld a, 1
 	ldh [$FF00+$DF], a
 	ld a, 13
-	ld [$A460], a
+	ld [sPlaySFX], a
 	ld a, [$AF29]
 	and a
 	ret z
 	ld a, 23
-	ld [$A460], a
+	ld [sPlaySFX], a
 	ret
 
 UnknownRJump_0x934C:
@@ -2899,7 +2899,7 @@ INCBIN "baserom.gb", $934E, $9354 - $934E
 	ld a, 208
 	ldh [$FF00+$EC], a
 	ld a, 12
-	ld [$A468], a
+	ld [sPlaySong], a
 	ret
 	ldh a, [$FF00+$EC]
 	dec a
@@ -3026,7 +3026,7 @@ UnknownCall_0x9443:
 	and a
 	ret nz
 	ld a, 255
-	ld [$A468], a
+	ld [sPlaySong], a
 	ret
 	call UnknownCall_0xB183
 	call UnknownCall_0xB276
@@ -3828,7 +3828,7 @@ UnknownJump_0x9C3F:
 	and a
 	jr z, UnknownRJump_0x9C67
 	ld a, 19
-	ld [$A460], a
+	ld [sPlaySFX], a
 	inc b
 	ld a, 31
 	ldh [$FF00+$DB], a
@@ -5655,7 +5655,7 @@ UnknownRJump_0xA9D4:
 	ld a, 1
 	ld [$AFCE], a
 	ld a, 24
-	ld [$A460], a
+	ld [sPlaySFX], a
 	ld a, 48
 	ldh [$FF00+$EC], a
 	ret
@@ -5725,7 +5725,7 @@ UnknownRJump_0xAA4C:
 	ld a, 1
 	ld [$AFCE], a
 	ld a, 24
-	ld [$A460], a
+	ld [sPlaySFX], a
 	ret
 	ldh a, [$FF00+$EC]
 	and a
@@ -6140,7 +6140,7 @@ UnknownRJump_0xAD3A:
 	ld a, 1
 	ld [$AFCE], a
 	ld a, 24
-	ld [$A460], a
+	ld [sPlaySFX], a
 	ret
 	ldh a, [$FF00+$EC]
 	and a
@@ -6247,7 +6247,7 @@ INCBIN "baserom.gb", $ADFD, $AE17 - $ADFD
 	ld a, 2
 	ldh [$FF00+$E0], a
 	ld a, 24
-	ld [$A468], a
+	ld [sPlaySong], a
 	ret
 	call UnknownCall_0xB32D
 	ldh a, [$FF00+$EC]
@@ -6590,7 +6590,7 @@ UnknownRJump_0xB10F:
 	ldh [$FF00+$E0], a
 	ldh [$FF00+$E8], a
 	ld a, 6
-	ld [$A460], a
+	ld [sPlaySFX], a
 	ret
 	call UnknownCall_0xB3C0
 	ldh a, [$FF00+$E8]
@@ -7433,13 +7433,13 @@ _LoadTitlescreen:
 	ld a, LCDCF_ON | LCDCF_WIN9C00 | LCDCF_WINOFF | LCDCF_BG8800 | LCDCF_BG9800 | LCDCF_OBJ8 | LCDCF_OBJON | LCDCF_BGON
 	ld [rLCDC], a
 
-	ld a, HIGH(TITLESCREEN_DEMO_TIMEOUT)
+	ld a, HIGH(1344)
 	ld [sFrameCounter+1], a
-	ld a, LOW(TITLESCREEN_DEMO_TIMEOUT)
+	ld a, LOW(1344)
 	ld [sFrameCounter], a
 
 	ld a, 255
-	ld [$A468], a
+	ld [sPlaySong], a
 
 	ld a, MODE_TITLESCREEN
 	ld [hGameMode], a
@@ -7498,7 +7498,7 @@ _HandleTitlescreen:
 	ld a, [hl]
 	ld [sCurLevel], a
 
-	ld a, MODE_0B
+	ld a, MODE_11
 	ld [hGameMode], a
 	ret
 
@@ -7536,7 +7536,7 @@ _HandleTitlescreen:
 	ld a, [hl]
 	ld [sCurLevel], a
 	ld a, 255
-	ld [$A468], a
+	ld [sPlaySong], a
 	ld a, 11
 	ld [$FF00+$9B], a
 	ret
@@ -7863,9 +7863,9 @@ _LoadSavefileSelect::
 	ld [rLCDC], a
 
 	ld a, 5
-	ld [$A460], a
+	ld [sPlaySFX], a
 	ld a, 13
-	ld [$A468], a
+	ld [sPlaySong], a
 
 	xor a ; SAVEFILE_SELECT_STATE_FALLING_MARIO
 	ld [sEasyMode], a
@@ -7999,7 +7999,7 @@ _HandleSavefileSelect::
 .bomb_mario_animation_indices:
 	db 0, 1, 2, 1
 
-HandleSavefileSelectState:
+HandleSavefileSelectState::
 	ld a, [sSavefileSelectState]
 	jumptable
 	dw SavefileSelect_HandleFallingMario ; SAVEFILE_SELECT_STATE_FALLING_MARIO
@@ -8008,24 +8008,25 @@ HandleSavefileSelectState:
 	dw $42c8
 	dw $426d
 	dw $41c6
-	dw $4140
+	dw SavefileSelect_BlewUp             ; SAVEFILE_SELECT_STATE_BLEW_UP
 
-	ld a, [$A278]
+SavefileSelect_BlewUp::
+	ld a, [sSavefileSelectAnimationCounter] ; ld hl, ... / dec [hl] would be shorter
 	dec a
-	ld [$A278], a
-	jr nz, UnknownRJump_0x30159
+	ld [sSavefileSelectAnimationCounter], a
+	jr nz, .continue
 
-UnknownRJump_0x30149:
+.landed:
 	ld a, 124
 	ldh [hMarioSpriteY], a
-	ld a, 1
+	ld a, SAVEFILE_SELECT_STATE_IDLE
 	ld [sSavefileSelectState], a
 	xor a
 	ld [sSavefileSelectBombMario], a
 	ldh [hSpriteOnTop], a
 	ret
 
-UnknownRJump_0x30159:
+.continue:
 	srl a
 	and $F0
 	swap a
@@ -8035,17 +8036,17 @@ UnknownRJump_0x30159:
 	ldh [hSpriteX], a
 	xor a
 	ldh [hSpriteOnTop], a
-	ld a, [$A278]
+	ld a, [sSavefileSelectAnimationCounter] ; why is this not checked earlier?
 	cp $40
-	jr c, UnknownRJump_0x3017C
+	jr c, .skip_boom_cloud
 	srl a
 	srl a
 	add 112
 	ldh [hSpriteY], a
 	call LoadSprite_Bank0C
 
-UnknownRJump_0x3017C:
-	ld a, [$A278]
+.skip_boom_cloud:
+	ld a, [sSavefileSelectAnimationCounter]
 	and $F0
 	swap a
 	sub 4
@@ -8053,22 +8054,22 @@ UnknownRJump_0x3017C:
 	ld a, [$A2D1]
 	sub b
 	ld [$A2D1], a
-	ld a, [$A278]
+	ld a, [sSavefileSelectAnimationCounter]
 	cp $40
-	jr nc, UnknownRJump_0x301A6
+	jr nc, .end
 	ld a, [$A2D1]
 	cp $7C
-	jr c, UnknownRJump_0x301A6
+	jr c, .end
 	ld a, 124
 	ld [$A2D1], a
-	ld a, 16
+	ld a, SPRITE_BIG_MARIO_PIPING
 	ldh [hSpriteID], a
-	jr UnknownRJump_0x30149
+	jr .landed
 
-UnknownRJump_0x301A6:
+.end:
 	ld a, [$A2D1]
 	ldh [hSpriteY], a
-	ld a, [$A278]
+	ld a, [sSavefileSelectAnimationCounter]
 	and $18
 	sla a
 	swap a
@@ -8091,9 +8092,9 @@ INCBIN "baserom.gb", $301C2, $301C6 - $301C2
 	ldh a, [hMarioSpriteY]
 	add 1
 	ldh [hMarioSpriteY], a
-	ld a, [$A278]
+	ld a, [sSavefileSelectAnimationCounter]
 	dec a
-	ld [$A278], a
+	ld [sSavefileSelectAnimationCounter], a
 	ret nz
 	ld a, 21
 	ld [$A224], a
@@ -8174,7 +8175,7 @@ UnknownRJump_0x30238:
 	ld a, 120
 	ld [hl], a
 	ld a, 128
-	ld [$A278], a
+	ld [sSavefileSelectAnimationCounter], a
 	ld a, 6
 	ld [sSavefileSelectState], a
 	xor a
@@ -8186,12 +8187,12 @@ UnknownRJump_0x30238:
 	ret
 	ld a, 9
 	ldh [hSpriteID], a
-	ld a, [$A278]
+	ld a, [sSavefileSelectAnimationCounter]
 	dec a
-	ld [$A278], a
+	ld [sSavefileSelectAnimationCounter], a
 	cp $2B
 	call z, UnknownCall_0x30291
-	ld a, [$A278]
+	ld a, [sSavefileSelectAnimationCounter]
 	cp $2B
 	jr nc, UnknownRJump_0x3028A
 	cp $0B
@@ -8212,7 +8213,7 @@ UnknownCall_0x30291:
 	ld a, 255
 	ld [sMarioDirection], a
 	ld a, 8
-	ld [$A460], a
+	ld [sPlaySFX], a
 	ld a, [sSavefileSelectBombMario]
 	and a
 	ret z
@@ -8225,7 +8226,7 @@ UnknownRJump_0x302AD:
 	inc a
 	inc a
 	ldh [hMarioSpriteY], a
-	ld a, [$A278]
+	ld a, [sSavefileSelectAnimationCounter]
 	and a
 	ret nz
 	ld a, 1
@@ -8250,9 +8251,9 @@ UnknownRJump_0x302C2:
 	ldh a, [hMarioSpriteX]
 	sub 1
 	ldh [hMarioSpriteX], a
-	ld a, [$A278]
+	ld a, [sSavefileSelectAnimationCounter]
 	dec a
-	ld [$A278], a
+	ld [sSavefileSelectAnimationCounter], a
 	ret nz
 	ld a, 1
 	ld [sSavefileSelectState], a
@@ -8269,9 +8270,9 @@ UnknownRJump_0x302C2:
 	ldh a, [hMarioSpriteX]
 	add 1
 	ldh [hMarioSpriteX], a
-	ld a, [$A278]
+	ld a, [sSavefileSelectAnimationCounter]
 	dec a
-	ld [$A278], a
+	ld [sSavefileSelectAnimationCounter], a
 	ret nz
 	ld a, 1
 	ld [sSavefileSelectState], a
@@ -8308,27 +8309,30 @@ SavefileSelect_HandleIdle::
 	jr z, .enter_pipe
 	cp A_BUTTON
 	jr nz, SavefileSelect_Idle_End
+
 	ldh a, [hMarioSpriteX]
 	cp $88
 	jr nz, SavefileSelect_Idle_End
+
 	ld a, SAVEFILE_SELECT_STATE_TOGGLE_CLEAR
 	ld [sSavefileSelectState], a
 	ld a, 55
-	ld [$A278], a
-	ld a, 1
-	ld [$A460], a
+	ld [sSavefileSelectAnimationCounter], a
+	ld a, SFX_JUMP
+	ld [sPlaySFX], a
 	ret
 
 .enter_pipe:
-	ldh a, [hMarioSpriteX]
+	ldh a, [hMarioSpriteX] ; don't even react to this input if we're under the clear button
 	cp $80
 	jr nc, SavefileSelect_Idle_End
-	ld a, 5
+
+	ld a, SAVEFILE_SELECT_STATE_ENTERING_SAVE
 	ld [sSavefileSelectState], a
 	ld a, 64
-	ld [$A278], a
+	ld [sSavefileSelectAnimationCounter], a
 	ld a, 5
-	ld [$A460], a
+	ld [sPlaySFX], a
 	ret
 
 .toggle_easymode:
@@ -8355,7 +8359,7 @@ SavefileSelect_HandleIdle::
 	ld a, SAVEFILE_SELECT_STATE_WALKING_RIGHT
 	ld [sSavefileSelectState], a
 	ld a, 32
-	ld [$A278], a
+	ld [sSavefileSelectAnimationCounter], a
 	ld a, [sSpriteAnimationCounter]
 	and $0C ; unnecessary, since the bottom two bits will be shifted out anyway
 	srl a
@@ -8371,7 +8375,7 @@ SavefileSelect_HandleIdle::
 	ld a, SAVEFILE_SELECT_STATE_WALKING_LEFT
 	ld [sSavefileSelectState], a
 	ld a, 32
-	ld [$A278], a
+	ld [sSavefileSelectAnimationCounter], a
 	ld a, [sSpriteAnimationCounter]
 	and $0C ; unnecessary, since the bottom two bits will be shifted out anyway
 	srl a
@@ -8617,12 +8621,12 @@ UnknownRJump_0x30567:
 
 UnknownRJump_0x30593:
 	ld a, 15
-	ld [$A468], a
+	ld [sPlaySong], a
 	ld a, [$A2CB]
 	cp $05
 	jr nz, UnknownRJump_0x305A4
 	ld a, 26
-	ld [$A468], a
+	ld [sPlaySong], a
 
 UnknownRJump_0x305A4:
 	ld a, 1
@@ -8714,7 +8718,7 @@ UnknownRJump_0x30629:
 	ld [$FF00+$43], a
 	ld [sOAMCleared], a
 	ld a, 64
-	ld [$A278], a
+	ld [sSavefileSelectAnimationCounter], a
 	xor a
 	ld [sSavefileSelectState], a
 	ld a, 88
@@ -8723,7 +8727,7 @@ UnknownRJump_0x30629:
 	cp $1D
 	jr z, UnknownRJump_0x3066A
 	ld a, 255
-	ld [$A468], a
+	ld [sPlaySong], a
 
 UnknownRJump_0x3066A:
 	call ClearOAM_Bank0C
@@ -8805,7 +8809,7 @@ UnknownRJump_0x30700:
 	ld a, 1
 	ld [sSavefileSelectState], a
 	ld a, 64
-	ld [$A278], a
+	ld [sSavefileSelectAnimationCounter], a
 	ret
 	ld a, [hFrameCounter]
 	and $0C
@@ -8817,9 +8821,9 @@ UnknownRJump_0x30700:
 	add de
 	ld a, [hl]
 	ldh [hSpriteID], a
-	ld a, [$A278]
+	ld a, [sSavefileSelectAnimationCounter]
 	dec a
-	ld [$A278], a
+	ld [sSavefileSelectAnimationCounter], a
 	jr z, UnknownRJump_0x30736
 	srl a
 	ld b, a
@@ -8851,9 +8855,9 @@ INCBIN "baserom.gb", $30748, $3074C - $30748
 	add de
 	ld a, [hl]
 	ldh [hSpriteID], a
-	ld a, [$A278]
+	ld a, [sSavefileSelectAnimationCounter]
 	dec a
-	ld [$A278], a
+	ld [sSavefileSelectAnimationCounter], a
 	jr z, UnknownRJump_0x30771
 	srl a
 	ld b, a
@@ -9502,7 +9506,7 @@ UnknownRJump_0x3C1A2:
 	ld a, c
 	ld [$A27D], a
 	ld a, 255
-	ld [$A468], a
+	ld [sPlaySong], a
 	call UnknownCall_0x2AAA
 	ld a, [$A68B]
 	cp $03
@@ -9530,7 +9534,7 @@ UnknownRJump_0x3C1A2:
 
 UnknownRJump_0x3C1EC:
 	ld a, 22
-	ld [$A460], a
+	ld [sPlaySFX], a
 	call UnknownCall_0x3E9FB
 	call UnknownCall_0x2934
 	ld a, 7
@@ -9549,7 +9553,7 @@ UnknownRJump_0x3C201:
 	cp $6E
 	ret c
 	ld a, 2
-	ld [$A460], a
+	ld [sPlaySFX], a
 	ret
 
 UnknownData_0x3C218:
@@ -9835,7 +9839,7 @@ UnknownRJump_0x3C4E7:
 	ld a, 1
 	ld [$A789], a
 	ld a, 25
-	ld [$A468], a
+	ld [sPlaySong], a
 	ld bc, $5BF6
 	jp UnknownJump_0x3C588
 
@@ -11164,7 +11168,7 @@ UnknownJump_0x3D0D7:
 	ld [$A224], a
 	call UnknownCall_0x3E9FB
 	ld a, 255
-	ld [$A468], a
+	ld [sPlaySong], a
 	call UnknownCall_0x2AAA
 	call UnknownCall_0x3D0FF
 	ld a, 4
@@ -11224,7 +11228,7 @@ UnknownRJump_0x3D151:
 	ld a, 16
 	ld [$A783], a
 	ld a, 16
-	ld [$A468], a
+	ld [sPlaySong], a
 	call UnknownCall_0x2AAA
 	ret
 
@@ -11284,7 +11288,7 @@ UnknownJump_0x3D1E0:
 	ld a, 255
 	ld [$A224], a
 	ld a, 255
-	ld [$A468], a
+	ld [sPlaySong], a
 	call UnknownCall_0x2AAA
 	call UnknownCall_0x3E9FB
 	call UnknownCall_0x3D208
@@ -11348,7 +11352,7 @@ UnknownRJump_0x3D25A:
 	ld [hKeysPressed], a
 	ld [$A69A], a
 	ld a, 30
-	ld [$A468], a
+	ld [sPlaySong], a
 	call UnknownCall_0x2AAA
 	ret
 
@@ -11450,7 +11454,7 @@ UnknownJump_0x3D33A:
 	ld [$A224], a
 	call UnknownCall_0x3E9FB
 	ld a, 255
-	ld [$A468], a
+	ld [sPlaySong], a
 	call UnknownCall_0x2AAA
 	call UnknownCall_0x3D371
 	ld a, 255
@@ -11515,7 +11519,7 @@ UnknownCall_0x3D371:
 	ld [$A6B1], a
 	ld [$A783], a
 	ld a, 5
-	ld [$A468], a
+	ld [sPlaySong], a
 	call UnknownCall_0x2AAA
 	ret
 
@@ -11647,7 +11651,7 @@ UnknownRJump_0x3D4D3:
 	ld [$A783], a
 	ld [$A7BD], a
 	ld a, 28
-	ld [$A468], a
+	ld [sPlaySong], a
 	call UnknownCall_0x2AAA
 	ret
 
@@ -11758,7 +11762,7 @@ UnknownRJump_0x3D606:
 	ld [$A224], a
 	call UnknownCall_0x3E9FB
 	ld a, 255
-	ld [$A468], a
+	ld [sPlaySong], a
 	call UnknownCall_0x2AAA
 	call UnknownCall_0x3D61F
 	ld a, 8
@@ -11809,7 +11813,7 @@ UnknownCall_0x3D61F:
 	ld a, 160
 	ld [$A6A7], a
 	ld a, 18
-	ld [$A468], a
+	ld [sPlaySong], a
 	call UnknownCall_0x2AAA
 	ret
 
@@ -11847,7 +11851,7 @@ UnknownJump_0x3D6C3:
 	ld a, 255
 	ld [$A224], a
 	ld a, 255
-	ld [$A468], a
+	ld [sPlaySong], a
 	call UnknownCall_0x2AAA
 	call UnknownCall_0x3E9FB
 	call UnknownCall_0x3D6EB
@@ -11897,7 +11901,7 @@ UnknownCall_0x3D6EB:
 	ld a, 23
 	ld [$A78B], a
 	ld a, 14
-	ld [$A468], a
+	ld [sPlaySong], a
 	call UnknownCall_0x2AAA
 	ret
 
@@ -11913,7 +11917,7 @@ UnknownJump_0x3D760:
 	ld [$A224], a
 	call UnknownCall_0x3E9FB
 	ld a, 255
-	ld [$A468], a
+	ld [sPlaySong], a
 	call UnknownCall_0x2AAA
 	call UnknownCall_0x3D79A
 	ld a, [$A862]
@@ -11997,13 +12001,13 @@ UnknownCall_0x3D79A:
 	ld [$A6B1], a
 	ld [$A783], a
 	ld a, 27
-	ld [$A468], a
+	ld [sPlaySong], a
 	call UnknownCall_0x2AAA
 	ret
 
 UnknownJump_0x3D848:
 	ld a, 255
-	ld [$A468], a
+	ld [sPlaySong], a
 	call UnknownCall_0x2AAA
 	call UnknownCall_0x3E9FB
 	call UnknownCall_0x3D880
@@ -12058,7 +12062,7 @@ UnknownCall_0x3D880:
 	ld [$A69A], a
 	ld [$A7AA], a
 	ld a, 13
-	ld [$A468], a
+	ld [sPlaySong], a
 	call UnknownCall_0x2AAA
 	call UnknownCall_0x3EEA4
 	ld a, 228
@@ -12207,7 +12211,7 @@ UnknownRJump_0x3D99D:
 	cp $27
 	jr c, UnknownRJump_0x3D9D3
 	ld a, 21
-	ld [$A460], a
+	ld [sPlaySFX], a
 	ld a, 255
 	ld [$A7D2], a
 	call UnknownCall_0x3F8E
@@ -12217,7 +12221,7 @@ UnknownRJump_0x3D9D3:
 	ld [$A7D2], a
 	call UnknownCall_0x3F8E
 	ld a, 6
-	ld [$A460], a
+	ld [sPlaySFX], a
 
 UnknownRJump_0x3D9DE:
 	ld a, [$A840]
@@ -12233,7 +12237,7 @@ UnknownRJump_0x3D9DE:
 	cp $2F
 	jr c, UnknownRJump_0x3DA07
 	ld a, 21
-	ld [$A460], a
+	ld [sPlaySFX], a
 	ld a, 255
 	ld [$A7D5], a
 	call UnknownCall_0x3F8E
@@ -12243,7 +12247,7 @@ UnknownRJump_0x3DA07:
 	ld [$A7D5], a
 	call UnknownCall_0x3F8E
 	ld a, 6
-	ld [$A460], a
+	ld [sPlaySFX], a
 
 UnknownRJump_0x3DA12:
 	call UnknownCall_0x3E277
@@ -12375,12 +12379,12 @@ UnknownCall_0x3DADF:
 	inc a
 	ld [$A6D2], a
 	ld a, 6
-	ld [$A460], a
+	ld [sPlaySFX], a
 	ld a, [$A6D2]
 	cp $6D
 	ret c
 	ld a, 21
-	ld [$A460], a
+	ld [sPlaySFX], a
 	ret
 
 UnknownRJump_0x3DB00:
@@ -12416,7 +12420,7 @@ UnknownCall_0x3DB12:
 	cp $1F
 	jr c, UnknownRJump_0x3DB34
 	ld a, 21
-	ld [$A460], a
+	ld [sPlaySFX], a
 	ld a, 255
 	ld [$A7D2], a
 	jr UnknownRJump_0x3DB3C
@@ -12424,7 +12428,7 @@ UnknownCall_0x3DB12:
 UnknownRJump_0x3DB34:
 	ld [$A7D2], a
 	ld a, 6
-	ld [$A460], a
+	ld [sPlaySFX], a
 
 UnknownRJump_0x3DB3C:
 	call UnknownCall_0x3F8E
@@ -12596,7 +12600,7 @@ INCBIN "baserom.gb", $3DC57, $3DC59 - $3DC57
 UnknownRJump_0x3DC59:
 	ld [$A6D2], a
 	ld a, 6
-	ld [$A460], a
+	ld [sPlaySFX], a
 	ret
 
 UnknownCall_0x3DC62:
@@ -12679,7 +12683,7 @@ UnknownRJump_0x3DCC4:
 	ld a, 20
 	ld [$A7BC], a
 	ld a, 24
-	ld [$A460], a
+	ld [sPlaySFX], a
 	ret
 
 UnknownRJump_0x3DD16:
@@ -12889,12 +12893,12 @@ UnknownRJump_0x3DE9D:
 	ld c, a
 	ld [$A6D5], a
 	ld a, 6
-	ld [$A460], a
+	ld [sPlaySFX], a
 	ld a, c
 	cp $81
 	jr nz, UnknownRJump_0x3DEC3
 	ld a, 21
-	ld [$A460], a
+	ld [sPlaySFX], a
 
 UnknownRJump_0x3DEC3:
 	call UnknownCall_0x3E277
@@ -14233,7 +14237,7 @@ INCBIN "baserom.gb", $3EA53, $3EA9A - $3EA53
 
 UnknownCall_0x3EA9A:
 	ld a, 6
-	ld [$A468], a
+	ld [sPlaySong], a
 	ld a, 0
 	ld [$A878], a
 	ld d, 228
@@ -15231,7 +15235,7 @@ UnknownCall_0x3F156:
 	ld [sBGP], a
 	call DisableLCD
 	ld a, 255
-	ld [$A468], a
+	ld [sPlaySong], a
 	call UnknownCall_0x2AAA
 	di
 	ld a, [$FF00+$B7]
@@ -15292,7 +15296,7 @@ UnknownRJump_0x3F1C2:
 	ld a, 0
 	ld [$A878], a
 	ld a, 6
-	ld [$A468], a
+	ld [sPlaySong], a
 	ei
 	ret
 
@@ -15445,7 +15449,7 @@ UnknownRJump_0x3F2C4:
 
 UnknownCall_0x3F307:
 	ld a, 255
-	ld [$A468], a
+	ld [sPlaySong], a
 	call UnknownCall_0x2AAA
 	call DisableLCD
 	ld a, 25 ;prepare bank switch
@@ -15489,7 +15493,7 @@ UnknownCall_0x3F35A:
 	ld [$FF00+$BB], a
 	call UnknownCall_0x3F30
 	ld a, 5
-	ld [$A460], a
+	ld [sPlaySFX], a
 	ret
 
 UnknownCall_0x3F37F:
@@ -15527,7 +15531,7 @@ UnknownCall_0x3F38F:
 
 UnknownRJump_0x3F3B1:
 	ld a, 19
-	ld [$A460], a
+	ld [sPlaySFX], a
 	ld a, 1
 	ret
 
@@ -15625,9 +15629,9 @@ UnknownJump_0x3F45E:
 
 UnknownCall_0x3F495:
 	ld a, 21
-	ld [$A468], a
+	ld [sPlaySong], a
 	ld a, 5
-	ld [$A460], a
+	ld [sPlaySFX], a
 	ret
 
 UnknownCall_0x3F4A0:
@@ -15641,7 +15645,7 @@ UnknownCall_0x3F4A0:
 
 UnknownCall_0x3F4B1:
 	ld a, 255
-	ld [$A468], a
+	ld [sPlaySong], a
 	call UnknownCall_0x2AAA
 	call DisableLCD
 	ld a, 25 ;prepare bank switch
@@ -15712,7 +15716,7 @@ UnknownRJump_0x3F510:
 	ld [$FF00+$BB], a
 	call UnknownCall_0x3F30
 	ld a, 5
-	ld [$A460], a
+	ld [sPlaySFX], a
 	ld a, 144
 	ld hl, $A7D5
 	ld [hli], a
@@ -15750,14 +15754,14 @@ UnknownRJump_0x3F510:
 	ld a, 195
 	ld [$FF00+$40], a
 	ld a, 21
-	ld [$A468], a
+	ld [sPlaySong], a
 	ld a, 0
 	ld [$A24F], a
 	ret
 
 UnknownCall_0x3F5A4:
 	ld a, 255
-	ld [$A468], a
+	ld [sPlaySong], a
 	call UnknownCall_0x2AAA
 	call DisableLCD
 	ld a, 25 ;prepare bank switch
@@ -15808,13 +15812,13 @@ UnknownCall_0x3F5A4:
 	ld [$FF00+$BB], a
 	call UnknownCall_0x3F30
 	ld a, 5
-	ld [$A460], a
+	ld [sPlaySFX], a
 	ld a, 57
 	ld [sOBP1], a
 	ld a, 195
 	ld [$FF00+$40], a
 	ld a, 21
-	ld [$A468], a
+	ld [sPlaySong], a
 	ld a, 0
 	ld [$A24F], a
 	ret
@@ -16272,7 +16276,7 @@ UnknownRJump_0x58293:
 	xor a
 	ldh [$FF00+$E2], a
 	ld a, 3
-	ld [$A460], a
+	ld [sPlaySFX], a
 	ret
 
 UnknownRJump_0x582C3:
@@ -16451,7 +16455,7 @@ UnknownRJump_0x583DB:
 	inc a
 	ldh [$FF00+$DF], a
 	ld a, 2
-	ld [$A460], a
+	ld [sPlaySFX], a
 	ret
 	call UnknownCall_0x3C08
 	ld a, [$AF2F]
@@ -16466,7 +16470,7 @@ UnknownRJump_0x583F7:
 	dec a
 	ldh [$FF00+$DF], a
 	ld a, 2
-	ld [$A460], a
+	ld [sPlaySFX], a
 	ret
 	call UnknownCall_0x3BA4
 	ld a, [$AF2F]
@@ -22821,7 +22825,7 @@ UnknownCall_0x5B31D:
 	ld [$AF36], a
 	call UnknownCall_0x5B346
 	ld a, 8
-	ld [$A460], a
+	ld [sPlaySFX], a
 	ret
 
 UnknownCall_0x5B33A:
@@ -23763,7 +23767,7 @@ UnknownCall_0x601BA:
 	ld [hl], a
 	call UnknownCall_0x610DD
 	ld a, 8
-	ld [$A468], a
+	ld [sPlaySong], a
 	ret
 
 UnknownRJump_0x601D9:
@@ -24092,7 +24096,7 @@ UnknownRJump_0x6041E:
 	ld [hli], a
 	ld [hl], a
 	ld a, 22
-	ld [$A468], a
+	ld [sPlaySong], a
 	ret
 
 UnknownCall_0x6042D:
@@ -24298,7 +24302,7 @@ UnknownRJump_0x60582:
 	ld a, 24
 	ld [$A7A7], a
 	ld a, 8
-	ld [$A468], a
+	ld [sPlaySong], a
 	jr UnknownRJump_0x605A0
 
 UnknownRJump_0x6059A:
@@ -24383,7 +24387,7 @@ UnknownCall_0x6061C:
 	ld a, 9
 	ld [$A7A6], a
 	ld a, 17
-	ld [$A460], a
+	ld [sPlaySFX], a
 	ret
 
 UnknownCall_0x6062D:
@@ -24391,7 +24395,7 @@ UnknownCall_0x6062D:
 	cp $01
 	ret nz
 	ld a, 22
-	ld [$A468], a
+	ld [sPlaySong], a
 	ret
 
 UnknownRJump_0x60639:
@@ -24826,7 +24830,7 @@ UnknownCall_0x60917:
 
 UnknownJump_0x60939:
 	ld a, 9
-	ld [$A460], a
+	ld [sPlaySFX], a
 	ld a, [$A7A8]
 	cp $03
 	jr nz, UnknownRJump_0x60955
@@ -24973,7 +24977,7 @@ INCBIN "baserom.gb", $60A1A, $60A81 - $60A1A
 	ld a, 0
 	ld [$A79A], a
 	ld a, 1
-	ld [$A460], a
+	ld [sPlaySFX], a
 	jr UnknownRJump_0x60AEC
 
 UnknownJump_0x60AA7:
@@ -25233,7 +25237,7 @@ UnknownRJump_0x60C7F:
 	ld a, 150
 	ld [$A7A7], a
 	ld a, 8
-	ld [$A468], a
+	ld [sPlaySong], a
 	jp UnknownJump_0x60AEC
 
 UnknownRJump_0x60C91:
@@ -25372,7 +25376,7 @@ UnknownRJump_0x60D49:
 	or a
 	ret z
 	ld a, 22
-	ld [$A468], a
+	ld [sPlaySong], a
 	ret
 
 UnknownCall_0x60D80:
@@ -25414,7 +25418,7 @@ UnknownRJump_0x60DB3:
 	set 7, a
 	ld [$A7AA], a
 	ld a, 17
-	ld [$A460], a
+	ld [sPlaySFX], a
 	ret
 
 UnknownCall_0x60DC7:
@@ -25526,7 +25530,7 @@ UnknownRJump_0x60E7D:
 	jr UnknownRJump_0x60E9A
 
 UnknownRJump_0x60E97:
-	ld [$A460], a
+	ld [sPlaySFX], a
 
 UnknownRJump_0x60E9A:
 	ld a, [sCoinCount+1]
@@ -26050,7 +26054,7 @@ INCBIN "baserom.gb", $6801A, $68042 - $6801A
 	inc a
 	ld [$A2DD], a
 	ld a, 6
-	ld [$A460], a
+	ld [sPlaySFX], a
 	xor a
 	ld [sFrameCounter+1], a
 	ld a, 64
@@ -26244,7 +26248,7 @@ INCBIN "baserom.gb", $68125, $68139 - $68125
 	inc a
 	ld [$A2DD], a
 	ld a, 7
-	ld [$A460], a
+	ld [sPlaySFX], a
 	ld a, 44
 	ld [$A2E1], a
 	ret
