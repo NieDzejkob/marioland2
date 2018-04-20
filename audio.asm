@@ -1712,14 +1712,54 @@ PlaySong:
 	ld hl, SongPointers
 	and $3F
 	call Audio_PointerListLookup
-	call StartMusic
-	jp UnknownJump_0x113F3
+	call LoadSong
+	jp LoadSongParams
 
 SongParameterList:
-INCBIN "baserom.gb", $112F7, $113F3 - $112F7
+	db 1, 0, NR51_ALL, -1, 0, 0
+	db 1, 0, NR51_ALL, -1, 0, 0
+	db 1, 0, NR51_ALL, -1, 0, 0
+	db 1, 0, NR51_ALL, -1, 0, 0
+	db 1, 0, NR51_ALL, -1, 0, 0
+	db 1, 0, NR51_ALL, -1, 0, 0
+	db 1, 0, NR51_ALL, -1, 0, 0
+	db 1, 0, NR51_ALL, -1, 0, 0
+	db 1, 0, NR51_ALL, -1, 0, 0
+	db 1, 0, NR51_ALL, -1, 0, 0
+	db 1, 0, NR51_ALL, -1, 0, 0
+	db 1, 0, NR51_ALL, -1, 0, 0
+	db 1, 0, NR51_ALL, -1, 0, 0
+	db 1, 0, NR51_ALL, -1, 0, 0
+	db 1, 0, NR51_ALL, -1, 0, 0
+	db 1, 0, NR51_ALL, -1, 0, 0
+	db 1, 0, NR51_ALL, -1, 0, 0
+	db 1, 0, NR51_ALL, -1, 0, 0
+	db 1, 0, NR51_ALL, -1, 0, 0
+	db 1, 0, NR51_ALL, -1, 0, 0
+	db 1, 0, NR51_ALL, -1, 0, 0
+	db 1, 0, NR51_ALL, -1, 0, 0
+	db 1, 0, NR51_ALL, -1, 0, 0
+	db 1, 0, NR51_ALL, -1, 0, 0
+	db 1, 0, NR51_ALL, -1, 0, 0
+	db 1, 0, NR51_ALL, -1, 0, 0
+	db 1, 0, NR51_ALL, -1, 0, 0
+	db 1, 0, NR51_ALL, -1, 0, 0
+	db 1, 0, NR51_ALL, -1, 0, 0
+	db 1, 0, NR51_ALL, -1, 0, 0
+	db 1, 0, NR51_ALL, -1, 0, 0
+	db 1, 0, NR51_ALL, -1, 0, 0
+	db 1, 0, NR51_ALL, -1, 0, 0
+	db 1, 0, NR51_ALL, -1, 0, 0
+	db 1, 0, NR51_ALL, -1, 0, 0
+	db 1, 0, NR51_ALL, -1, 0, 0
+	db 1, 0, NR51_ALL, -1, 0, 0
+	db 1, 0, NR51_ALL, -1, 0, 0
+	db 1, 0, NR51_ALL, -1, 0, 0
+	db 1, 0, NR51_ALL, -1, 0, 0
+	db 1, 0, NR51_ALL, -1, 0, 0
+	db 1, 0, NR51_ALL, -1, 0, 0
 
-
-UnknownJump_0x113F3:
+LoadSongParams:
 	ld a, [sCurSong]
 	ld hl, SongParameterList
 
@@ -1736,29 +1776,36 @@ UnknownJump_0x113F3:
 
 .end_multiply:
 	ld bc, $A455
-	ld a, [hli]
+	ld a, [hli] ; byte 1
 	ld [bc], a
 	inc c
+
 	xor a
 	ld [bc], a
 	inc c
-	ld a, [hli]
+
+	ld a, [hli] ; byte 2
 	ld [bc], a
 	inc c
+
 	xor a
 	ld [bc], a
 	inc c
-	ld a, [hli]
-	ld [bc], a
-	ldh [$FF00+$25], a
+
+	ld a, [hli] ; byte 3
+	ld [bc], a  ; sChannelsEnabled
+	ldh [rNR51], a
 	inc c
-	ld a, [hli]
+
+	ld a, [hli] ; byte 4
 	ld [bc], a
 	inc c
-	ld a, [hli]
+
+	ld a, [hli] ; byte 5
 	ld [bc], a
 	inc c
-	ld a, [hli]
+
+	ld a, [hli] ; byte 6
 	ld [bc], a
 	ret
 
@@ -1774,7 +1821,7 @@ UnknownCall_0x11421:
 	ret nz
 
 	dec l
-	ld [hl], 0
+	ld [hl], 0  ; set $A456 to 0
 	inc l
 	inc l
 	inc [hl]
@@ -1817,7 +1864,7 @@ Audio_LoadTwoBytes:
 	ld [de], a
 	ret
 
-StartMusic::
+LoadSong::
 	call UnknownCall_0x13F6B
 	ld a, [sPlaySong]
 	cp SONG_LOST_LEVEL
@@ -1830,7 +1877,7 @@ StartMusic::
 	jr z, .zero_unka20d
 	cp SONG_24
 	jr z, .zero_unka20d
-	cp SONG_9
+	cp SONG_LOW_ON_TIME
 	jr nz, .got_unka20d
 	ld a, 1
 	ld [sUnkA50D], a

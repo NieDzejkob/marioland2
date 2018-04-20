@@ -7,7 +7,7 @@ SONG_OVERWORLD_LEVEL       EQU 1
 SONG_LOST_LEVEL            EQU 2
 SONG_FINISHED_LEVEL        EQU 3
 SONG_INVINCIBLE            EQU 4
-SONG_9                     EQU 9
+SONG_LOW_ON_TIME           EQU 9
 SONG_12                    EQU 12
 SONG_15                    EQU 15
 SONG_TREE_ZONE             EQU 16

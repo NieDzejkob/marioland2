@@ -118,7 +118,11 @@ sDemoDataEnd:
 
 SECTION "Audio SRAM", SRAM[$A400], BANK[0]
 sAudio1::
-	ds $5D
+	ds $59
+
+sChannelsEnabled:: db
+
+	ds 3
 
 sMuted:: db
 sMuteControl:: db
