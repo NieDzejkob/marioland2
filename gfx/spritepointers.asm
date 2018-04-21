@@ -7,10 +7,10 @@ SpritePointers::
 	dw Sprite_BigMario_WalkingLeft1
 	dw Sprite_BigMario_WalkingLeft2
 	dw Sprite_BigMario_WalkingLeft3
-	dw Sprite_Unk_0x50A2
-	dw Sprite_Unk_0x50CB
-	dw SpriteBigMario_FallingRight
-	dw Sprite_Unk_0x5119
+	dw Sprite_BigMario_JumpingRight
+	dw Sprite_BigMario_JumpingLeft
+	dw Sprite_BigMario_FallingRight
+	dw Sprite_BigMario_FallingLeft
 	dw Sprite_Unk_0x4ECA
 	dw Sprite_Unk_0x4EA1
 	dw Sprite_Unk_0x4F2D

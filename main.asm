@@ -7915,18 +7915,22 @@ _HandleSavefileSelect::
 	and a
 	jr z, .load_sprite
 
+	; we're bomb mario
+
 	ld a, [sSavefileSelectState]
 	cp SAVEFILE_SELECT_STATE_TOGGLE_CLEAR
-	jr z, .skip_unk
+	jr z, .skip_tick
+
+	; and it's not the jump animation
 
 	ld a, [hFrameCounter]
 	and $01
-	jr nz, .skip_unk
-	ld a, 4
-	ld [sPlayDrumSFX], a ; do this every other frame
-.skip_unk:
-	ld hl, .bomb_mario_animation_indices
-	ld a, [hFrameCounter]
+	jr nz, .skip_tick
+	ld a, DRUMSFX_TICK
+	ld [sPlayDrumSFX], a ; tick every other frame
+.skip_tick:
+	ld hl, .bomb_mario_animation_indices ; this would be way simpler with a
+	ld a, [hFrameCounter] ; conditional jump instead of a lookup table
 	and $0C
 	srl a
 	srl a
@@ -8004,9 +8008,9 @@ HandleSavefileSelectState::
 	jumptable
 	dw SavefileSelect_HandleFallingMario ; SAVEFILE_SELECT_STATE_FALLING_MARIO
 	dw SavefileSelect_HandleIdle         ; SAVEFILE_SELECT_STATE_IDLE
-	dw $42f1
-	dw $42c8
-	dw $426d
+	dw SavefileSelect_WalkingRight       ; SAVEFILE_SELECT_STATE_WALKING_RIGHT
+	dw SavefileSelect_WalkingLeft        ; SAVEFILE_SELECT_STATE_WALKING_LEFT
+	dw SavefileSelect_ToggleClear        ; SAVEFILE_SELECT_STATE_TOGGLE_CLEAR
 	dw $41c6
 	dw SavefileSelect_BlewUp             ; SAVEFILE_SELECT_STATE_BLEW_UP
 
@@ -8185,6 +8189,8 @@ UnknownRJump_0x30238:
 	ld a, 5
 	ld [sPlayDrumSFX], a
 	ret
+
+SavefileSelect_ToggleClear::
 	ld a, 9
 	ldh [hSpriteID], a
 	ld a, [sSavefileSelectAnimationCounter]
@@ -8239,42 +8245,54 @@ UnknownRJump_0x302C2:
 	ld a, 255
 	ld [sSavefileSelectStars], a
 	ret
-	ld a, 255
+
+SavefileSelect_WalkingLeft::
+	ld a, MARIO_DIRECTION_LEFT
 	ld [sMarioDirection], a
-	call UnknownCall_0x3040D
+	call SavefileSelect_IncrementAnimationCounter
+
 	ld a, [sSpriteAnimationCounter]
-	and $0C
+	and $0C ; unnecessary, since the bottom bits will be shifted out
 	srl a
 	srl a
-	add 5
+	add SPRITE_BIG_MARIO_WALKING_LEFT_1
 	ldh [hSpriteID], a
+
 	ldh a, [hMarioSpriteX]
-	sub 1
+	sub 1 ; why not dec a?
 	ldh [hMarioSpriteX], a
+
 	ld a, [sSavefileSelectAnimationCounter]
 	dec a
 	ld [sSavefileSelectAnimationCounter], a
 	ret nz
-	ld a, 1
+
+	ld a, SAVEFILE_SELECT_STATE_IDLE
 	ld [sSavefileSelectState], a
 	ret
-	ld a, 1
+
+SavefileSelect_WalkingRight::
+	ld a, MARIO_DIRECTION_RIGHT
 	ld [sMarioDirection], a
-	call UnknownCall_0x3040D
+	call SavefileSelect_IncrementAnimationCounter
+
 	ld a, [sSpriteAnimationCounter]
-	and $0C
+	and $0C ; unnecessary, since the bottom bits will be shifted out
 	srl a
 	srl a
-	add 1
+	add SPRITE_BIG_MARIO_WALKING_RIGHT_1 ; = 1, so you could just inc a
 	ldh [hSpriteID], a
+
 	ldh a, [hMarioSpriteX]
-	add 1
+	add 1 ; why not inc a?
 	ldh [hMarioSpriteX], a
+
 	ld a, [sSavefileSelectAnimationCounter]
 	dec a
 	ld [sSavefileSelectAnimationCounter], a
 	ret nz
-	ld a, 1
+
+	ld a, SAVEFILE_SELECT_STATE_IDLE
 	ld [sSavefileSelectState], a
 	ret
 
@@ -8420,11 +8438,11 @@ SavefileSelect_HandleFallingMario::
 	ldh [hMarioSpriteY], a
 	ret
 
-UnknownCall_0x3040D:
+SavefileSelect_IncrementAnimationCounter:
 	ld a, [sSpriteAnimationCounter]
 	add 1
 	ld [sSpriteAnimationCounter], a
-	cp $0C
+	cp 12
 	ret c
 	xor a
 	ld [sSpriteAnimationCounter], a

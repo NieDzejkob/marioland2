@@ -1372,7 +1372,7 @@ Sprite_BigMario_WalkingLeft3::
 
 Sprite_Unk_0x509E::
 	db -12, -4,  $1E, OAM_ATTR_X_FLIP
-Sprite_Unk_0x50A2::
+Sprite_BigMario_JumpingRight::
 	db -12, -8,  $01, OAM_ATTR_X_FLIP
 	db -12,  0,  $08, OAM_ATTR_X_FLIP
 	db -4,  -8,  $11, OAM_ATTR_X_FLIP
@@ -1386,7 +1386,7 @@ Sprite_Unk_0x50A2::
 
 Sprite_Unk_0x50C7::
 	db -12, -4,  $1E, 0
-Sprite_Unk_0x50CB::
+Sprite_BigMario_JumpingLeft::
 	db -12, -8,  $08, 0
 	db -12,  0,  $01, 0
 	db -4,  -8,  $18, 0
@@ -1400,7 +1400,7 @@ Sprite_Unk_0x50CB::
 
 Sprite_Unk_0x50F0::
 	db -12, -4,  $1E, OAM_ATTR_X_FLIP
-SpriteBigMario_FallingRight::
+Sprite_BigMario_FallingRight::
 	db -12, -8,  $01, OAM_ATTR_X_FLIP
 	db -12,  0,  $00, OAM_ATTR_X_FLIP
 	db -4,  -8,  $11, OAM_ATTR_X_FLIP
@@ -1413,7 +1413,7 @@ SpriteBigMario_FallingRight::
 
 Sprite_Unk_0x5115::
 	db -12, -4,  $1E, 0
-Sprite_Unk_0x5119::
+Sprite_BigMario_FallingLeft::
 	db -12, -8,  $00, 0
 	db -12,  0,  $01, 0
 	db -4,  -8,  $10, 0
