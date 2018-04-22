@@ -30,7 +30,11 @@ SECTION "Variables", SRAM[$A200], BANK[0]
 
 sSpriteAnimationCounter:: db
 
-	ds 4
+	ds 1
+
+sCollision:: db
+
+	ds 2
 
 sMarioX:: dw
 sMarioY:: dw
@@ -90,7 +94,11 @@ sAnimatedTilesCounter:: db
 ; low nibble - tile group
 sAnimatedTilesCtl:: db
 
-	ds 9
+	ds 6
+
+sCheckpointTriggered:: db
+
+	ds 2
 
 sCurrentSavefile:: db
 
@@ -118,13 +126,12 @@ sSavefileSelectMarioYAfterBoom:: db
 sEasyMode:: db
 
 	ds $1B
-SECTION "Demo Data", SRAM[$A300], BANK[0]
+
 ; RLE-encoded demo inputs are copied here
 sDemoData::
 	ds $100
 sDemoDataEnd:
 
-SECTION "Audio SRAM", SRAM[$A400], BANK[0]
 sAudio1::
 	ds $59
 
@@ -172,11 +179,22 @@ sVolume:: db
 	ds $C0
 sAudio2End::
 
-SECTION "Current Savefile", SRAM[$A840], BANK[0]
-sCurrentSavefileData:: ds SAVEFILE_SIZE
+	ds $8B
+
+sCurrentZone:: db
+
+	ds $1B4
+
+sCurrentSavefileData::
+savWorldMapLocation:: db
+	ds 7
+
+; each byte describes a level
+; bit 7 - completed
+; bit 3 - checkpoint
+savLevelsBitfields:: ds 56
 sCurrentSavefileDataEnd::
 
-SECTION "Stack", SRAM[$A880], BANK[0]
 sStack::
 	ds $80
 sStackEnd::

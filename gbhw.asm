@@ -1,6 +1,7 @@
 ; MBC1
 MBC1SRamEnable EQU $0000
 MBC1RomBank    EQU $2100
+MBC1RomBankAlt EQU $3000
 MBC1SRamBank   EQU $4000
 MBC1ModeSelect EQU $6000
 

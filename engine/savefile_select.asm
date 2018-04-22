@@ -289,7 +289,7 @@ SavefileSelect_EnteringPipe::
 	; animation finished
 
 	ld a, 21
-	ld [$A224], a
+	ld [sCollision], a
 
 	ldh a, [hMarioSpriteX]
 	and $60

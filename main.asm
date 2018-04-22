@@ -504,12 +504,12 @@ UnknownJump_0x5550:
 
 UnknownJump_0x5579:
 	xor a
-	ld [$A2A0], a
+	ld [sCheckpointTriggered], a
 	ld a, [$A27D]
 	bit 3, a
 	jr z, UnknownRJump_0x5589
 	ld a, 255
-	ld [$A2A0], a
+	ld [sCheckpointTriggered], a
 
 UnknownRJump_0x5589:
 	ld hl, Level_Header_Pointers
@@ -533,7 +533,7 @@ UnknownRJump_0x559F:
 	inc de
 	dec b
 	jr nz, UnknownRJump_0x559F
-	ld a, [$A2A0]
+	ld a, [sCheckpointTriggered]
 	and a
 	jr z, UnknownRJump_0x55C6
 	ld hl, $377B
@@ -1119,7 +1119,7 @@ UnknownRJump_0x5D39:
 	ld [sPlaySong], a
 
 UnknownRJump_0x5D6A:
-	ld a, [$A224]
+	ld a, [sCollision]
 	ld b, a
 	ld a, [$A2E3]
 	ld c, a
@@ -1143,7 +1143,7 @@ UnknownRJump_0x5D6A:
 	ld [sTimer+1], a
 	jr nc, UnknownRJump_0x5DB4
 	ld a, 128
-	ld [$A224], a
+	ld [sCollision], a
 	xor a
 	ld [sTimer], a
 	ld [sTimer+1], a
@@ -2838,7 +2838,7 @@ UnknownRJump_0x92C4:
 	ret
 
 UnknownCall_0x92DF:
-	ld a, [$A224]
+	ld a, [sCollision]
 	cp $FF
 	ret z
 	ldh a, [$FF00+$D5]
@@ -8060,7 +8060,7 @@ UnknownRJump_0x30736:
 	ld [sFrameCounter], a
 	ld [sFrameCounter+1], a
 	ld a, 1
-	ld [$A224], a
+	ld [sCollision], a
 	ret
 
 UnknownData_0x30748:
@@ -8491,7 +8491,7 @@ SECTION "bank0F", ROMX, BANK[$0F]
 
 
 UnknownJump_0x3C000:
-	ld a, [$A68B]
+	ld a, [sCurrentZone]
 	or a
 	jp z, UnknownJump_0x3C04D
 	cp $01
@@ -8526,7 +8526,7 @@ UnknownJump_0x3C000:
 UnknownJump_0x3C04D:
 	call UnknownCall_0x3ED4C
 	call UnknownCall_0x3C38C
-	ld a, [$A68B]
+	ld a, [sCurrentZone]
 	or a
 	jp nz, UnknownJump_0x3C169
 	call UnknownCall_0x3C13E
@@ -8624,7 +8624,7 @@ UnknownRJump_0x3C101:
 	cp $0A
 	ret nz
 	call UnknownCall_0x3E9FB
-	call UnknownCall_0x3EF2B
+	call _HandleMode20
 	ret
 
 UnknownJump_0x3C10E:
@@ -8648,7 +8648,7 @@ UnknownRJump_0x3C131:
 	cp $0A
 	ret nz
 	call UnknownCall_0x3E9FB
-	call UnknownCall_0x3EF2B
+	call _HandleMode20
 	ret
 
 UnknownCall_0x3C13E:
@@ -8686,7 +8686,7 @@ UnknownJump_0x3C169:
 	ld a, [$A7A0]
 	or a
 	ret nz
-	ld a, [$A840]
+	ld a, [savWorldMapLocation]
 	ld hl, $650E
 	ld d, 0
 	ld e, a
@@ -8715,7 +8715,7 @@ UnknownJump_0x3C169:
 UnknownRJump_0x3C1A2:
 	xor a
 	ld [$A27D], a
-	ld a, [$A840]
+	ld a, [savWorldMapLocation]
 	ld hl, $4218
 	ld d, 0
 	ld e, a
@@ -8729,7 +8729,7 @@ UnknownRJump_0x3C1A2:
 	ld a, 255
 	ld [sPlaySong], a
 	call UnknownCall_0x2AAA
-	ld a, [$A68B]
+	ld a, [sCurrentZone]
 	cp $03
 	jr z, UnknownRJump_0x3C1EC
 	ld hl, $A102
@@ -8757,7 +8757,7 @@ UnknownRJump_0x3C1EC:
 	ld a, 22
 	ld [sPlaySFX], a
 	call UnknownCall_0x3E9FB
-	call UnknownCall_0x2934
+	call SaveData
 	ld a, 7
 	ldh [$FF00+$4B], a
 	ld a, 22
@@ -8770,7 +8770,7 @@ UnknownRJump_0x3C201:
 	ret z
 	ld a, 16
 	ld [$A7B8], a
-	ld a, [$A840]
+	ld a, [savWorldMapLocation]
 	cp $6E
 	ret c
 	ld a, 2
@@ -8814,7 +8814,7 @@ UnknownCall_0x3C2B8:
 	bit 7, a
 	ret z
 	ld a, 54
-	ld [$A840], a
+	ld [savWorldMapLocation], a
 	ld a, 16
 	ld [hKeysPressed], a
 	ret
@@ -8827,7 +8827,7 @@ UnknownRJump_0x3C2D0:
 	bit 7, a
 	ret z
 	ld a, 55
-	ld [$A840], a
+	ld [savWorldMapLocation], a
 	ld a, 32
 	ld [hKeysPressed], a
 	ret
@@ -8840,7 +8840,7 @@ UnknownCall_0x3C2E7:
 	bit 0, a
 	ret z
 	ld a, 57
-	ld [$A840], a
+	ld [savWorldMapLocation], a
 	ld a, 64
 	ld [hKeysPressed], a
 	ret
@@ -8853,7 +8853,7 @@ UnknownCall_0x3C2FE:
 	bit 7, a
 	ret z
 	ld a, 108
-	ld [$A840], a
+	ld [savWorldMapLocation], a
 	ld a, 16
 	ld [hKeysPressed], a
 	ret
@@ -8878,12 +8878,12 @@ UnknownCall_0x3C32D:
 	ld a, [$A690]
 	or a
 	ret nz
-	ld a, [$A224]
+	ld a, [sCollision]
 	or a
 	ret nz
 	ld a, 255
-	ld [$A224], a
-	ld a, [$A840]
+	ld [sCollision], a
+	ld a, [savWorldMapLocation]
 	ld hl, $650E
 	ld d, 0
 	ld e, a
@@ -8915,124 +8915,124 @@ INCBIN "baserom.gb", $3C364, $3C38C - $3C364
 
 UnknownCall_0x3C38C:
 	ei
-	ld a, [$A840]
+	ld a, [savWorldMapLocation]
 	cp $14
 	call z, UnknownCall_0x3C2AC
-	ld a, [$A840]
+	ld a, [savWorldMapLocation]
 	cp $35
 	call z, UnknownCall_0x3C2B8
-	ld a, [$A840]
+	ld a, [savWorldMapLocation]
 	cp $32
 	call z, UnknownCall_0x3C2E7
-	ld a, [$A840]
+	ld a, [savWorldMapLocation]
 	cp $6A
 	call z, UnknownCall_0x3C2FE
-	ld a, [$A840]
+	ld a, [savWorldMapLocation]
 	cp $17
 	call z, UnknownCall_0x3C2A0
-	ld a, [$A840]
+	ld a, [savWorldMapLocation]
 	cp $4B
 	call z, UnknownCall_0x3C2A6
-	ld a, [$A840]
+	ld a, [savWorldMapLocation]
 	cp $2C
 	call z, UnknownCall_0x3C2A6
-	ld a, [$A840]
+	ld a, [savWorldMapLocation]
 	cp $4A
 	call z, UnknownCall_0x3C2AC
-	ld a, [$A840]
+	ld a, [savWorldMapLocation]
 	cp $2F
 	call z, UnknownCall_0x3C2AC
-	ld a, [$A840]
+	ld a, [savWorldMapLocation]
 	cp $31
 	call z, UnknownCall_0x3C2A6
-	ld a, [$A840]
+	ld a, [savWorldMapLocation]
 	cp $38
 	call z, UnknownCall_0x3C2A6
-	ld a, [$A840]
+	ld a, [savWorldMapLocation]
 	cp $2E
 	call z, UnknownCall_0x3C2AC
-	ld a, [$A840]
+	ld a, [savWorldMapLocation]
 	cp $6B
 	call z, UnknownCall_0x3C2AC
-	ld a, [$A840]
+	ld a, [savWorldMapLocation]
 	cp $47
 	call z, UnknownCall_0x3C2AC
-	ld a, [$A840]
+	ld a, [savWorldMapLocation]
 	cp $65
 	call z, UnknownCall_0x3C2A0
-	ld a, [$A840]
+	ld a, [savWorldMapLocation]
 	cp $45
 	call z, UnknownCall_0x3C2A0
-	ld a, [$A840]
+	ld a, [savWorldMapLocation]
 	cp $27
 	call z, UnknownCall_0x3C2A0
-	ld a, [$A840]
+	ld a, [savWorldMapLocation]
 	cp $67
 	call z, UnknownCall_0x3C2B2
-	ld a, [$A840]
+	ld a, [savWorldMapLocation]
 	cp $5B
 	call z, UnknownCall_0x3C2B2
-	ld a, [$A840]
+	ld a, [savWorldMapLocation]
 	cp $5A
 	call z, UnknownCall_0x3C2AC
-	ld a, [$A840]
+	ld a, [savWorldMapLocation]
 	cp $68
 	call z, UnknownCall_0x3C29A
-	ld a, [$A840]
+	ld a, [savWorldMapLocation]
 	cp $25
 	call z, UnknownCall_0x3C29A
-	ld a, [$A840]
+	ld a, [savWorldMapLocation]
 	cp $6C
 	call z, UnknownCall_0x3C29A
-	ld a, [$A840]
+	ld a, [savWorldMapLocation]
 	cp $43
 	call z, UnknownCall_0x3C29A
-	ld a, [$A840]
+	ld a, [savWorldMapLocation]
 	cp $79
 	call z, UnknownCall_0x3C29A
-	ld a, [$A840]
+	ld a, [savWorldMapLocation]
 	cp $69
 	call z, UnknownCall_0x3C2A6
-	ld a, [$A840]
+	ld a, [savWorldMapLocation]
 	cp $73
 	call z, UnknownCall_0x3C2A0
-	ld a, [$A840]
+	ld a, [savWorldMapLocation]
 	cp $72
 	call z, UnknownCall_0x3C29A
-	ld a, [$A840]
+	ld a, [savWorldMapLocation]
 	cp $3F
 	call z, UnknownCall_0x3C29A
-	ld a, [$A840]
+	ld a, [savWorldMapLocation]
 	cp $74
 	call z, UnknownCall_0x3C2A0
-	ld a, [$A840]
+	ld a, [savWorldMapLocation]
 	cp $75
 	call z, UnknownCall_0x3C29A
-	ld a, [$A840]
+	ld a, [savWorldMapLocation]
 	cp $11
 	call z, UnknownCall_0x3C2B2
-	ld a, [$A840]
+	ld a, [savWorldMapLocation]
 	cp $02
 	call z, UnknownCall_0x3C2B2
-	ld a, [$A840]
+	ld a, [savWorldMapLocation]
 	cp $0C
 	call z, UnknownCall_0x3C2B2
-	ld a, [$A840]
+	ld a, [savWorldMapLocation]
 	cp $0B
 	call z, UnknownCall_0x3C2B2
-	ld a, [$A840]
+	ld a, [savWorldMapLocation]
 	cp $09
 	call z, UnknownCall_0x3C2B2
-	ld a, [$A840]
+	ld a, [savWorldMapLocation]
 	cp $06
 	call z, UnknownCall_0x3C2B2
-	ld a, [$A840]
+	ld a, [savWorldMapLocation]
 	cp $64
 	call z, UnknownCall_0x3C29A
-	ld a, [$A840]
+	ld a, [savWorldMapLocation]
 	cp $1E
 	call nc, UnknownCall_0x3C32D
-	ld a, [$A840]
+	ld a, [savWorldMapLocation]
 	or a
 	jp z, UnknownJump_0x3C316
 
@@ -9043,7 +9043,7 @@ UnknownJump_0x3C4CC:
 	call UnknownCall_0x3E1D7
 	or a
 	jp z, UnknownJump_0x3C5DA
-	ld a, [$A840]
+	ld a, [savWorldMapLocation]
 	cp $0C
 	jr z, UnknownRJump_0x3C4E7
 	cp $1E
@@ -9065,7 +9065,7 @@ UnknownRJump_0x3C4E7:
 	jp UnknownJump_0x3C588
 
 UnknownRJump_0x3C505:
-	ld a, [$A68B]
+	ld a, [sCurrentZone]
 	or a
 	jr nz, UnknownRJump_0x3C52B
 	ld a, [hKeysHeld]
@@ -9074,8 +9074,8 @@ UnknownRJump_0x3C505:
 	ld a, [$A7A0]
 	or a
 	jr z, UnknownRJump_0x3C52B
-	ld a, [$A840]
-	ld [$A840], a
+	ld a, [savWorldMapLocation]
+	ld [savWorldMapLocation], a
 	call UnknownCall_0x3EEA4
 	call UnknownCall_0x3ED4C
 	call UnknownCall_0x3F156
@@ -9091,7 +9091,7 @@ UnknownRJump_0x3C52B:
 	and $F0
 	swap a
 	ld d, a
-	ld a, [$A840]
+	ld a, [savWorldMapLocation]
 	ld hl, $563A
 	ld b, 0
 	sla a
@@ -9122,12 +9122,12 @@ UnknownRJump_0x3C568:
 UnknownRJump_0x3C56E:
 	add bc
 	ld a, 24
-	call UnknownCall_0x3E7B
+	call FarReadByte_Bank0F
 	ei
 	ld c, a
 	inc hl
 	ld a, 24
-	call UnknownCall_0x3E7B
+	call FarReadByte_Bank0F
 	ei
 	ld b, a
 	ld a, b
@@ -9179,10 +9179,10 @@ UnknownJump_0x3C5B2:
 
 UnknownJump_0x3C5DA:
 UnknownRJump_0x3C5DA:
-	ld a, [$A840]
+	ld a, [savWorldMapLocation]
 	cp $15
 	call z, UnknownCall_0x3C2B2
-	ld a, [$A840]
+	ld a, [savWorldMapLocation]
 	cp $0D
 	jr nz, UnknownRJump_0x3C5F4
 	call UnknownCall_0x3C2B2
@@ -9195,7 +9195,7 @@ UnknownRJump_0x3C5F4:
 	ld a, [hKeysPressed]
 	and $09
 	jp z, UnknownJump_0x3C66C
-	ld a, [$A68B]
+	ld a, [sCurrentZone]
 	or a
 	jp z, UnknownJump_0x3C60B
 	cp $08
@@ -9204,7 +9204,7 @@ UnknownRJump_0x3C5F4:
 
 UnknownJump_0x3C60B:
 UnknownRJump_0x3C60B:
-	ld a, [$A840]
+	ld a, [savWorldMapLocation]
 	cp $02
 	jp z, UnknownJump_0x3D0D7
 	cp $19
@@ -9239,17 +9239,17 @@ UnknownRJump_0x3C60B:
 	jp z, UnknownJump_0x3F3B9
 	cp $11
 	jr nz, UnknownRJump_0x3C66C
-	ld a, [$A68B]
+	ld a, [sCurrentZone]
 	or a
 	jp nz, UnknownJump_0x3C66C
 	jp UnknownJump_0x3D6C3
 
 UnknownJump_0x3C66C:
 UnknownRJump_0x3C66C:
-	ld a, [$A68B]
+	ld a, [sCurrentZone]
 	or a
 	jp z, UnknownJump_0x3C7D9
-	ld a, [$A840]
+	ld a, [savWorldMapLocation]
 	cp $23
 	jp z, UnknownJump_0x3C6B0
 	cp $28
@@ -9421,11 +9421,11 @@ UnknownJump_0x3C7BD:
 	ret
 
 UnknownCall_0x3C7CA:
-	ld [$A840], a
+	ld [savWorldMapLocation], a
 	call UnknownCall_0x3EEA4
 	call UnknownCall_0x3ED4C
 	ld a, 0
-	ld [$A68B], a
+	ld [sCurrentZone], a
 	ret
 
 UnknownJump_0x3C7D9:
@@ -9471,8 +9471,8 @@ UnknownRJump_0x3C7F8:
 	ld a, 24
 	call UnknownCall_0x3E8F
 	ei
-	ld [$A840], a
-	ld [$A840], a
+	ld [savWorldMapLocation], a
+	ld [savWorldMapLocation], a
 	jp UnknownJump_0x3C901
 
 UnknownRJump_0x3C82D:
@@ -9504,7 +9504,7 @@ UnknownRJump_0x3C83C:
 	ccf
 	sbc 0
 	ld [$A843], a
-	ld a, [$A68B]
+	ld a, [sCurrentZone]
 	or a
 	call z, UnknownCall_0x3CA84
 	jr UnknownRJump_0x3C893
@@ -9522,7 +9522,7 @@ UnknownRJump_0x3C872:
 	cp $8A
 	adc 0
 	ld [$A843], a
-	ld a, [$A68B]
+	ld a, [sCurrentZone]
 	or a
 	call z, UnknownCall_0x3CAAB
 
@@ -9546,7 +9546,7 @@ UnknownRJump_0x3C8A7:
 	cp $94
 	adc 0
 	ld [$A842], a
-	ld a, [$A68B]
+	ld a, [sCurrentZone]
 	or a
 	call z, UnknownCall_0x3CA31
 	jr UnknownRJump_0x3C901
@@ -9570,7 +9570,7 @@ UnknownRJump_0x3C8D2:
 	ccf
 	sbc 0
 	ld [$A842], a
-	ld a, [$A68B]
+	ld a, [sCurrentZone]
 	or a
 	call z, UnknownCall_0x3CA5D
 	jr UnknownRJump_0x3C901
@@ -10384,9 +10384,9 @@ UnknownJump_0x3D0D7:
 	ld a, 158
 	ld [$A843], a
 	ld a, 35
-	ld [$A840], a
+	ld [savWorldMapLocation], a
 	ld a, 255
-	ld [$A224], a
+	ld [sCollision], a
 	call UnknownCall_0x3E9FB
 	ld a, 255
 	ld [sPlaySong], a
@@ -10418,7 +10418,7 @@ UnknownCall_0x3D0FF:
 	ld [sSCY], a
 	ld [$A690], a
 	ld a, 2
-	ld [$A68B], a
+	ld [sCurrentZone], a
 	call UnknownCall_0x3E46
 	ld de, $65BA
 	call UnknownCall_0x3E2A2
@@ -10457,7 +10457,7 @@ UnknownCall_0x3D18E:
 	ld a, [$A2B4]
 	or a
 	ret z
-	ld a, [$A224]
+	ld a, [sCollision]
 	or a
 	ret nz
 	ld a, [$A84A]
@@ -10468,7 +10468,7 @@ UnknownCall_0x3D18E:
 
 UnknownRJump_0x3D1A4:
 	ld a, 37
-	ld [$A840], a
+	ld [savWorldMapLocation], a
 	call UnknownCall_0x3EEA4
 	ld a, [$A84A]
 	set 0, a
@@ -10476,14 +10476,14 @@ UnknownRJump_0x3D1A4:
 	ret
 
 UnknownCall_0x3D1B5:
-	ld a, [$A840]
+	ld a, [savWorldMapLocation]
 	cp $26
 	ret nz
 	ld a, 39
-	ld [$A840], a
+	ld [savWorldMapLocation], a
 	call UnknownCall_0x3EEA4
 	ld a, 255
-	ld [$A224], a
+	ld [sCollision], a
 	ret
 
 UnknownCall_0x3D1C9:
@@ -10505,9 +10505,9 @@ UnknownJump_0x3D1E0:
 	ld a, 137
 	ld [$A843], a
 	ld a, 40
-	ld [$A840], a
+	ld [savWorldMapLocation], a
 	ld a, 255
-	ld [$A224], a
+	ld [sCollision], a
 	ld a, 255
 	ld [sPlaySong], a
 	call UnknownCall_0x2AAA
@@ -10539,7 +10539,7 @@ UnknownCall_0x3D208:
 	ld [sSCY], a
 	ld [$A690], a
 	ld a, 1
-	ld [$A68B], a
+	ld [sCurrentZone], a
 	call UnknownCall_0x3E46
 	ld de, $65DE
 	call UnknownCall_0x3E2A2
@@ -10583,17 +10583,17 @@ UnknownCall_0x3D29F:
 	ld a, [$A2B4]
 	or a
 	ret z
-	ld a, [$A224]
+	ld a, [sCollision]
 	or a
 	ret nz
-	ld a, [$A840]
+	ld a, [savWorldMapLocation]
 	cp $2C
 	jr nz, UnknownRJump_0x3D2D5
 	ld a, 31
 	ld [$A7D2], a
 	call UnknownCall_0x3F8E
 	ld a, 44
-	ld [$A840], a
+	ld [savWorldMapLocation], a
 	call UnknownCall_0x3EEA4
 	ld a, [$A84F]
 	bit 0, a
@@ -10605,14 +10605,14 @@ UnknownCall_0x3D29F:
 	ret
 
 UnknownRJump_0x3D2D5:
-	ld a, [$A840]
+	ld a, [savWorldMapLocation]
 	cp $2F
 	ret nz
 	ld a, 39
 	ld [$A7D5], a
 	call UnknownCall_0x3F8E
 	ld a, 47
-	ld [$A840], a
+	ld [savWorldMapLocation], a
 	call UnknownCall_0x3EEA4
 	ld a, [$A850]
 	bit 0, a
@@ -10670,9 +10670,9 @@ UnknownJump_0x3D33A:
 	ld a, 33
 	ld [$A844], a
 	ld a, 50
-	ld [$A840], a
+	ld [savWorldMapLocation], a
 	ld a, 255
-	ld [$A224], a
+	ld [sCollision], a
 	call UnknownCall_0x3E9FB
 	ld a, 255
 	ld [sPlaySong], a
@@ -10710,7 +10710,7 @@ UnknownCall_0x3D371:
 	ld a, 33
 	ld [$A844], a
 	ld a, 3
-	ld [$A68B], a
+	ld [sCurrentZone], a
 	call UnknownCall_0x3E46
 	ld de, $662C
 	call UnknownCall_0x3E2A2
@@ -10745,19 +10745,19 @@ UnknownCall_0x3D371:
 	ret
 
 UnknownCall_0x3D409:
-	ld a, [$A840]
+	ld a, [savWorldMapLocation]
 	cp $32
 	ret nz
 	ld a, [$A2B4]
 	or a
 	ret z
-	ld a, [$A224]
+	ld a, [sCollision]
 	or a
 	ret nz
 	ld a, 16
 	ld [$A7D2], a
 	ld a, 107
-	ld [$A840], a
+	ld [savWorldMapLocation], a
 	call UnknownCall_0x3EEA4
 	ld a, [$A853]
 	bit 0, a
@@ -10775,19 +10775,19 @@ UnknownRJump_0x3D432:
 	ret
 
 UnknownCall_0x3D43D:
-	ld a, [$A840]
+	ld a, [savWorldMapLocation]
 	cp $6A
 	ret nz
-	ld a, [$A224]
+	ld a, [sCollision]
 	or a
 	jr nz, UnknownRJump_0x3D45C
 	ld a, 108
-	ld [$A840], a
+	ld [savWorldMapLocation], a
 	call UnknownCall_0x3EEA4
 	ld hl, $A86B
 	set 7, [hl]
 	ld a, 255
-	ld [$A224], a
+	ld [sCollision], a
 	ret
 
 UnknownRJump_0x3D45C:
@@ -10846,7 +10846,7 @@ UnknownRJump_0x3D4D3:
 	ld [sSCY], a
 	ld [$A690], a
 	ld a, 4
-	ld [$A68B], a
+	ld [sCurrentZone], a
 	call UnknownCall_0x3E46
 	ld de, $65FF
 	call UnknownCall_0x3E2A2
@@ -10880,13 +10880,13 @@ UnknownCall_0x3D533:
 	ld a, [$A2B4]
 	or a
 	ret z
-	ld a, [$A224]
+	ld a, [sCollision]
 	or a
 	ret nz
 	ld a, 47
 	ld [$A7D2], a
 	ld a, 67
-	ld [$A840], a
+	ld [savWorldMapLocation], a
 	call UnknownCall_0x3EEA4
 	ld a, [$A858]
 	bit 0, a
@@ -10907,14 +10907,14 @@ UnknownRJump_0x3D562:
 	ret
 
 UnknownCall_0x3D56B:
-	ld a, [$A840]
+	ld a, [savWorldMapLocation]
 	cp $44
 	ret nz
 	ld a, 69
-	ld [$A840], a
+	ld [savWorldMapLocation], a
 	call UnknownCall_0x3EEA4
 	ld a, 255
-	ld [$A224], a
+	ld [sCollision], a
 	ld a, [$A871]
 	bit 7, a
 	ret z
@@ -10962,8 +10962,8 @@ UnknownJump_0x3D5D0:
 	ld a, 234
 	ld [$A843], a
 	ld a, 75
-	ld [$A840], a
-	ld [$A840], a
+	ld [savWorldMapLocation], a
+	ld [savWorldMapLocation], a
 	jr UnknownRJump_0x3D606
 
 UnknownJump_0x3D5EC:
@@ -10975,12 +10975,12 @@ UnknownJump_0x3D5EC:
 	ld a, 242
 	ld [$A843], a
 	ld a, 70
-	ld [$A840], a
-	ld [$A840], a
+	ld [savWorldMapLocation], a
+	ld [savWorldMapLocation], a
 
 UnknownRJump_0x3D606:
 	ld a, 255
-	ld [$A224], a
+	ld [sCollision], a
 	call UnknownCall_0x3E9FB
 	ld a, 255
 	ld [sPlaySong], a
@@ -11012,7 +11012,7 @@ UnknownCall_0x3D61F:
 	ld [sSCY], a
 	ld [$A690], a
 	ld a, 5
-	ld [$A68B], a
+	ld [sCurrentZone], a
 	call UnknownCall_0x3E46
 	ld de, $6680
 	call UnknownCall_0x3E2A2
@@ -11042,7 +11042,7 @@ UnknownCall_0x3D69C:
 	ld a, [$A2B4]
 	or a
 	ret z
-	ld a, [$A224]
+	ld a, [sCollision]
 	or a
 	ret nz
 	ld a, [$A85E]
@@ -11068,9 +11068,9 @@ UnknownJump_0x3D6C3:
 	ld a, 137
 	ld [$A843], a
 	ld a, 90
-	ld [$A840], a
+	ld [savWorldMapLocation], a
 	ld a, 255
-	ld [$A224], a
+	ld [sCollision], a
 	ld a, 255
 	ld [sPlaySong], a
 	call UnknownCall_0x2AAA
@@ -11102,7 +11102,7 @@ UnknownCall_0x3D6EB:
 	ld [sSCY], a
 	ld [$A690], a
 	ld a, 7
-	ld [$A68B], a
+	ld [sCurrentZone], a
 	call UnknownCall_0x3E46
 	ld a, 225
 	ld [sBGP], a
@@ -11132,10 +11132,10 @@ UnknownJump_0x3D760:
 	ld a, 112
 	ld [$A843], a
 	ld a, 80
-	ld [$A840], a
-	ld [$A840], a
+	ld [savWorldMapLocation], a
+	ld [savWorldMapLocation], a
 	ld a, 255
-	ld [$A224], a
+	ld [sCollision], a
 	call UnknownCall_0x3E9FB
 	ld a, 255
 	ld [sPlaySong], a
@@ -11175,7 +11175,7 @@ UnknownCall_0x3D79A:
 	ld [sSCY], a
 	ld [$A690], a
 	ld a, 6
-	ld [$A68B], a
+	ld [sCurrentZone], a
 	call UnknownCall_0x3E46
 	ld de, $664D
 	call UnknownCall_0x3E2A2
@@ -11240,10 +11240,10 @@ UnknownJump_0x3D848:
 	ld a, 131
 	ld [$A843], a
 	ld a, 114
-	ld [$A840], a
-	ld [$A840], a
+	ld [savWorldMapLocation], a
+	ld [savWorldMapLocation], a
 	ld a, 255
-	ld [$A224], a
+	ld [sCollision], a
 	ld a, 0
 	ld [sBGP], a
 	ld a, 1
@@ -11272,7 +11272,7 @@ UnknownCall_0x3D880:
 	ld [sSCY], a
 	ld [$A690], a
 	ld a, 8
-	ld [$A68B], a
+	ld [sCurrentZone], a
 	call UnknownCall_0x3E46
 	ld de, $66BC
 	call UnknownCall_0x3E2A2
@@ -11419,7 +11419,7 @@ UnknownRJump_0x3D99D:
 	ld a, [$A7BA]
 	or a
 	jr z, UnknownRJump_0x3DA12
-	ld a, [$A840]
+	ld a, [savWorldMapLocation]
 	cp $2C
 	jr nz, UnknownRJump_0x3D9DE
 	ld a, [$A86E]
@@ -11445,7 +11445,7 @@ UnknownRJump_0x3D9D3:
 	ld [sPlaySFX], a
 
 UnknownRJump_0x3D9DE:
-	ld a, [$A840]
+	ld a, [savWorldMapLocation]
 	cp $2F
 	jr nz, UnknownRJump_0x3DA12
 	ld a, [$A86F]
@@ -12527,14 +12527,14 @@ INCBIN "baserom.gb", $3E1CB, $3E1D7 - $3E1CB
 
 
 UnknownCall_0x3E1D7:
-	ld a, [$A68B]
+	ld a, [sCurrentZone]
 	or a
 	jr z, UnknownRJump_0x3E210
 	ld a, [hKeysHeld]
 	and $F0
 	ld e, a
 	ld hl, $4218
-	ld a, [$A840]
+	ld a, [savWorldMapLocation]
 	ld b, 0
 	ld c, a
 	add bc
@@ -12666,7 +12666,7 @@ UnknownRJump_0x3E2DE:
 	jr nz, UnknownRJump_0x3E2DE
 
 UnknownRJump_0x3E2EE:
-	ld a, [$A68B]
+	ld a, [sCurrentZone]
 	cp $0D
 	call c, UnknownCall_0x3F8E
 	ret
@@ -12744,7 +12744,7 @@ UnknownCall_0x3E367:
 	push de
 	push hl
 	call UnknownCall_0x3C13E
-	ld a, [$A68B]
+	ld a, [sCurrentZone]
 	cp $01
 	jr nz, UnknownRJump_0x3E37A
 	call UnknownCall_0x3D8E6
@@ -12804,7 +12804,7 @@ UnknownCall_0x3E3BA:
 	ld a, 146
 	ld [$A878], a
 	ld d, 228
-	ld a, [$A68B]
+	ld a, [sCurrentZone]
 	cp $07
 	jp z, UnknownJump_0x3E4C1
 	ld e, 1
@@ -13001,11 +13001,11 @@ UnknownCall_0x3E4EB:
 	ld [$A6C6], a
 	ret
 
-UnknownData_0x3E50E:
+WorldLocationToLevelLookupTable:
 INCBIN "baserom.gb", $3E50E, $3E7BE - $3E50E
 
 
-UnknownCall_0x3E7BE:
+FarReadByte_Bank0FE:
 	ld hl, $88E0
 	ld de, $A700
 	ld c, 32
@@ -13397,11 +13397,10 @@ UnknownCall_0x3E9EC:
 	ei
 	xor a
 	ld [$A785], a
-
-UnknownRJump_0x3E9F1:
+.loop:
 	ld a, [$A785]
 	or a
-	jr z, UnknownRJump_0x3E9F1
+	jr z, .loop
 	call UnknownCall_0x3EAD7
 	ret
 
@@ -13410,7 +13409,7 @@ UnknownCall_0x3E9FB:
 	ld e, 4
 
 UnknownRJump_0x3E9FF:
-	call UnknownCall_0x3E9EC
+	call UnknownCall_0x3E9EC ; Y U NO LOOP?
 	call UnknownCall_0x3E9EC
 	call UnknownCall_0x3E9EC
 	call UnknownCall_0x3E9EC
@@ -13457,7 +13456,7 @@ INCBIN "baserom.gb", $3EA53, $3EA9A - $3EA53
 
 
 UnknownCall_0x3EA9A:
-	ld a, 6
+	ld a, SONG_OVERWORLD
 	ld [sPlaySong], a
 	ld a, 0
 	ld [$A878], a
@@ -13525,31 +13524,31 @@ UnknownCall_0x3EAE5:
 	jr nz, UnknownRJump_0x3EAE5
 	ret
 
-UnknownJump_0x3EAFF:
-	ld a, [$A68B]
-	or a
+WorldMap_VBlankHandler::
+	ld a, [sCurrentZone]
+	or a ; ZONE_OVERWORLD
 	call z, UnknownCall_0x3E853
-	ld a, [$A68B]
-	cp $07
+	ld a, [sCurrentZone]
+	cp ZONE_CASTLE
 	call z, UnknownCall_0x3E7F2
-	ld a, [$A68B]
+	ld a, [sCurrentZone]
 	cp $0D
 	jr nc, UnknownRJump_0x3EB1A
 	cp $09
 	call nc, UnknownCall_0x3EBD5
 
 UnknownRJump_0x3EB1A:
-	ld a, [$A68B]
-	cp $01
+	ld a, [sCurrentZone]
+	cp ZONE_PUMKIN
 	call z, UnknownCall_0x3EC7D
-	ld a, [$A68B]
-	cp $02
+	ld a, [sCurrentZone]
+	cp ZONE_TREE
 	call z, UnknownCall_0x3ECF5
-	ld a, [$A68B]
-	cp $05
+	ld a, [sCurrentZone]
+	cp ZONE_TURTLE
 	call z, UnknownCall_0x3ED35
-	ld a, [$A68B]
-	or a
+	ld a, [sCurrentZone]
+	or a ; ZONE_OVERWORLD
 	jp nz, FinishVBlank
 	ld a, [hFrameCounter]
 	and $03
@@ -13674,7 +13673,7 @@ UnknownCall_0x3EBC8:
 	ret
 
 UnknownCall_0x3EBD5:
-	ld a, [$A840]
+	ld a, [savWorldMapLocation]
 	sub 110
 	ld d, a
 	add a
@@ -14074,7 +14073,7 @@ UnknownCall_0x3EE8C:
 	ret
 
 UnknownCall_0x3EEA4:
-	ld a, [$A840]
+	ld a, [savWorldMapLocation]
 	ld hl, $5EE6
 	ld d, 0
 	sla a
@@ -14086,148 +14085,148 @@ UnknownCall_0x3EEA4:
 	ld e, a
 	add de
 	ld a, 24
-	call UnknownCall_0x3E7B
+	call FarReadByte_Bank0F
 	inc hl
 	ld [$FF00+$BA], a
 	ld a, 24
-	call UnknownCall_0x3E7B
+	call FarReadByte_Bank0F
 	inc hl
 	ld [$FF00+$B9], a
 	ld a, 24
-	call UnknownCall_0x3E7B
+	call FarReadByte_Bank0F
 	inc hl
 	ld [$FF00+$B8], a
 	ld a, 24
-	call UnknownCall_0x3E7B
+	call FarReadByte_Bank0F
 	inc hl
 	ld [$FF00+$B7], a
 	ld a, 24
-	call UnknownCall_0x3E7B
+	call FarReadByte_Bank0F
 	inc hl
 	ld [$A842], a
 	ld a, 24
-	call UnknownCall_0x3E7B
+	call FarReadByte_Bank0F
 	ld [$A843], a
 	ret
 
-UnknownCall_0x3EEF0:
-	ld a, [$A840]
+SetLevelBitfield::
+	ld a, [savWorldMapLocation]
 	ld d, 0
 	ld e, a
-	ld hl, $650E
+	ld hl, WorldLocationToLevelLookupTable
 	add de
 	ld a, [hl]
 	cp $FE
 	ret nc
+
 	ld d, 0
 	ld e, a
-	ld hl, $A848
+	ld hl, savLevelsBitfields
 	add de
-	ld a, [$A224]
+	ld a, [sCollision]
 	or a
-	jr nz, UnknownRJump_0x3EF19
+	jr nz, .died
 	ld a, [$A2B4]
 	or a
-	jr nz, UnknownRJump_0x3EF25
-	set 7, [hl]
-	res 3, [hl]
-	call UnknownCall_0x2934
+	jr nz, .clear_checkpoint
+	set LEVEL_BITFIELD_COMPLETED_BIT, [hl]
+	res LEVEL_BITFIELD_CHECKPOINT_BIT, [hl] ; could jump to .clear_checkpoint
+	call SaveData ; why no TCO?
 	ret
 
-UnknownRJump_0x3EF19:
-	ld a, [$A2A0]
+.died:
+	ld a, [sCheckpointTriggered]
 	cp $FF
 	ret nz
-	set 3, [hl]
-	call UnknownCall_0x2934
+	set LEVEL_BITFIELD_CHECKPOINT_BIT, [hl]
+	call SaveData ; why no TCO?
 	ret
 
-UnknownRJump_0x3EF25:
-	res 3, [hl]
-	call UnknownCall_0x2934
+.clear_checkpoint:
+	res LEVEL_BITFIELD_CHECKPOINT_BIT, [hl]
+	call SaveData ; why no TCO?
 	ret
 
-UnknownJump_0x3EF2B:
-UnknownCall_0x3EF2B:
-	ld a, 228
+_HandleMode20::
+	ld a, %11100100
 	ld [sBGP], a
-	ld a, 208
+	ld a, %11010000
 	ld [sOBP0], a
-	ld a, 57
+	ld a, %00111001
 	ld [sOBP1], a
 	ld a, [$A24F]
 	or a
-	jr z, UnknownRJump_0x3EF56
-	ld a, [$A840]
+	jr z, .unk3
+	ld a, [savWorldMapLocation]
 	bit 0, a
-	jr nz, UnknownRJump_0x3EF4C
+	jr nz, .unk1
 	call UnknownCall_0x3F4B1
-	jr UnknownRJump_0x3EF4F
+	jr .unk2
 
-UnknownRJump_0x3EF4C:
+.unk1:
 	call UnknownCall_0x3F5A4
 
-UnknownRJump_0x3EF4F:
-	ld a, 12
+.unk2:
+	ld a, MODE_WORLD
 	ld [hGameMode], a
 	ei
 	ret
 
-UnknownRJump_0x3EF56:
+.unk3:
 	ld a, [$A2B4]
 	or a
-	jr z, UnknownRJump_0x3EFB2
-	ld a, [$A224]
+	jr z, .unk9
+	ld a, [sCollision]
 	or a
-	jr nz, UnknownRJump_0x3EFB2
-	ld a, [$A840]
-	cp $48
-	jr nz, UnknownRJump_0x3EF70
-	ld a, 71
-	ld [$A840], a
-	jr UnknownRJump_0x3EFB2
+	jr nz, .unk9
+	ld a, [savWorldMapLocation]
+	cp 72
+	jr nz, .unk4
+	ld a, 71 ; could dec a
+	ld [savWorldMapLocation], a
+	jr .unk9
 
-UnknownRJump_0x3EF70:
-	ld a, [$A840]
-	cp $1A
-	jr z, UnknownRJump_0x3EF81
-	cp $05
-	jr z, UnknownRJump_0x3EF81
-	cp $12
-	jr z, UnknownRJump_0x3EF81
-	jr UnknownRJump_0x3EF88
+.unk4:
+	ld a, [savWorldMapLocation]
+	cp 26
+	jr z, .unk5
+	cp 5
+	jr z, .unk5
+	cp 18
+	jr z, .unk5
+	jr .unk6
 
-UnknownRJump_0x3EF81:
+.unk5:
 	ld a, 105
-	ld [$A840], a
-	jr UnknownRJump_0x3EFB2
+	ld [savWorldMapLocation], a
+	jr .unk9
 
-UnknownRJump_0x3EF88:
-	ld a, [$A840]
-	cp $29
-	jr nz, UnknownRJump_0x3EF96
+.unk6:
+	ld a, [savWorldMapLocation]
+	cp 41
+	jr nz, .unk7
 	ld a, 44
-	ld [$A840], a
-	jr UnknownRJump_0x3EFB2
+	ld [savWorldMapLocation], a
+	jr .unk9
 
-UnknownRJump_0x3EF96:
-	ld a, [$A840]
-	cp $2A
-	jr nz, UnknownRJump_0x3EFA4
+.unk7:
+	ld a, [savWorldMapLocation]
+	cp 42
+	jr nz, .unk8
 	ld a, 47
-	ld [$A840], a
-	jr UnknownRJump_0x3EFB2
+	ld [savWorldMapLocation], a
+	jr .unk9
 
-UnknownRJump_0x3EFA4:
-	ld a, [$A840]
-	cp $3C
-	jr nz, UnknownRJump_0x3EFB2
+.unk8:
+	ld a, [savWorldMapLocation]
+	cp 60
+	jr nz, .unk9
 	ld a, 64
-	ld [$A840], a
-	jr UnknownRJump_0x3EFB2
+	ld [savWorldMapLocation], a
+	jr .unk9
 
-UnknownRJump_0x3EFB2:
-	call UnknownCall_0x3EEF0
+.unk9:
+	call SetLevelBitfield
 	ld a, BANK(GFX_OW_Overworld) ;prepare bank switch
 	ld bc, $0200
 	ld hl, GFX_OW_Overworld
@@ -14238,12 +14237,12 @@ UnknownRJump_0x3EFB2:
 	ld a, 8
 	ld [$A844], a
 	xor a
-	ld [$A68B], a
-	ld a, [$A224]
+	ld [sCurrentZone], a
+	ld a, [sCollision]
 	or a
 	jr nz, UnknownRJump_0x3F003
-	ld a, [$A840]
-	ld hl, $650E
+	ld a, [savWorldMapLocation]
+	ld hl, WorldLocationToLevelLookupTable
 	ld d, 0
 	ld e, a
 	add de
@@ -14264,7 +14263,7 @@ UnknownRJump_0x3EFB2:
 	jp z, UnknownJump_0x3C77C
 
 UnknownRJump_0x3F003:
-	ld a, [$A840]
+	ld a, [savWorldMapLocation]
 	cp $1E
 	jr nc, UnknownRJump_0x3F04D
 	cp $05
@@ -14274,32 +14273,32 @@ UnknownRJump_0x3F003:
 	jr UnknownRJump_0x3F024
 
 UnknownRJump_0x3F014:
-	ld a, [$A224]
+	ld a, [sCollision]
 	or a
 	jr nz, UnknownRJump_0x3F03D
 	ld a, 63
-	ld [$A840], a
+	ld [savWorldMapLocation], a
 	call UnknownCall_0x3EEA4
 	jr UnknownRJump_0x3F07E
 
 UnknownRJump_0x3F024:
 	or a
 	jr nz, UnknownRJump_0x3F03D
-	ld a, [$A224]
+	ld a, [sCollision]
 	or a
 	jr nz, UnknownRJump_0x3F03D
 	ld a, [$A848]
 	set 7, a
 	ld [$A848], a
 	ld a, 20
-	ld [$A840], a
+	ld [savWorldMapLocation], a
 	call UnknownCall_0x3EEA4
 
 UnknownJump_0x3F03D:
 UnknownRJump_0x3F03D:
 	call UnknownCall_0x3F156
-	call UnknownCall_0x2934
-	ld a, 12
+	call SaveData
+	ld a, MODE_WORLD
 	ld [hGameMode], a
 	call UnknownCall_0x3EA9A
 	ei
@@ -14310,7 +14309,7 @@ UnknownRJump_0x3F04D:
 	jr nc, UnknownRJump_0x3F05C
 	call UnknownCall_0x3D0FF
 	ld a, 2
-	ld [$A68B], a
+	ld [sCurrentZone], a
 	jp UnknownJump_0x3F147
 
 UnknownRJump_0x3F05C:
@@ -14320,7 +14319,7 @@ UnknownRJump_0x3F05C:
 UnknownJump_0x3F060:
 	call UnknownCall_0x3D208
 	ld a, 1
-	ld [$A68B], a
+	ld [sCurrentZone], a
 	jp UnknownJump_0x3F147
 
 UnknownRJump_0x3F06B:
@@ -14330,7 +14329,7 @@ UnknownRJump_0x3F06B:
 UnknownJump_0x3F06F:
 	call UnknownCall_0x3D371
 	ld a, 3
-	ld [$A68B], a
+	ld [sCurrentZone], a
 	jp UnknownJump_0x3F147
 
 UnknownRJump_0x3F07A:
@@ -14340,7 +14339,7 @@ UnknownRJump_0x3F07A:
 UnknownRJump_0x3F07E:
 	call UnknownCall_0x3D49F
 	ld a, 4
-	ld [$A68B], a
+	ld [sCurrentZone], a
 	jp UnknownJump_0x3F147
 
 UnknownRJump_0x3F089:
@@ -14348,7 +14347,7 @@ UnknownRJump_0x3F089:
 	jr nc, UnknownRJump_0x3F098
 	call UnknownCall_0x3D61F
 	ld a, 5
-	ld [$A68B], a
+	ld [sCurrentZone], a
 	jp UnknownJump_0x3F147
 
 UnknownRJump_0x3F098:
@@ -14356,7 +14355,7 @@ UnknownRJump_0x3F098:
 	jr nc, UnknownRJump_0x3F0A7
 	call UnknownCall_0x3D79A
 	ld a, 6
-	ld [$A68B], a
+	ld [sCurrentZone], a
 	jp UnknownJump_0x3F147
 
 UnknownRJump_0x3F0A7:
@@ -14365,13 +14364,13 @@ UnknownRJump_0x3F0A7:
 	cp $5B
 	jr nz, UnknownRJump_0x3F0B7
 	ld a, 92
-	ld [$A840], a
+	ld [savWorldMapLocation], a
 	call UnknownCall_0x3EEA4
 
 UnknownRJump_0x3F0B7:
 	call UnknownCall_0x3D6EB
 	ld a, 7
-	ld [$A68B], a
+	ld [sCurrentZone], a
 	jp UnknownJump_0x3F147
 
 UnknownRJump_0x3F0C2:
@@ -14380,9 +14379,9 @@ UnknownRJump_0x3F0C2:
 	cp $66
 	jr nz, UnknownRJump_0x3F0E4
 	ld a, 104
-	ld [$A840], a
+	ld [savWorldMapLocation], a
 	call UnknownCall_0x3EEA4
-	ld a, [$A224]
+	ld a, [sCollision]
 	or a
 	jp nz, UnknownJump_0x3F03D
 	ld a, [$A86D]
@@ -14404,16 +14403,16 @@ UnknownRJump_0x3F0F6:
 	jr nc, UnknownRJump_0x3F104
 	call UnknownCall_0x3D880
 	ld a, 8
-	ld [$A68B], a
+	ld [sCurrentZone], a
 	jr UnknownRJump_0x3F147
 
 UnknownRJump_0x3F104:
 	cp $78
 	jp nz, UnknownJump_0x3F123
 	ld a, 46
-	ld [$A840], a
+	ld [savWorldMapLocation], a
 	call UnknownCall_0x3EEA4
-	ld a, [$A224]
+	ld a, [sCollision]
 	or a
 	jp nz, UnknownJump_0x3F060
 	ld a, [$A86E]
@@ -14425,9 +14424,9 @@ UnknownJump_0x3F123:
 	cp $7A
 	jp nz, UnknownJump_0x3F142
 	ld a, 49
-	ld [$A840], a
+	ld [savWorldMapLocation], a
 	call UnknownCall_0x3EEA4
-	ld a, [$A224]
+	ld a, [sCollision]
 	or a
 	jp nz, UnknownJump_0x3F060
 	ld a, [$A86F]
@@ -14445,7 +14444,7 @@ UnknownRJump_0x3F147:
 	ld a, 146
 	ld [$A878], a
 	ei
-	call UnknownCall_0x2934
+	call SaveData
 	ld a, 12
 	ld [hGameMode], a
 	ret
@@ -14466,7 +14465,7 @@ UnknownCall_0x3F156:
 	ld a, 0
 	ld [$A690], a
 	ld [$A789], a
-	ld [$A68B], a
+	ld [sCurrentZone], a
 	ld hl, $7800
 	ld bc, $B800
 	ld de, $2020
@@ -14485,7 +14484,7 @@ UnknownCall_0x3F156:
 	call UnknownCall_0x3EAE5
 	call UnknownCall_0x3ED4C
 	call UnknownCall_0x3E46
-	ld a, [$A840]
+	ld a, [savWorldMapLocation]
 	cp $17
 	jr z, UnknownRJump_0x3F1C2
 	cp $18
@@ -14499,7 +14498,7 @@ UnknownRJump_0x3F1C2:
 	ld de, $8000
 	di
 	call FarCopyData
-	call UnknownCall_0x3E7BE
+	call FarReadByte_Bank0FE
 	call UnknownCall_0x3F275
 	call UnknownCall_0x3EBC8
 	call UnknownCall_0x3F203
@@ -14746,7 +14745,7 @@ UnknownCall_0x3F38F:
 	sbc h
 	daa
 	ld [sCoinCount+1], a
-	call UnknownCall_0x2934
+	call SaveData
 	ld a, 0
 	ret
 
@@ -14768,7 +14767,7 @@ UnknownJump_0x3F3B9:
 	ld de, $9800
 	call FarCopyData
 	ld a, 9
-	ld [$A68B], a
+	ld [sCurrentZone], a
 	ld de, $66D4
 	call UnknownCall_0x3E2A2
 	call UnknownCall_0x3F35A
@@ -14791,7 +14790,7 @@ UnknownJump_0x3F3F0:
 	ld de, $9800
 	call FarCopyData
 	ld a, 10
-	ld [$A68B], a
+	ld [sCurrentZone], a
 	ld de, $671C
 	call UnknownCall_0x3E2A2
 	call UnknownCall_0x3F35A
@@ -14814,7 +14813,7 @@ UnknownJump_0x3F427:
 	ld de, $9800
 	call FarCopyData
 	ld a, 11
-	ld [$A68B], a
+	ld [sCurrentZone], a
 	ld de, $6704
 	call UnknownCall_0x3E2A2
 	call UnknownCall_0x3F35A
@@ -14837,7 +14836,7 @@ UnknownJump_0x3F45E:
 	ld de, $9800
 	call FarCopyData
 	ld a, 12
-	ld [$A68B], a
+	ld [sCurrentZone], a
 	ld de, $66EC
 	call UnknownCall_0x3E2A2
 	call UnknownCall_0x3F35A
@@ -14922,7 +14921,7 @@ UnknownRJump_0x3F510:
 	ld de, $9800
 	call FarCopyData
 	ld a, 13
-	ld [$A68B], a
+	ld [sCurrentZone], a
 	ld de, $6734
 	call UnknownCall_0x3E2A2
 	ld a, 240
@@ -15018,7 +15017,7 @@ UnknownCall_0x3F5A4:
 	ld de, $9800
 	call FarCopyData
 	ld a, 14
-	ld [$A68B], a
+	ld [sCurrentZone], a
 	ld de, $6761
 	call UnknownCall_0x3E2A2
 	ld a, 240
@@ -15203,7 +15202,7 @@ SECTION "bank16", ROMX, BANK[$16]
 
 
 UnknownCall_0x58000:
-	ld a, [$A224]
+	ld a, [sCollision]
 	cp $FF
 	ret z
 	ld a, [$A24F]
@@ -16276,7 +16275,7 @@ UnknownRJump_0x587D3:
 	jr z, UnknownRJump_0x587D3
 	dec a
 	jr z, UnknownRJump_0x587EE
-	ld a, [$A2A0]
+	ld a, [sCheckpointTriggered]
 	and a
 	jr nz, UnknownRJump_0x587FB
 	ld a, 135
@@ -23740,7 +23739,7 @@ UnknownRJump_0x606DF:
 	ld [$A7A6], a
 	ld a, 20
 	ld [$A7A7], a
-	call UnknownCall_0x2934
+	call SaveData
 	ret
 
 UnknownRJump_0x60711:
@@ -23749,7 +23748,7 @@ UnknownRJump_0x60711:
 	cp $03
 	jr nz, UnknownRJump_0x60723
 	ld c, 29
-	ld a, [$A68B]
+	ld a, [sCurrentZone]
 	cp $0E
 	jr z, UnknownRJump_0x6073D
 
@@ -24579,7 +24578,7 @@ UnknownRJump_0x60D49:
 	ld hl, $4F7E
 	add de
 	ld c, [hl]
-	ld a, [$A840]
+	ld a, [savWorldMapLocation]
 	sub 110
 	add a
 	ld d, 0
@@ -24763,7 +24762,7 @@ INCBIN "baserom.gb", $60EA1, $60EAB - $60EA1
 
 
 UnknownRJump_0x60EAB:
-	call UnknownCall_0x2934
+	call SaveData
 	ret
 
 UnknownCall_0x60EAF:
@@ -24778,7 +24777,7 @@ UnknownCall_0x60EB5:
 	rrca
 	ld e, a
 	ld d, 0
-	ld a, [$A840]
+	ld a, [savWorldMapLocation]
 	cp $6E
 	jr z, UnknownRJump_0x60EDD
 	cp $6F

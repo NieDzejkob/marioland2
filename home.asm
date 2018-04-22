@@ -96,7 +96,7 @@ VBlank:
 
 	ldh a, [hGameMode]
 	cp MODE_WORLD
-	jp z, UnknownJump_0x2C18
+	jp z, VBlank_World
 
 	ld a, [sVBlankCopyEnabled]
 	and a
@@ -125,12 +125,15 @@ VBlank:
 
 FinishVBlank:
 	call hOAMDMA
+
 	ldh a, [hGameMode]
 	cp MODE_LEVEL
 	call z, UpdateSound
+
 	ldh a, [hGameMode]
-	cp $18
+	cp MODE_24
 	call z, UpdateSound
+
 	ld a, [sRomBank]
 	ld [MBC1RomBank], a
 	ld a, 1
@@ -185,29 +188,29 @@ CallGameModeHandler:
 	jumptable
 	dw LoadTitlescreen	; MODE_LOAD_TITLESCREEN
 	dw HandleTitlescreen	; MODE_TITLESCREEN
-	dw $03f1		; 02
-	dw $04f1		; 03
+	dw $03f1		; MODE_02
+	dw $04f1		; MODE_03
 	dw $05d5		; MODE_LEVEL
-	dw $27af		; 05
-	dw GenericDummyFunction	; 06
-	dw $287e		; 07
+	dw $27af		; MODE_05
+	dw GenericDummyFunction	; MODE_06
+	dw $287e		; MODE_07
 	dw $2756		; MODE_PAUSED
-	dw $311a		; 09
-	dw GenericDummyFunction	; 0A
-	dw $2ce9		; 0B
+	dw $311a		; MODE_09
+	dw GenericDummyFunction	; MODE_10
+	dw $2ce9		; MODE_11
 	dw $2c2e		; MODE_WORLD
-	dw GenericDummyFunction	; 0D
-	dw GenericDummyFunction	; 0E
-	dw GenericDummyFunction	; 0F
-	dw $2974		; 10
-	dw $29ca		; 11
+	dw GenericDummyFunction	; MODE_13
+	dw GenericDummyFunction	; MODE_14
+	dw GenericDummyFunction	; MODE_15
+	dw $2974		; MODE_16
+	dw $29ca		; MODE_17
 	dw $2cae		; MODE_LOAD_CREDITS
 	dw $2cb9		; MODE_CREDITS
-	dw $2c23		; 14
-	dw $353e		; 15
-	dw $3573		; 16
-	dw $35cd		; 17
-	dw $3547		; 18
+	dw HandleMode20		; MODE_20
+	dw HandleMode21		; MODE_21
+	dw $3573		; MODE_22
+	dw $35cd		; MODE_23
+	dw $3547		; MODE_24
 	dw LoadSavefileSelect	; MODE_LOAD_SAVEFILE_SELECT
 	dw HandleSavefileSelect ; MODE_SAVEFILE_SELECT
 INCBIN "baserom.gb", $02E6, $02FE - $02E6
@@ -634,7 +637,7 @@ INCBIN "baserom.gb", $05C6, $05D5 - $05C6
 
 UnknownRJump_0x05E4:
 	call UnknownCall_0x2C61
-	ld a, [$A224]
+	ld a, [sCollision]
 	cp $FF
 	jr z, UnknownRJump_0x0640
 	ldh a, [hMarioSpriteY]
@@ -1871,7 +1874,7 @@ UnknownCall_0x0F2A:
 	ld [$A279], a
 	ld [$A23D], a
 	ld [$A24F], a
-	ld [$A224], a
+	ld [sCollision], a
 	ld a, 64
 	ld [sFrameCounter], a
 	ld [sMarioScreenY], a
@@ -2523,7 +2526,7 @@ UnknownRJump_0x1464:
 	cp $12
 	jr nc, UnknownRJump_0x147F
 	ld a, 128
-	ld [$A224], a
+	ld [sCollision], a
 	ld a, 15
 	ld [sPlaySFX], a
 	xor a
@@ -3268,7 +3271,7 @@ UnknownRJump_0x1C4E:
 	or b
 	jr nz, UnknownRJump_0x1C6D
 	ld a, 15
-	ld [$A224], a
+	ld [sCollision], a
 	ld a, 20
 	ld [sPlaySFX], a
 	ld a, [sCurPowerup]
@@ -3282,7 +3285,7 @@ UnknownRJump_0x1C6D:
 	cp $80
 	jp c, UnknownJump_0x1D71
 	ld a, 128
-	ld [$A224], a
+	ld [sCollision], a
 	ld a, 15
 	ld [sPlaySFX], a
 	jp UnknownJump_0x1D71
@@ -3333,7 +3336,7 @@ UnknownRJump_0x1CBA:
 	ld [$A2B4], a
 
 UnknownRJump_0x1CD7:
-	ld a, 3
+	ld a, SONG_FINISHED_LEVEL
 	ld [sPlaySong], a
 	xor a
 	ld [sPlaySFX], a
@@ -3345,7 +3348,7 @@ UnknownRJump_0x1CD7:
 	ld [sFrameCounter], a
 	xor a
 	ld [sFrameCounter+1], a
-	ld [$A2A0], a
+	ld [sCheckpointTriggered], a
 	ld [sAnimatedTilesCtl], a
 	jr UnknownRJump_0x1D71
 
@@ -4611,7 +4614,7 @@ UnknownRJump_0x2760:
 	jr z, UnknownRJump_0x278E
 	ld a, MUTECTL_UNPAUSE
 	ld [sMuteControl], a
-	ld [$A224], a
+	ld [sCollision], a
 	xor a
 	ld [sAutoScroll], a
 	ld [sAnimatedTilesCtl], a
@@ -4722,7 +4725,7 @@ UnknownRJump_0x2844:
 	ld [$A85F], a
 	ld [$A859], a
 	ld [$A856], a
-	call UnknownCall_0x2934
+	call SaveData
 	ld a, 255
 	ld [sFrameCounter], a
 	ld a, 7
@@ -4862,8 +4865,8 @@ ValidateSavefile:
 	ld [hl], a  ; Magic78
 	ret
 
-UnknownCall_0x2934:
-	ld hl, $A000
+SaveData:
+	ld hl, sSavefile1
 	ld a, [sCurrentSavefile]
 	ld b, a
 	sla a
@@ -4873,38 +4876,44 @@ UnknownCall_0x2934:
 	ld e, a
 	ld d, 0
 	add de
-	ld c, 0
-	ld de, $A840
-	ld b, 64
 
-UnknownRJump_0x294D:
+	ld c, 0
+	ld de, sCurrentSavefileData
+	ld b, SAVEFILE_SIZE ; could load b and c with ld bc, imm16
+.copy_loop:
 	ld a, [de]
 	ld [hli], a
 	add c
 	ld c, a
 	inc de
 	dec b
-	jr nz, UnknownRJump_0x294D
+	jr nz, .copy_loop
+
 	ld a, [sCoinCount]
 	ld [hli], a
 	add c
 	ld c, a
+
 	ld a, [sCoinCount+1]
 	ld [hli], a
 	add c
 	ld c, a
+
 	ld a, [sCompletedLevels]
 	ld [hli], a
 	add c
 	ld c, a
+
 	ld a, [sLifeCount]
 	ld [hli], a
 	add c
 	ld c, a
+
 	ld a, [sKillCount]
 	ld [hli], a
 	add c
-	ld [hl], a
+
+	ld [hl], a ; Checksum
 	ret
 
 UnknownData_0x2974:
@@ -5130,13 +5139,16 @@ FarCopyData:
 UnknownCall_0x2C0D:
 	jpba UnknownJump_0x5CF2
 
-UnknownJump_0x2C18:
-	ld a, 15
+VBlank_World:
+	ld a, BANK(WorldMap_VBlankHandler)
 	ld [sRomBank], a
 	ld [MBC1RomBank], a
 	jp UnknownJump_0x3E73
 
-	jpba UnknownJump_0x3EF2B
+HandleMode20::
+	jpba _HandleMode20
+
+UnknownNothing_0x2C2E::
 	jpba UnknownJump_0x3C000
 
 UnknownData_0x2C39:
@@ -5209,7 +5221,7 @@ UnknownCall_0x2D7D:
 	xor a
 	ld [$A26B], a
 	ld [$A2D4], a
-	ld a, [$A224]
+	ld a, [sCollision]
 	and a
 	ret nz
 	ld hl, $AD00
@@ -5371,7 +5383,7 @@ UnknownRJump_0x2E8E:
 	and a
 	jp nz, UnknownJump_0x2F71
 	ld a, 15
-	ld [$A224], a
+	ld [sCollision], a
 	ld a, 20
 	ld [sPlaySFX], a
 	ld a, [sCurPowerup]
@@ -5801,7 +5813,7 @@ UnknownRJump_0x3127:
 	daa
 	ld [sLifeCount], a
 	jr c, UnknownRJump_0x314B
-	call UnknownCall_0x2934
+	call SaveData
 	ret
 
 UnknownRJump_0x314B:
@@ -5852,10 +5864,10 @@ UnknownRJump_0x3186:
 	ret
 
 UnknownCall_0x319F:
-	ld a, [$A224]
+	ld a, [sCollision]
 	and a
 	ret z
-	ld a, [$A224]
+	ld a, [sCollision]
 	cp $80
 	jr z, UnknownRJump_0x31D1
 	ld a, [sCurPowerup]
@@ -5864,7 +5876,7 @@ UnknownCall_0x319F:
 	cp $01
 	jr nz, UnknownRJump_0x31C2
 	xor a
-	ld [$A224], a
+	ld [sCollision], a
 	ld [sCurPowerup], a
 	ld a, 128
 	ld [$A217], a
@@ -5872,7 +5884,7 @@ UnknownCall_0x319F:
 
 UnknownRJump_0x31C2:
 	xor a
-	ld [$A224], a
+	ld [sCollision], a
 	ld a, 1
 	ld [sCurPowerup], a
 	ld a, 128
@@ -5881,7 +5893,7 @@ UnknownRJump_0x31C2:
 
 UnknownRJump_0x31D1:
 	ld a, 255
-	ld [$A224], a
+	ld [sCollision], a
 	xor a
 	ld [sSpriteAnimationCounter], a
 	ld a, 95
@@ -6274,7 +6286,7 @@ UnknownRJump_0x34C9:
 	ld a, 21
 	ld [sPlaySFX], a
 	ld a, 255
-	ld [$A2A0], a
+	ld [sCheckpointTriggered], a
 	jr UnknownRJump_0x3539
 
 UnknownRJump_0x34D9:
@@ -6331,11 +6343,14 @@ UnknownRJump_0x3539:
 	xor a
 	ld [$A26C], a
 	ret
+
+HandleMode21::
 	xor a
 	ld [sCurPowerup], a
-	ld a, 20
+	ld a, MODE_20
 	ldh [hGameMode], a
 	ret
+
 	ld a, [sFrameCounter]
 	ld b, a
 	ld a, [sFrameCounter+1]
@@ -6366,20 +6381,20 @@ UnknownRJump_0x356E:
 	ret
 	ld a, [sCurLevel]
 	cp $FF
-	jr nz, .CheckEasyMode
+	jr nz, .check_easy_mode
 	ld a, 27
 	ldh [hGameMode], a
 	ret
 
-.CheckEasyMode
+.check_easy_mode:
 	ld a, [sEasyMode]
 	cp $01
-	jr z, .EasyModeOn
+	jr z, .easy_mode_on
 	ld a, 11
 	ldh [hGameMode], a
 	ret
 
-.EasyModeOn
+.easy_mode_on:
 	ld a, 208
 	ld [sOBP0], a
 	call DisableLCD
@@ -7054,17 +7069,17 @@ UnknownCall_0x3E51:
 UnknownJump_0x3E73:
 	ld a, 1
 	ld [$A785], a
-	jp UnknownJump_0x3EAFF
+	jp WorldMap_VBlankHandler
 
-UnknownCall_0x3E7B:
+FarReadByte_Bank0F::
 	di
 	push bc
 	ld [sRomBank], a
-	ld [$3000], a
+	ld [MBC1RomBankAlt], a
 	ld b, [hl]
 	ld a, 15
 	ld [sRomBank], a
-	ld [$3000], a
+	ld [MBC1RomBankAlt], a
 	ld a, b
 	pop bc
 	ret
