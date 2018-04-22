@@ -234,7 +234,7 @@ Sprite_Unk_0x444F::
 	db  0,   0,  $31, 0
 	db SPRITEDEF_END
 
-Sprite_Unk_0x4460::
+Sprite_BoomCloud4::
 	db -16, -8,  $B0, 0
 	db -16,  0,  $B1, 0
 	db -8,  -8,  $B2, 0
@@ -242,21 +242,21 @@ Sprite_Unk_0x4460::
 	db  0,  -5,  $B4, 0
 	db SPRITEDEF_END
 
-Sprite_Unk_0x4475::
+Sprite_BoomCloud3::
 	db -16, -8,  $B5, 0
 	db -16,  0,  $B6, 0
 	db -8,  -8,  $B7, 0
 	db -8,   0,  $B8, 0
 	db SPRITEDEF_END
 
-Sprite_Unk_0x4486::
+Sprite_BoomCloud2::
 	db -16, -8,  $B9, 0
 	db -16,  0,  $BA, 0
 	db -8,  -8,  $BB, 0
 	db -8,   0,  $BC, 0
 	db SPRITEDEF_END
 
-Sprite_Unk_0x4497::
+Sprite_BoomCloud1::
 	db -16, -8,  $B9, 0
 	db -16,  0,  $BA, 0
 	db -8,  -8,  $BB, 0
@@ -1153,7 +1153,7 @@ Sprite_Unk_0x4E29::
 
 Sprite_Unk_0x4E42::
 	db -12, -4,  $1F, 0
-Sprite_BigMario_Piping::
+Sprite_BigMario_Front::
 	db -12, -8,  $1A, 0
 	db -12,  0,  $1A, OAM_ATTR_X_FLIP
 	db -4,  -8,  $1B, 0
@@ -1166,7 +1166,7 @@ Sprite_BigMario_Piping::
 
 Sprite_Unk_0x4E67::
 	db -12, -4,  $1F, 0
-Sprite_Unk_0x4E6B::
+Sprite_BigMario_Back::
 	db -12, -8,  $1A, 0
 	db -12,  0,  $1A, OAM_ATTR_X_FLIP
 	db -4,  -8,  $09, 0

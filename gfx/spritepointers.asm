@@ -15,8 +15,8 @@ SpritePointers::
 	dw Sprite_Unk_0x4EA1
 	dw Sprite_Unk_0x4F2D
 	dw Sprite_Unk_0x4F42
-	dw Sprite_BigMario_Piping
-	dw Sprite_Unk_0x4E6B
+	dw Sprite_BigMario_Front
+	dw Sprite_BigMario_Back
 	dw Sprite_Unk_0x4614
 	dw Sprite_Unk_0x463D
 	dw Sprite_Unk_0x466A
@@ -210,10 +210,10 @@ SpritePointers::
 	dw Sprite_Stars2
 	dw Sprite_Stars3
 	dw Sprite_Stars4
-	dw Sprite_Unk_0x4497
-	dw Sprite_Unk_0x4486
-	dw Sprite_Unk_0x4475
-	dw Sprite_Unk_0x4460
+	dw Sprite_BoomCloud1
+	dw Sprite_BoomCloud2
+	dw Sprite_BoomCloud3
+	dw Sprite_BoomCloud4
 	dw Sprite_Unk_0x43FA
 	dw Sprite_Unk_0x440B
 	dw Sprite_Unk_0x441C

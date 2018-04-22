@@ -1,8 +1,10 @@
 SECTION "Save Data", SRAM[$A000], BANK[0]
 savefile: MACRO
-\1::                 ds $42
+\1::                 ds SAVEFILE_SIZE
+\1_CoinCount::       dw
 \1_CompletedLevels:: db
-                     ds 2
+\1_LifeCount::       db
+\1_KillCount::       db
 \1_Checksum::        db
 \1_Magic12::         db
 \1_Magic34::         db
@@ -88,13 +90,18 @@ sAnimatedTilesCounter:: db
 ; low nibble - tile group
 sAnimatedTilesCtl:: db
 
-	ds $16
+	ds 9
+
+sCurrentSavefile:: db
+
+	ds 12
 
 sSCY:: db
 sSCX:: db
 
-	ds $14
+	ds 19
 
+sCompletedLevels:: db
 sSavefileSelectBombMario:: db
 sSavefileSelectStars:: db
 
@@ -104,8 +111,9 @@ sAnimatedTilesState:: db
 sDemoMode:: db
 sDemoIndex:: db
 sPreviousKeysHeld:: db
+sSavefileSelectMarioYAfterBoom:: db
 
-	ds 19
+	ds 18
 
 sEasyMode:: db
 
@@ -164,9 +172,13 @@ sVolume:: db
 	ds $C0
 sAudio2End::
 
-SECTION "Stack", SRAM[$A800], BANK[0]
+SECTION "Current Savefile", SRAM[$A840], BANK[0]
+sCurrentSavefileData:: ds SAVEFILE_SIZE
+sCurrentSavefileDataEnd::
+
+SECTION "Stack", SRAM[$A880], BANK[0]
 sStack::
-	ds $100
+	ds $80
 sStackEnd::
 
 SECTION "WRA0", WRAM0[$C000]

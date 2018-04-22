@@ -3,7 +3,10 @@ SECTION "rst00", ROM0[$00]
 
 SECTION "rst08", ROM0[$08]
 	jp Init
-	db $80, $1B, $9B, $10, $80, $83, $28, $E2, $A2, $1A, $28, $02, $07, $40, $20, $C2, $AC, $BA, $33, $AE, $02, $80, $21, $88, $8A, $28, $08, $63, $3A
+	db $80, $1B, $9B, $10, $80, $83, $28, $E2
+	db $A2, $1A, $28, $02, $07, $40, $20, $C2
+	db $AC, $BA, $33, $AE, $02, $80, $21, $88
+	db $8A, $28, $08, $63, $3A
 
 SECTION "rst28", ROM0[$28]
 	add a
@@ -4708,10 +4711,10 @@ UnknownRJump_0x283F:
 UnknownRJump_0x2844:
 	dec b
 	jr nz, UnknownRJump_0x283F
-	ld a, [$A2C5]
+	ld a, [sCompletedLevels]
 	sub c
 	daa
-	ld [$A2C5], a
+	ld [sCompletedLevels], a
 	xor a
 	ld [$A84D], a
 	ld [$A851], a
@@ -4833,14 +4836,15 @@ ValidateSavefile:
 	jr nz, .init_loop
 
 	xor a       ; why is this not cleared in that loop
+	ld [hli], a ; CoinCount
 	ld [hli], a
-	ld [hli], a
-	ld [hli], a
+	ld [hli], a ; CompletedLevels
 
 	ld a, 5
-	ld [hli], a
+	ld [hli], a ; LifeCount
+
 	xor a
-	ld [hli], a
+	ld [hli], a ; KillCount
 
 	ld a, 2
 	ld [hli], a ; Checksum
@@ -4860,7 +4864,7 @@ ValidateSavefile:
 
 UnknownCall_0x2934:
 	ld hl, $A000
-	ld a, [$A2A3]
+	ld a, [sCurrentSavefile]
 	ld b, a
 	sla a
 	sla a
@@ -4889,7 +4893,7 @@ UnknownRJump_0x294D:
 	ld [hli], a
 	add c
 	ld c, a
-	ld a, [$A2C5]
+	ld a, [sCompletedLevels]
 	ld [hli], a
 	add c
 	ld c, a
@@ -6351,10 +6355,10 @@ UnknownRJump_0x3558:
 	ld a, [$A2B4]
 	and a
 	jr nz, UnknownRJump_0x356E
-	ld a, [$A2C5]
+	ld a, [sCompletedLevels]
 	add 1
 	daa
-	ld [$A2C5], a
+	ld [sCompletedLevels], a
 
 UnknownRJump_0x356E:
 	ld a, 20
