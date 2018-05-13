@@ -179,11 +179,38 @@ sVolume:: db
 	ds $C0
 sAudio2End::
 
-	ds $8B
+sScrollingWorldTopTiles::
+	dw
+	ds SCREEN_WIDTH
+
+	ds 10
+
+sScrollingWorldBottomTiles::
+	dw
+	ds SCREEN_WIDTH
+
+	ds 10
+
+sScrollingWorldLeftTiles::
+	dw
+	ds SCREEN_HEIGHT + 2
+
+	ds 10
+
+sScrollingWorldRightTiles::
+	dw
+	ds SCREEN_HEIGHT + 2
+
+	ds 21
 
 sCurrentZone:: db
 
-	ds $1B4
+	ds $132
+
+sOverworldAnimatedBGDelayCounter:: db
+sOverworldAnimatedBGKeyFrameCounter:: db
+
+	ds $80
 
 sCurrentSavefileData::
 savWorldMapLocation:: db

@@ -1,6 +1,3 @@
-# global label defs are generated
-globals.asm
-
 # precompiled python
 *.pyc
 
@@ -15,7 +12,7 @@ globals.asm
 *.gb
 
 # images
-*.png
+*.2bpp
 
 # rgbds extras
 *.map
@@ -34,6 +31,7 @@ globals.asm
 *.sgm
 *.sav
 *.sys
+*.sn1
 
 # for vim configuration
 # url: http://www.vim.org/scripts/script.php?script_id=441

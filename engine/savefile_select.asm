@@ -28,7 +28,7 @@ _LoadSavefileSelect::
 	ldh [hMarioSpriteY], a
 	call ValidateSavefiles
 
-	xor a
+	xor a ; SAVEFILE_SELECT_STATE_FALLING_MARIO
 	ld [sSavefileSelectState], a
 	ld [sSCY], a
 	ld [sSCX], a
@@ -41,7 +41,7 @@ _LoadSavefileSelect::
 	ld a, 13
 	ld [sPlaySong], a
 
-	xor a ; SAVEFILE_SELECT_STATE_FALLING_MARIO
+	xor a
 	ld [sEasyMode], a
 
 	ld a, [hGameMode]

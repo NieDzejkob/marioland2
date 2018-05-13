@@ -7098,82 +7098,83 @@ UnknownCall_0x3E8F:
 	pop de
 	ret
 
-UnknownCall_0x3EA4:
+CopyPumpkinZoneOWAnimatedTiles:
 	ld a, 16
 	ld [sRomBank], a
-	ld [$3000], a
+	ld [MBC1RomBankAlt], a
+
 	ld de, $88E0
 	ld c, 32
-
-UnknownRJump_0x3EB1:
+.loop1:
 	ld a, [hli]
 	ld [de], a
 	inc de
 	dec c
-	jr nz, UnknownRJump_0x3EB1
+	jr nz, .loop1
+
 	ld de, $89E0
 	ld c, 32
-
-UnknownRJump_0x3EBC:
+.loop2:
 	ld a, [hli]
 	ld [de], a
 	inc de
 	dec c
-	jr nz, UnknownRJump_0x3EBC
+	jr nz, .loop2
+
 	ld a, 15
 	ld [sRomBank], a
-	ld [$3000], a
+	ld [MBC1RomBankAlt], a
 	ret
 
-UnknownCall_0x3ECB:
+CopyTreeZoneOWAnimatedTiles::
 	ld a, 14
 	ld [sRomBank], a
-	ld [$3000], a
+	ld [MBC1RomBankAlt], a
+
 	ld de, $8820
 	ld c, 32
-
-UnknownRJump_0x3ED8:
+.loop1:
 	ld a, [hli]
 	ld [de], a
 	inc de
 	dec c
-	jr nz, UnknownRJump_0x3ED8
+	jr nz, .loop1
+
 	ld de, $8920
 	ld c, 32
-
-UnknownRJump_0x3EE3:
+.loop2:
 	ld a, [hli]
 	ld [de], a
 	inc de
 	dec c
-	jr nz, UnknownRJump_0x3EE3
+	jr nz, .loop2
+
 	ld a, 15
 	ld [sRomBank], a
-	ld [$3000], a
+	ld [MBC1RomBankAlt], a
 	ret
 
-UnknownCall_0x3EF2:
+CopyTurtleZoneOWAnimatedTiles::
 	ld a, 14
 	ld [sRomBank], a
-	ld [$3000], a
+	ld [MBC1RomBankAlt], a
 	ld de, $9000
 	ld c, 32
-
-UnknownRJump_0x3EFF:
+.loop:
 	ld a, [hli]
 	ld [de], a
 	inc de
 	dec c
-	jr nz, UnknownRJump_0x3EFF
+	jr nz, .loop
 	ld a, 15
 	ld [sRomBank], a
-	ld [$3000], a
+	ld [MBC1RomBankAlt], a
 	ret
 
 UnknownCall_0x3F0E:
 	ld a, 25
 	ld [sRomBank], a
-	ld [$3000], a
+	ld [MBC1RomBankAlt], a
 	ld b, 16
 
 UnknownRJump_0x3F18:
@@ -7191,7 +7192,7 @@ UnknownRJump_0x3F1D:
 	jr nz, UnknownRJump_0x3F18
 	ld a, 24
 	ld [sRomBank], a
-	ld [$3000], a
+	ld [MBC1RomBankAlt], a
 	ret
 
 UnknownCall_0x3F30:

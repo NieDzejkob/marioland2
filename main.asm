@@ -8454,13 +8454,14 @@ SECTION "bank0E", ROMX, BANK[$0E]
 UnknownData_0x38000:
 INCBIN "baserom.gb", $38000, $38200 - $38000
 
-GFX_OW_PumpkinZone: ;$38200
+GFX_OW_PumpkinZone::
 INCBIN "gfx/overworld/pumpkinzone.2bpp"
 
+GFX_OW_TreeZone_Flower::
 INCBIN "baserom.gb", $39800, $39A00 - $39800
 
-GFX_OW_TreeZone: ;$39A000
-INCBIN "gfx/overworld/treezone.2bpp"
+GFX_OW_TreeAndTurtleZone::
+INCBIN "gfx/overworld/tree_and_turtlezone.2bpp"
 
 TileMapping_PumpkinZone: ;$3B000
 INCBIN "tilemaps/overworld/pumpkinzone.bin"
@@ -10403,9 +10404,9 @@ UnknownCall_0x3D0FF:
 	ld hl, GFX_OW_Overworld
 	ld de, $8000
 	call FarCopyData
-	ld a, BANK(GFX_OW_TreeZone) ;prepare bank switch
+	ld a, BANK(GFX_OW_TreeAndTurtleZone) ;prepare bank switch
 	ld bc, $1600
-	ld hl, GFX_OW_TreeZone
+	ld hl, GFX_OW_TreeAndTurtleZone
 	ld de, $8200
 	call FarCopyData
 	ld a, 14 ;prepare bank switch
@@ -10444,8 +10445,8 @@ UnknownRJump_0x3D151:
 	ld [$A69A], a
 	ld [$A6B0], a
 	ld [$A6B1], a
-	ld [$A7BE], a
-	ld [$A7BF], a
+	ld [sOverworldAnimatedBGDelayCounter], a
+	ld [sOverworldAnimatedBGKeyFrameCounter], a
 	ld a, 16
 	ld [$A783], a
 	ld a, 16
@@ -10565,8 +10566,8 @@ UnknownRJump_0x3D25A:
 	ld [$A6AC], a
 	ld [$A6A6], a
 	ld [$A6A5], a
-	ld [$A7BE], a
-	ld [$A7BF], a
+	ld [sOverworldAnimatedBGDelayCounter], a
+	ld [sOverworldAnimatedBGKeyFrameCounter], a
 	ld a, 195
 	ld [$FF00+$40], a
 	xor a
@@ -10997,9 +10998,9 @@ UnknownCall_0x3D61F:
 	ld hl, GFX_OW_Overworld
 	ld de, $8000
 	call FarCopyData
-	ld a, BANK(GFX_OW_TreeZone) ;prepare bank switch
+	ld a, BANK(GFX_OW_TreeAndTurtleZone) ;prepare bank switch
 	ld bc, $1600
-	ld hl, GFX_OW_TreeZone
+	ld hl, GFX_OW_TreeAndTurtleZone
 	ld de, $8200
 	call FarCopyData
 	ld a, 14 ;prepare bank switch
@@ -13528,60 +13529,66 @@ WorldMap_VBlankHandler::
 	ld a, [sCurrentZone]
 	or a ; ZONE_OVERWORLD
 	call z, UnknownCall_0x3E853
+
 	ld a, [sCurrentZone]
 	cp ZONE_CASTLE
 	call z, UnknownCall_0x3E7F2
+
 	ld a, [sCurrentZone]
 	cp $0D
 	jr nc, UnknownRJump_0x3EB1A
+
 	cp $09
 	call nc, UnknownCall_0x3EBD5
 
 UnknownRJump_0x3EB1A:
 	ld a, [sCurrentZone]
-	cp ZONE_PUMKIN
-	call z, UnknownCall_0x3EC7D
+	cp ZONE_PUMPKIN
+	call z, VBlank_PumpkinZone
+
 	ld a, [sCurrentZone]
 	cp ZONE_TREE
-	call z, UnknownCall_0x3ECF5
+	call z, VBlank_TreeZone
+
 	ld a, [sCurrentZone]
 	cp ZONE_TURTLE
-	call z, UnknownCall_0x3ED35
+	call z, VBlank_TurtleZone
+
 	ld a, [sCurrentZone]
 	or a ; ZONE_OVERWORLD
 	jp nz, FinishVBlank
+
+	; overworld only
 	ld a, [hFrameCounter]
 	and $03
 	cp $01
-	jr nz, UnknownRJump_0x3EB48
-	call UnknownCall_0x3EBAE
+	jr nz, .not_right
+	call World_CopyRightTiles
 	jp FinishVBlank
-
-UnknownRJump_0x3EB48:
+.not_right:
 	cp $02
-	jr nz, UnknownRJump_0x3EB52
-	call UnknownCall_0x3EB94
+	jr nz, .not_left
+	call World_CopyLeftTiles
 	jp FinishVBlank
-
-UnknownRJump_0x3EB52:
+.not_left:
 	cp $03
-	jr nz, UnknownRJump_0x3EB5C
-	call UnknownCall_0x3EB7B
+	jr nz, .not_bottom
+	call World_CopyBottomTiles
+	jp FinishVBlank
+.not_bottom:
+	call World_CopyTopTiles
 	jp FinishVBlank
 
-UnknownRJump_0x3EB5C:
-	call UnknownCall_0x3EB62
-	jp FinishVBlank
-
-UnknownCall_0x3EB62:
-	ld hl, $A600
+World_CopyTopTiles:
+	ld hl, sScrollingWorldTopTiles
 	ld a, [hli]
 	ld c, a
 	ld a, [hli]
 	ld b, a
-	ld d, 20
+	ld d, SCREEN_WIDTH
+	; you could just jump to the loop in the routine below
 
-UnknownRJump_0x3EB6B:
+.loop:
 	ld a, [hli]
 	ld [bc], a
 	ld a, c
@@ -13593,42 +13600,65 @@ UnknownRJump_0x3EB6B:
 	or e
 	ld c, a
 	dec d
-	jr nz, UnknownRJump_0x3EB6B
+	jr nz, .loop
 	ret
 
-UnknownCall_0x3EB7B:
-	ld hl, $A620
+World_CopyBottomTiles:
+	ld hl, sScrollingWorldBottomTiles
 	ld a, [hli]
 	ld c, a
 	ld a, [hli]
 	ld b, a
-	ld d, 20
+	ld d, SCREEN_WIDTH
 
-UnknownRJump_0x3EB84:
+.loop:
 	ld a, [hli]
 	ld [bc], a
 	ld a, c
 	inc a
-	and $1F
+	and $1F ; wrap to the current line, not the next
 	ld e, a
 	ld a, c
 	and $E0
 	or e
 	ld c, a
 	dec d
-	jr nz, UnknownRJump_0x3EB84
+	jr nz, .loop
 	ret
 
-UnknownCall_0x3EB94:
-	ld hl, $A640
+World_CopyLeftTiles:
+	ld hl, sScrollingWorldLeftTiles
 	ld a, [hli]
 	ld c, a
 	ld a, [hli]
 	ld b, a
-	ld d, 20
+	ld d, SCREEN_HEIGHT + 2 ; copy the corners too
 	ld e, 32
 
-UnknownRJump_0x3EB9F:
+.loop:
+	ld a, [hli]
+	ld [bc], a
+	ld a, c
+	add e
+	ld c, a
+	ld a, b
+	adc 0
+	res 2, a ; wrap, don't go to the next tilemap
+	ld b, a
+	dec d
+	jr nz, .loop
+	ret
+
+World_CopyRightTiles:
+	ld hl, sScrollingWorldRightTiles
+	ld a, [hli]
+	ld c, a
+	ld a, [hli]
+	ld b, a
+	ld d, SCREEN_HEIGHT + 2
+	ld e, 32
+
+.loop:
 	ld a, [hli]
 	ld [bc], a
 	ld a, c
@@ -13639,37 +13669,14 @@ UnknownRJump_0x3EB9F:
 	res 2, a
 	ld b, a
 	dec d
-	jr nz, UnknownRJump_0x3EB9F
+	jr nz, .loop
 	ret
 
-UnknownCall_0x3EBAE:
-	ld hl, $A660
-	ld a, [hli]
-	ld c, a
-	ld a, [hli]
-	ld b, a
-	ld d, 20
-	ld e, 32
-
-UnknownRJump_0x3EBB9:
-	ld a, [hli]
-	ld [bc], a
-	ld a, c
-	add e
-	ld c, a
-	ld a, b
-	adc 0
-	res 2, a
-	ld b, a
-	dec d
-	jr nz, UnknownRJump_0x3EBB9
-	ret
-
-UnknownCall_0x3EBC8:
-	call UnknownCall_0x3EB62
-	call UnknownCall_0x3EB7B
-	call UnknownCall_0x3EB94
-	call UnknownCall_0x3EBAE
+World_CopyBorderTiles:
+	call World_CopyTopTiles
+	call World_CopyBottomTiles
+	call World_CopyLeftTiles
+	call World_CopyRightTiles
 	ret
 
 UnknownCall_0x3EBD5:
@@ -13774,28 +13781,30 @@ UnknownData_0x3EC75:
 INCBIN "baserom.gb", $3EC75, $3EC7D - $3EC75
 
 
-UnknownCall_0x3EC7D:
+VBlank_PumpkinZone::
 	ld a, [$A86F]
-	bit 7, a
+	bit LEVEL_BITFIELD_COMPLETED_BIT, a
 	ret z
-	ld a, [$A7BE]
+
+	ld a, [sOverworldAnimatedBGDelayCounter]
 	inc a
 	cp $0E
-	jr c, UnknownRJump_0x3EC8C
+	jr c, .skip_zeroing
 	xor a
-
-UnknownRJump_0x3EC8C:
-	ld [$A7BE], a
+.skip_zeroing:
+	ld [sOverworldAnimatedBGDelayCounter], a
 	or a
 	ret nz
-	ld a, [$A7BF]
+
+	ld a, [sOverworldAnimatedBGKeyFrameCounter]
 	inc a
-	ld [$A7BF], a
+	ld [sOverworldAnimatedBGKeyFrameCounter], a
 	and $3F
 	ld d, 0
 	ld e, a
-	ld hl, $6CB5
+	ld hl, .ghost_animation_indices
 	add de
+
 	ld a, [hl]
 	ld e, 0
 	srl a
@@ -13805,64 +13814,74 @@ UnknownRJump_0x3EC8C:
 	ld d, a
 	ld hl, $5300
 	add de
-	call UnknownCall_0x3EA4
+	call CopyPumpkinZoneOWAnimatedTiles
 	ret
 
-UnknownData_0x3ECB5:
-INCBIN "baserom.gb", $3ECB5, $3ECF5 - $3ECB5
+.ghost_animation_indices:
+	db 4, 4, 5, 5, 6, 6, 7, 7
+	db 4, 4, 5, 5, 6, 6, 7, 7
+	db 4, 4, 5, 5, 6, 6, 7, 7
+	db 4, 4, 5, 5, 6, 6, 7, 7
+	db 8,11,10, 9, 8, 8, 4, 4
+	db 8, 9,10,11, 8, 8, 8, 8
+	db 4, 4, 5, 5, 8, 8, 8, 8
+	db 0, 1, 2, 3, 0, 0, 0, 0
 
-
-UnknownCall_0x3ECF5:
+VBlank_TreeZone::
 	ld a, [$A86C]
-	bit 7, a
+	bit LEVEL_BITFIELD_COMPLETED_BIT, a
 	ret z
-	ld a, [$A7BE]
+
+	ld a, [sOverworldAnimatedBGDelayCounter]
 	inc a
 	cp $0E
-	jr c, UnknownRJump_0x3ED04
+	jr c, .skip_zeroing
 	xor a
 
-UnknownRJump_0x3ED04:
-	ld [$A7BE], a
+.skip_zeroing:
+	ld [sOverworldAnimatedBGDelayCounter], a
 	or a
 	ret nz
-	ld a, [$A7BF]
+
+	ld a, [sOverworldAnimatedBGKeyFrameCounter]
 	inc a
-	ld [$A7BF], a
+	ld [sOverworldAnimatedBGKeyFrameCounter], a
+
 	and $07
 	ld d, 0
 	ld e, a
-	ld hl, $6D2D
+	ld hl, .flower_animation_indices
 	add de
-	ld a, [hl]
+
+	ld a, [hl] ; if you're using a lookup table, why don't you multiply the values beforehand?
 	ld e, 0
 	srl a
 	rr e
 	srl a
 	rr e
 	ld d, a
-	ld hl, $5800
+	ld hl, GFX_OW_TreeZone_Flower
 	add de
-	call UnknownCall_0x3ECB
+	call CopyTreeZoneOWAnimatedTiles
 	ret
 
-UnknownData_0x3ED2D:
-INCBIN "baserom.gb", $3ED2D, $3ED35 - $3ED2D
+.flower_animation_indices:
+	db 0, 1, 2, 3, 3, 3, 3, 3
 
-
-UnknownCall_0x3ED35:
+VBlank_TurtleZone:
 	ld a, [$A69A]
 	ld e, a
 	and $0F
 	ret z
+
 	ld a, e
 	and $30
-	sla a
-	ld hl, $5C00
+	sla a ; why not add a?
+	ld hl, GFX_OW_TreeAndTurtleZone + $200
 	ld d, 0
 	ld e, a
 	add de
-	call UnknownCall_0x3EF2
+	call CopyTurtleZoneOWAnimatedTiles
 	ret
 
 UnknownCall_0x3ED4C:
@@ -14500,7 +14519,7 @@ UnknownRJump_0x3F1C2:
 	call FarCopyData
 	call FarReadByte_Bank0FE
 	call UnknownCall_0x3F275
-	call UnknownCall_0x3EBC8
+	call World_CopyBorderTiles
 	call UnknownCall_0x3F203
 	ld a, 136
 	ldh [$FF00+$4A], a
@@ -15049,7 +15068,6 @@ INCBIN "baserom.gb", $3F64D, $40000 - $3F64D
 
 
 SECTION "bank10", ROMX, BANK[$10]
-
 
 SpritePointers0:
 INCBIN "baserom.gb", $40000, $40200 - $40000
