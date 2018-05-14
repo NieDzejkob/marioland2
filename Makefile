@@ -1,8 +1,9 @@
 .SUFFIXES:
 .PHONY: all compare clean
+.PRECIOUS: %.2bpp %.o %.gb
 .SECONDEXPANSION:
 
-includes := python scan_includes.py
+includes := python3 scan_includes.py
 
 all: sml2.gb compare
 compare: baserom.gb sml2.gb
@@ -10,6 +11,7 @@ compare: baserom.gb sml2.gb
 
 %.2bpp: %.png
 	rgbgfx -o $@ $<
+
 %.o: dep = $(shell $(includes) $(@D)/$*.asm)
 %.o: %.asm $$(dep)
 	rgbasm -h -L -o $@ $<

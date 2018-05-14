@@ -389,7 +389,7 @@ ReadLevelData: ;$0386
 UnknownData_0x03E1:
 INCBIN "baserom.gb", $03E1, $03F1 - $03E1
 
-	call UnknownCall_0x2D41
+	call ClearOAM
 	call UnknownCall_0x0F2A
 	ld a, 8
 	ld [sRomBank], a
@@ -4642,7 +4642,7 @@ UnknownRJump_0x278E:
 	call DisableLCD
 	xor a
 	ldh [hOAMUsed], a
-	call UnknownCall_0x2D41
+	call ClearOAM
 	ld a, 12
 	ld [sRomBank], a
 	ld [MBC1RomBank], a
@@ -5210,7 +5210,7 @@ UnknownCall_0x2D15:
 UnknownData_0x2D20:
 INCBIN "baserom.gb", $2D20, $2D41 - $2D20
 
-UnknownCall_0x2D41:
+ClearOAM:
 	jpba _ClearOAM
 
 UnknownData_0x2D4C:
@@ -5804,7 +5804,7 @@ UnknownRJump_0x3127:
 	ld [$A2DC], a
 	ld a, 20
 	ldh [hGameMode], a
-	call UnknownCall_0x2D41
+	call ClearOAM
 	ld a, [sDemoMode]
 	and a
 	jp nz, UnknownJump_0x3150
@@ -6405,7 +6405,7 @@ UnknownRJump_0x356E:
 	ld bc, $0300
 	ld de, $8800
 	call CopyData
-	call UnknownCall_0x2D41
+	call ClearOAM
 	ld a, 224
 	ld [sBGP], a
 	ld a, 210
@@ -7029,15 +7029,14 @@ UnknownCall_0x3E34:
 	ld [$3000], a
 	ret
 
-UnknownCall_0x3E46:
-	ld hl, $A100
-
-UnknownRJump_0x3E49:
+ClearOAM2:
+	ld hl, sOAMBuffer
+.loop:
 	xor a
 	ld [hli], a
 	ld a, l
-	cp $A0
-	jr c, UnknownRJump_0x3E49
+	cp LOW(sOAMBufferEnd)
+	jr c, .loop
 	ret
 
 UnknownCall_0x3E51:
@@ -7180,7 +7179,7 @@ UnknownCall_0x3F0E:
 UnknownRJump_0x3F18:
 	ld a, [hli]
 	push hl
-	ld hl, $FF41
+	ld hl, rSTAT
 
 UnknownRJump_0x3F1D:
 	bit 1, [hl]
@@ -7230,7 +7229,7 @@ UnknownCall_0x3F58:
 
 UnknownCall_0x3F75:
 	push af
-	ld a, 24
+	ld a, BANK(UnknownCall_0x6109B)
 	ld [sRomBank], a
 	ld [MBC1RomBank], a
 	ld hl, $62E6

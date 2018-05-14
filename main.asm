@@ -7474,88 +7474,88 @@ SECTION "bank08", ROMX, BANK[$08]
 
 
 Level_TileMap_01: ;$20000
-INCBIN "tilemaps/mappings/01.bin"
+INCBIN "tilemaps/levels/01.bin"
 
 Level_TileMap_02: ;$20200
-INCBIN "tilemaps/mappings/02.bin"
+INCBIN "tilemaps/levels/02.bin"
 
 Level_TileMap_03: ;$20400
-INCBIN "tilemaps/mappings/03.bin"
+INCBIN "tilemaps/levels/03.bin"
 
 Level_TileMap_04: ;$20600
-INCBIN "tilemaps/mappings/04.bin"
+INCBIN "tilemaps/levels/04.bin"
 
 Level_TileMap_05: ;$20800
-INCBIN "tilemaps/mappings/05.bin"
+INCBIN "tilemaps/levels/05.bin"
 
 Level_TileMap_06: ;$20A00
-INCBIN "tilemaps/mappings/06.bin"
+INCBIN "tilemaps/levels/06.bin"
 
 Level_TileMap_07: ;$20C00
-INCBIN "tilemaps/mappings/07.bin"
+INCBIN "tilemaps/levels/07.bin"
 
 Level_TileMap_08: ;$20E00
-INCBIN "tilemaps/mappings/08.bin"
+INCBIN "tilemaps/levels/08.bin"
 
 Level_TileMap_09: ;MBC1RomBank0
-INCBIN "tilemaps/mappings/09.bin"
+INCBIN "tilemaps/levels/09.bin"
 
 Level_TileMap_10: ;$21200
-INCBIN "tilemaps/mappings/10.bin"
+INCBIN "tilemaps/levels/10.bin"
 
 Level_TileMap_11: ;$21400
-INCBIN "tilemaps/mappings/11.bin"
+INCBIN "tilemaps/levels/11.bin"
 
 Level_TileMap_12: ;$21600
-INCBIN "tilemaps/mappings/12.bin"
+INCBIN "tilemaps/levels/12.bin"
 
 Level_TileMap_13: ;$21800
-INCBIN "tilemaps/mappings/13.bin"
+INCBIN "tilemaps/levels/13.bin"
 
 Level_TileMap_14: ;$21A00
-INCBIN "tilemaps/mappings/14.bin"
+INCBIN "tilemaps/levels/14.bin"
 
 Level_TileMap_15: ;$21C00
-INCBIN "tilemaps/mappings/15.bin"
+INCBIN "tilemaps/levels/15.bin"
 
 Level_TileMap_16: ;$21E00
-INCBIN "tilemaps/mappings/16.bin"
+INCBIN "tilemaps/levels/16.bin"
 
 Level_TileMap_17: ;$22000
-INCBIN "tilemaps/mappings/17.bin"
+INCBIN "tilemaps/levels/17.bin"
 
 Level_TileMap_18: ;$22200
-INCBIN "tilemaps/mappings/18.bin"
+INCBIN "tilemaps/levels/18.bin"
 
 Level_TileMap_19: ;$22400
-INCBIN "tilemaps/mappings/19.bin"
+INCBIN "tilemaps/levels/19.bin"
 
 Level_TileMap_20: ;$22600
-INCBIN "tilemaps/mappings/20.bin"
+INCBIN "tilemaps/levels/20.bin"
 
 Level_TileMap_21: ;$22800
-INCBIN "tilemaps/mappings/21.bin"
+INCBIN "tilemaps/levels/21.bin"
 
 Level_TileMap_22: ;$22A00
-INCBIN "tilemaps/mappings/22.bin"
+INCBIN "tilemaps/levels/22.bin"
 
 Level_TileMap_23: ;$22C00
-INCBIN "tilemaps/mappings/23.bin"
+INCBIN "tilemaps/levels/23.bin"
 
 Level_TileMap_24: ;$22E00
-INCBIN "tilemaps/mappings/24.bin"
+INCBIN "tilemaps/levels/24.bin"
 
 Level_TileMap_25: ;$23000
-INCBIN "tilemaps/mappings/25.bin"
+INCBIN "tilemaps/levels/25.bin"
 
 Level_TileMap_26: ;$23200
-INCBIN "tilemaps/mappings/26.bin"
+INCBIN "tilemaps/levels/26.bin"
 
 Level_TileMap_27: ;$23400
-INCBIN "tilemaps/mappings/27.bin"
+INCBIN "tilemaps/levels/27.bin"
 
 Level_TileMap_28: ;$23600
-INCBIN "tilemaps/mappings/28.bin"
+INCBIN "tilemaps/levels/28.bin"
 
 INCBIN "baserom.gb", $23800, $24000 - $23800
 
@@ -8432,19 +8432,20 @@ INCBIN "gfx/overworld/overworld.2bpp"
 
 INCBIN "baserom.gb", $35800, $35A00 - $35800
 
-GFX_OW_MacroZone: ;$35A00
+GFX_OW_MacroZone::
 INCBIN "gfx/overworld/macrozone.2bpp"
+GFX_OW_MacroZone_End:
 
-TileMapping_Overworld1x1: ;$37000
+TileMap_Overworld1x1: ;$37000
 INCBIN "tilemaps/overworld/overworld1x1.bin"
 
-TileMapping_Overworld2x1: ;$37400
+TileMap_Overworld2x1: ;$37400
 INCBIN "tilemaps/overworld/overworld2x1.bin"
 
-TileMapping_Overworld1x2: ;$37800
+TileMap_Overworld1x2: ;$37800
 INCBIN "tilemaps/overworld/overworld1x2.bin"
 
-TileMapping_Overworld2x2: ;$37C00
+TileMap_Overworld2x2: ;$37C00
 INCBIN "tilemaps/overworld/overworld2x2.bin"
 
 
@@ -8458,30 +8459,30 @@ GFX_OW_PumpkinZone::
 INCBIN "gfx/overworld/pumpkinzone.2bpp"
 
 GFX_OW_TreeZone_Flower::
-INCBIN "baserom.gb", $39800, $39A00 - $39800
+INCBIN "gfx/overworld/treezone_flower.2bpp"
 
 GFX_OW_TreeAndTurtleZone::
 INCBIN "gfx/overworld/tree_and_turtlezone.2bpp"
 
-TileMapping_PumpkinZone: ;$3B000
+TileMap_PumpkinZone::
 INCBIN "tilemaps/overworld/pumpkinzone.bin"
 
-TileMapping_TreeZone:
+TileMap_TreeZone::
 INCBIN "tilemaps/overworld/treezone.bin"
 
-TileMapping_SpaceZone:
+TileMap_SpaceZone::
 INCBIN "tilemaps/overworld/spacezone.bin"
 
-TileMapping_MacroZone:
+TileMap_MacroZone::
 INCBIN "tilemaps/overworld/macrozone.bin"
 
-TileMapping_TurtleZone:
+TileMap_TurtleZone::
 INCBIN "tilemaps/overworld/turtlezone.bin"
 
-TileMapping_MarioZone:
+TileMap_MarioZone::
 INCBIN "tilemaps/overworld/mariozone.bin"
 
-TileMapping_WarioCastle:
+TileMap_WarioCastle::
 INCBIN "tilemaps/overworld/wariocastle.bin"
 
 INCBIN "baserom.gb", $3BFC0, $3C000 - $3BFC0
@@ -10420,7 +10421,7 @@ UnknownCall_0x3D0FF:
 	ld [$A690], a
 	ld a, 2
 	ld [sCurrentZone], a
-	call UnknownCall_0x3E46
+	call ClearOAM2
 	ld de, $65BA
 	call UnknownCall_0x3E2A2
 	ld a, [$A84D]
@@ -10541,7 +10542,7 @@ UnknownCall_0x3D208:
 	ld [$A690], a
 	ld a, 1
 	ld [sCurrentZone], a
-	call UnknownCall_0x3E46
+	call ClearOAM2
 	ld de, $65DE
 	call UnknownCall_0x3E2A2
 	ld a, [$A851]
@@ -10678,7 +10679,7 @@ UnknownJump_0x3D33A:
 	ld a, 255
 	ld [sPlaySong], a
 	call UnknownCall_0x2AAA
-	call UnknownCall_0x3D371
+	call LoadMacroZone
 	ld a, 255
 	ld [$A690], a
 	ld a, 1
@@ -10687,7 +10688,7 @@ UnknownJump_0x3D33A:
 	ld [$A690], a
 	ret
 
-UnknownCall_0x3D371:
+LoadMacroZone:
 	call DisableLCD
 	ld a, BANK(GFX_OW_Overworld) ;prepare bank switch
 	ld bc, $0200
@@ -10695,14 +10696,14 @@ UnknownCall_0x3D371:
 	ld de, $8000
 	call FarCopyData
 	ld a, BANK(GFX_OW_MacroZone) ;prepare bank switch
-	ld bc, $1600
+	ld bc, GFX_OW_MacroZone_End - GFX_OW_MacroZone
 	ld hl, GFX_OW_MacroZone
 	ld de, $8200
 	call FarCopyData
-	ld a, 14 ;prepare bank switch
+	ld a, BANK(TileMap_MacroZone)
 	ld bc, $0400
-	ld hl, $76C0
-	ld de, $9800
+	ld hl, TileMap_MacroZone
+	ld de, SCREEN1
 	call FarCopyData
 	ld a, 0
 	ld [sSCX], a
@@ -10710,9 +10711,9 @@ UnknownCall_0x3D371:
 	ld [$A690], a
 	ld a, 33
 	ld [$A844], a
-	ld a, 3
+	ld a, ZONE_MACRO
 	ld [sCurrentZone], a
-	call UnknownCall_0x3E46
+	call ClearOAM2
 	ld de, $662C
 	call UnknownCall_0x3E2A2
 	call UnknownCall_0x3D45D
@@ -10846,9 +10847,9 @@ UnknownRJump_0x3D4D3:
 	ld [sSCX], a
 	ld [sSCY], a
 	ld [$A690], a
-	ld a, 4
+	ld a, ZONE_SPACE
 	ld [sCurrentZone], a
-	call UnknownCall_0x3E46
+	call ClearOAM2
 	ld de, $65FF
 	call UnknownCall_0x3E2A2
 	call UnknownCall_0x3D58D
@@ -11014,7 +11015,7 @@ UnknownCall_0x3D61F:
 	ld [$A690], a
 	ld a, 5
 	ld [sCurrentZone], a
-	call UnknownCall_0x3E46
+	call ClearOAM2
 	ld de, $6680
 	call UnknownCall_0x3E2A2
 	call UnknownCall_0x3D6B7
@@ -11104,7 +11105,7 @@ UnknownCall_0x3D6EB:
 	ld [$A690], a
 	ld a, 7
 	ld [sCurrentZone], a
-	call UnknownCall_0x3E46
+	call ClearOAM2
 	ld a, 225
 	ld [sBGP], a
 	ld a, 57
@@ -11177,7 +11178,7 @@ UnknownCall_0x3D79A:
 	ld [$A690], a
 	ld a, 6
 	ld [sCurrentZone], a
-	call UnknownCall_0x3E46
+	call ClearOAM2
 	ld de, $664D
 	call UnknownCall_0x3E2A2
 	ld a, 74
@@ -11274,7 +11275,7 @@ UnknownCall_0x3D880:
 	ld [$A690], a
 	ld a, 8
 	ld [sCurrentZone], a
-	call UnknownCall_0x3E46
+	call ClearOAM2
 	ld de, $66BC
 	call UnknownCall_0x3E2A2
 	ld a, 195
@@ -14346,8 +14347,8 @@ UnknownRJump_0x3F06B:
 	jr nc, UnknownRJump_0x3F07A
 
 UnknownJump_0x3F06F:
-	call UnknownCall_0x3D371
-	ld a, 3
+	call LoadMacroZone
+	ld a, ZONE_MACRO
 	ld [sCurrentZone], a
 	jp UnknownJump_0x3F147
 
@@ -14502,7 +14503,7 @@ UnknownCall_0x3F156:
 	ld de, $2020
 	call UnknownCall_0x3EAE5
 	call UnknownCall_0x3ED4C
-	call UnknownCall_0x3E46
+	call ClearOAM2
 	ld a, [savWorldMapLocation]
 	cp $17
 	jr z, UnknownRJump_0x3F1C2
@@ -14715,7 +14716,7 @@ UnknownCall_0x3F307:
 	ld [$A7A8], a
 	ld a, 4
 	ld [$A7A6], a
-	call UnknownCall_0x3E46
+	call ClearOAM2
 	ret
 
 UnknownCall_0x3F35A:
@@ -14887,7 +14888,7 @@ UnknownCall_0x3F4B1:
 	ld [sPlaySong], a
 	call UnknownCall_0x2AAA
 	call DisableLCD
-	ld a, 25 ;prepare bank switch
+	ld a, 25
 	ld bc, $1000
 	ld hl, $5000
 	ld de, $8800
@@ -14933,7 +14934,7 @@ UnknownRJump_0x3F510:
 	ld a, h
 	ld [$A7AF], a
 	ld [$A7B6], a
-	call UnknownCall_0x3E46
+	call ClearOAM2
 	ld a, 17 ;prepare bank switch
 	ld bc, $0400
 	ld hl, $7800
@@ -15029,7 +15030,7 @@ UnknownCall_0x3F5A4:
 	ld [$A7B1], a
 	ld [$A7B3], a
 	ld [$A7A8], a
-	call UnknownCall_0x3E46
+	call ClearOAM2
 	ld a, 17 ;prepare bank switch
 	ld bc, $0240
 	ld hl, $7A40
@@ -24919,7 +24920,7 @@ UnknownRJump_0x61081:
 
 UnknownCall_0x6109B:
 	ld d, 0
-	sla e
+	sla e ; why not just add de twice?
 	rl d
 	add de
 	ld a, [hli]
@@ -24930,39 +24931,44 @@ UnknownCall_0x6109B:
 	ret nc
 	add a
 	add a
-	ld de, $A100
-	add e
+	ld de, sOAMBuffer
+	add e ; e is always zero...
 	ld e, a
 	ld a, d
-	adc 0
+	adc 0 ; ...so carry is always cleared
 	ld d, a
 
-UnknownRJump_0x610B6:
+.loop:
 	ld a, [$A782]
 	cp $28
 	ret nc
+
 	ld a, [hli]
 	add c
 	ld [de], a
 	inc de
+
 	ld a, [hli]
 	add b
 	ld [de], a
 	inc de
+
 	ld a, [hli]
 	cp $FF
-	jr z, UnknownRJump_0x610D7
+	jr z, .end
+
 	ld [de], a
 	inc de
 	ld a, [hli]
 	ld [de], a
 	inc de
+
 	ld a, [$A782]
 	inc a
 	ld [$A782], a
-	jr UnknownRJump_0x610B6
+	jr .loop
 
-UnknownRJump_0x610D7:
+.end:
 	xor a
 	dec de
 	ld [de], a

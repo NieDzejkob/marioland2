@@ -1,4 +1,4 @@
-;Sprite mappings $c201
+;Sprite levels $c201
 	db $80 ;end sprite
 
 	db $F0, $F8, $B0, $00

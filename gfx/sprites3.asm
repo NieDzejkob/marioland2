@@ -1,4 +1,4 @@
-;Sprite mappings $d0d9
+;Sprite levels $d0d9
 	db $F0, $F8, $DB, $00
 	db $F0, $00, $DC, $00
 	db $F4, $08, $DF, $00
